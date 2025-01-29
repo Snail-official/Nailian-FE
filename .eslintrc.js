@@ -1,12 +1,14 @@
 module.exports = {
   root: true,
+  parser: '@typescript-eslint/parser',
   extends: [
     'airbnb',
     'airbnb/hooks',
+    'plugin:@typescript-eslint/recommended',
     'plugin:react-native/all',
-    'prettier'
+    'prettier',
   ],
-  plugins: ['react', 'react-native', 'prettier'],
+  plugins: ['@typescript-eslint', 'react', 'react-native', 'prettier'],
   env: {
     browser: true,
     es2021: true,
@@ -21,10 +23,15 @@ module.exports = {
   },
   rules: {
     'prettier/prettier': ['error'],
-    'react/jsx-filename-extension': ['warn', { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
+    'react/jsx-filename-extension': [
+      'warn',
+      { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
+    ],
     'import/extensions': 'off',
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
     'react/react-in-jsx-scope': 'off',
+    '@typescript-eslint/no-unused-vars': 'warn',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
     'react-native/no-unused-styles': 'warn',
     'react-native/no-inline-styles': 'warn',
     'react-native/no-raw-text': 'warn',
