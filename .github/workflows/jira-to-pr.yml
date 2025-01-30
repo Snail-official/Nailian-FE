@@ -1,0 +1,79 @@
+name: Auto-fill PR Description from Jira
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  fetch-jira-description:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Extract Jira issue ID from branch name
+        id: extract_issue
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          ISSUE_ID=$(echo "$BRANCH_NAME" | grep -oE 'SN-[0-9]+')
+          echo "ISSUE_ID=$ISSUE_ID" >> $GITHUB_ENV
+
+      - name: Fetch Jira issue details
+        id: jira
+        run: |
+          if [ -n "$ISSUE_ID" ]; then
+            JIRA_RESPONSE=$(curl -s -u "${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }}" \
+              -X GET -H "Accept: application/json" \
+              "https://crusia.atlassian.net/rest/api/3/issue/$ISSUE_ID")
+
+            TITLE=$(echo "$JIRA_RESPONSE" | jq -r '.fields.summary')
+
+            DESCRIPTION=$(echo "$JIRA_RESPONSE" | jq -r '
+              .fields.description.content[]
+              | if .type == "bulletList" then
+                  .content[] | "- " + (.content[].content[].text // empty)
+                elif .type == "paragraph" then
+                  .content[] | if .type == "hardBreak" then "<br/>" else .text // empty end
+                else
+                  empty
+                end
+            ' | sed '/^null$/d')
+
+            # PR 설명 템플릿 생성
+            echo "PR_BODY<<EOF" >> $GITHUB_ENV
+            echo "### 🔖 관련 티켓" >> $GITHUB_ENV
+            echo "$ISSUE_ID ([Jira 링크](https://crusia.atlassian.net/browse/$ISSUE_ID))" >> $GITHUB_ENV
+            echo "" >> $GITHUB_ENV
+            echo "$DESCRIPTION" >> $GITHUB_ENV
+            echo "" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+
+            # PR 제목 설정
+            echo "PR_TITLE=$TITLE" >> $GITHUB_ENV
+          fi
+
+      - name: Fetch Current PR Description
+        id: get_pr_body
+        run: |
+          CURRENT_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body -q '.body')
+          echo "CURRENT_BODY<<EOF" >> $GITHUB_ENV
+          echo "$CURRENT_BODY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Update PR Description
+        if: env.ISSUE_ID != ''
+        run: |
+          echo "Setting up GH_TOKEN from GH_PAT..."
+          export GH_TOKEN="${{ secrets.GH_PAT }}"  
+
+          gh pr edit ${{ github.event.pull_request.number }} --title "${{ env.PR_TITLE }}" --body "$(cat <<EOF
+          ${{ env.PR_BODY }}
+
+          ${{ env.CURRENT_BODY }}
+          EOF
+          )"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
