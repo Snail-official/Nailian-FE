@@ -15,51 +15,69 @@ export const colors = {
   gray200: '#E5E5E5',
   purple200: '#F5D0FF',
   purple500: '#CD19FF',
-  KakaoYellow: '#FEE500',
+  kakaoYellow: '#FEE500',
 } as const;
 
 /** 타이포그래피 스타일 */
 export const typography = {
-  /** 큰 제목 - 24px Bold */
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    lineHeight: 32,
-  },
-  body: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  button: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  head1: {
+  head1_B: {
     fontFamily: 'Pretendard',
     fontSize: 22,
     fontWeight: '700',
-    lineHeight: 33,
+    lineHeight: 33, // 150%
   },
-  head2: {
-    fontSize: 20,
+  head2_B: {
     fontFamily: 'Pretendard',
+    fontSize: 20,
     fontWeight: '700',
-    lineHeight: 30,
-    color: colors.gray850,
+    lineHeight: 30, // 150%
   },
-  title2: {
+  head3_SB: {
+    fontFamily: 'Pretendard',
+    fontSize: 20,
+    fontWeight: '600',
+    lineHeight: 30, // 150%
+    letterSpacing: -0.4,
+  },
+  title1_SB: {
+    fontFamily: 'Pretendard',
+    fontSize: 18,
+    fontWeight: '600',
+    lineHeight: 27, // 150%
+  },
+  title2_SB: {
     fontFamily: 'Pretendard',
     fontSize: 16,
     fontWeight: '600',
-    lineHeight: 24,
+    lineHeight: 24, // 150%
   },
-  body2: {
+  body1_B: {
+    fontFamily: 'Pretendard',
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 21, // 150%
+    letterSpacing: -0.14,
+  },
+  body2_SB: {
     fontFamily: 'Pretendard',
     fontSize: 14,
     fontWeight: '600',
-    lineHeight: 21,
+    lineHeight: 21, // 150%
     letterSpacing: -0.14,
-    color: colors.gray850,
+  },
+  body3_B: {
+    fontFamily: 'Pretendard',
+    fontSize: 12,
+    fontWeight: '700',
+    lineHeight: 18, // 150%
+    letterSpacing: -0.12,
+  },
+  body4_M: {
+    fontFamily: 'Pretendard',
+    fontSize: 12,
+    fontWeight: '500',
+    lineHeight: 18, // 150%
+    letterSpacing: -0.12,
   },
 } as const;
 

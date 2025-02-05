@@ -1,11 +1,13 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '~/shared/types/navigation';
+/* eslint-disable import/no-unresolved */
 import NailSelectScreen from '~/pages/onboarding/nail-select';
-// eslint-disable-next-line import/no-unresolved
 import OnboardingLoginScreen from '~/pages/onboarding/login/OnboardingLoginScreen';
+/* eslint-enable import/no-unresolved */
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 /**
  * 앱 네비게이션 구조

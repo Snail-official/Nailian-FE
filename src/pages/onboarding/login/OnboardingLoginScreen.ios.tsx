@@ -3,61 +3,18 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import LogoIcon from '~/shared/assets/icons/logo.svg';
 import AppleIcon from '~/shared/assets/icons/apple.svg';
 import GoogleIcon from '~/shared/assets/icons/google.svg';
-import { colors, typography, spacing, commonStyles } from '~/app/styles/common';
+import {
+  colors,
+  typography,
+  spacing,
+  commonStyles,
+} from '~/shared/styles/design';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'OnboardingLogin'>;
 };
-
-const styles = StyleSheet.create({
-  appleButton: {
-    ...commonStyles.socialButton,
-    backgroundColor: colors.black,
-  },
-  appleButtonText: {
-    color: colors.white,
-  },
-  buttonContainer: {
-    gap: spacing.small,
-    marginBottom: spacing.large,
-    padding: spacing.large,
-  },
-  buttonText: {
-    ...typography.button,
-  },
-  container: {
-    ...commonStyles.screen,
-    alignSelf: 'center',
-    height: 800,
-    width: 360,
-  },
-  contentContainer: {
-    flex: 1,
-    paddingHorizontal: spacing.large,
-    paddingTop: spacing.xlarge,
-  },
-  googleButton: {
-    ...commonStyles.socialButton,
-    backgroundColor: colors.white,
-    borderColor: colors.borderGray,
-    borderWidth: 1,
-  },
-  header: {
-    paddingTop: spacing.xlarge,
-  },
-  logoContainer: {
-    backgroundColor: colors.gray200,
-    borderRadius: 8,
-    height: 73,
-    marginTop: spacing.medium,
-    width: 176,
-  },
-  title: {
-    ...typography.head2,
-  },
-});
 
 /**
  * 온보딩 로그인 화면 (iOS)
@@ -100,3 +57,54 @@ export default function OnboardingLoginScreen({ navigation }: Props) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  appleButton: {
+    ...commonStyles.socialButton,
+    backgroundColor: colors.black,
+  },
+  appleButtonText: {
+    ...typography.title2_SB,
+    color: colors.white,
+  },
+  buttonContainer: {
+    gap: spacing.small,
+    marginBottom: spacing.large,
+    padding: spacing.large,
+  },
+  buttonText: {
+    ...typography.title2_SB,
+    color: colors.gray850,
+  },
+  container: {
+    ...commonStyles.screen,
+    alignSelf: 'center',
+    height: 800,
+    width: 360,
+  },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: spacing.large,
+    paddingTop: spacing.xlarge,
+  },
+  googleButton: {
+    ...commonStyles.socialButton,
+    backgroundColor: colors.white,
+    borderColor: colors.borderGray,
+    borderWidth: 1,
+  },
+  header: {
+    paddingTop: spacing.xlarge,
+  },
+  logoContainer: {
+    backgroundColor: colors.gray200,
+    borderRadius: 8,
+    height: 73,
+    marginTop: spacing.medium,
+    width: 176,
+  },
+  title: {
+    ...typography.head2_B,
+    color: colors.gray850,
+  },
+});

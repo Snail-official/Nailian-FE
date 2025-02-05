@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
-import { componentStyles } from '~/app/styles/common';
+import { componentStyles } from '~/shared/styles/design';
 import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 
 /**

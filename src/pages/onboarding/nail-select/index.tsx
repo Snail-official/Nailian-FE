@@ -6,7 +6,12 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import { colors, typography, spacing, commonStyles } from '~/app/styles/common';
+import {
+  colors,
+  typography,
+  spacing,
+  commonStyles,
+} from '~/shared/styles/design';
 import LinearGradient from 'react-native-linear-gradient';
 import NailItem from '~/features/nail-selection/ui/NailItem';
 import Toast from '~/shared/ui/Toast';
@@ -30,73 +35,6 @@ const initialNails = Array.from({ length: 15 }, (_, index) => ({
  * - 최대 10개까지 선택할 수 있습니다.
  * - 스크롤 시 추가 이미지가 로드됩니다.
  */
-
-/**
- * 스타일 정의
- */
-const styles = StyleSheet.create({
-  buttonWrapper: {
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    paddingVertical: spacing.medium, // 16px
-  },
-  completeButton: {
-    alignItems: 'center',
-    borderRadius: 8,
-    height: 48,
-    justifyContent: 'center',
-    width: 331,
-  },
-  completeButtonDisabled: {
-    backgroundColor: colors.purple200,
-  },
-  completeButtonEnabled: {
-    backgroundColor: colors.purple500,
-  },
-  completeButtonText: {
-    ...typography.title2,
-    color: colors.white,
-  },
-  container: {
-    ...commonStyles.screen,
-    alignSelf: 'center',
-    height: 812,
-    width: 375,
-  },
-  gradient: {
-    height: 40,
-    width: '100%',
-  },
-  gradientWrapper: {
-    bottom: 0,
-    position: 'absolute',
-    width: '100%',
-  },
-  gridContainer: {
-    paddingHorizontal: spacing.large,
-  },
-  header: {
-    marginBottom: 28, // 텍스트와 이미지 사이 간격
-    paddingHorizontal: spacing.large,
-    paddingTop: spacing.xlarge,
-  },
-  nailItem: {
-    height: 103,
-    width: 103,
-  },
-  row: {
-    gap: 11,
-    justifyContent: 'flex-start',
-  },
-  separator: {
-    height: 11,
-  },
-  title: {
-    ...typography.head1,
-    color: colors.gray850,
-  },
-});
-
 function ItemSeparator() {
   return <View style={styles.separator} />;
 }
@@ -245,3 +183,69 @@ export default function NailSelectScreen() {
     </View>
   );
 }
+
+/**
+ * 스타일 정의
+ */
+const styles = StyleSheet.create({
+  buttonWrapper: {
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    paddingVertical: spacing.medium, // 16px
+  },
+  completeButton: {
+    alignItems: 'center',
+    borderRadius: 8,
+    height: 48,
+    justifyContent: 'center',
+    width: 331,
+  },
+  completeButtonDisabled: {
+    backgroundColor: colors.purple200,
+  },
+  completeButtonEnabled: {
+    backgroundColor: colors.purple500,
+  },
+  completeButtonText: {
+    ...typography.title2_SB,
+    color: colors.white,
+  },
+  container: {
+    ...commonStyles.screen,
+    alignSelf: 'center',
+    height: 812,
+    width: 375,
+  },
+  gradient: {
+    height: 40,
+    width: '100%',
+  },
+  gradientWrapper: {
+    bottom: 0,
+    position: 'absolute',
+    width: '100%',
+  },
+  gridContainer: {
+    paddingHorizontal: spacing.large,
+  },
+  header: {
+    marginBottom: 28,
+    paddingHorizontal: spacing.large,
+    paddingTop: spacing.xlarge, // 텍스트와 이미지 사이 간격
+  },
+  nailItem: {
+    height: 103,
+    width: 103,
+  },
+  row: {
+    gap: 11,
+    justifyContent: 'flex-start',
+  },
+  separator: {
+    height: 11,
+  },
+  title: {
+    ...typography.head1_B,
+    color: colors.gray850,
+  },
+});

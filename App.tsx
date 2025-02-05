@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { AppNavigation } from './src/app/providers/navigation';
+import AppNavigation from './src/app/providers/navigation';
 
 function App(): React.JSX.Element {
   return <AppNavigation />;
