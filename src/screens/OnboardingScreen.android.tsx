@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   },
 });
 
-function OnboardingScreen(): JSX.Element {
+function OnboardingScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
@@ -65,8 +65,9 @@ function OnboardingScreen(): JSX.Element {
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.kakaoButton}>
           <KakaoIcon width={24} height={24} />
-          <Text style={styles.buttonText}>카카오로 계속하기</Text>
+          <Text style={styles.buttonText}>Kakao로 계속하기</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.googleButton}>
           <GoogleIcon width={24} height={24} />
           <Text style={styles.buttonText}>Google로 계속하기</Text>

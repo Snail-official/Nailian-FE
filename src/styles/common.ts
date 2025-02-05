@@ -16,6 +16,7 @@ export const typography: {
   body: TextStyle;
   button: TextStyle;
   head2: TextStyle;
+  title2: TextStyle;
 } = {
   title: {
     fontSize: 24,
@@ -36,6 +37,12 @@ export const typography: {
     fontWeight: '700',
     lineHeight: 30,
     color: colors.gray850,
+  },
+  title2: {
+    fontFamily: 'Pretendard',
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
   },
 };
 
