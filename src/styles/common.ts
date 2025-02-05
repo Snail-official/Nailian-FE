@@ -8,6 +8,8 @@ export const colors = {
   borderGray: '#E5E5E5',
   gray850: '#131313',
   gray200: '#E5E5E5',
+  purple200: '#F5D0FF',
+  purple500: '#CD19FF',
 };
 
 // 타이포그래피
@@ -15,6 +17,7 @@ export const typography: {
   title: TextStyle;
   body: TextStyle;
   button: TextStyle;
+  head1: TextStyle;
   head2: TextStyle;
   title2: TextStyle;
 } = {
@@ -30,6 +33,12 @@ export const typography: {
   button: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  head1: {
+    fontFamily: 'Pretendard',
+    fontSize: 22,
+    fontWeight: '700',
+    lineHeight: 33,
   },
   head2: {
     fontSize: 20,

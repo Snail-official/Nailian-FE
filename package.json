@@ -26,8 +26,13 @@
     ]
   },
   "dependencies": {
+    "@react-navigation/native": "^7.0.14",
+    "@react-navigation/native-stack": "^7.2.0",
     "react": "18.3.1",
     "react-native": "0.76.6",
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-safe-area-context": "^5.1.0",
+    "react-native-screens": "^4.5.0",
     "react-native-svg": "^15.11.1"
   },
   "devDependencies": {
@@ -43,9 +48,9 @@
     "@react-native/metro-config": "^0.76.6",
     "@react-native/typescript-config": "0.76.6",
     "@types/jest": "^29.5.14",
-    "@types/react": "^18.2.6",
+    "@types/react": "^18.3.18",
     "@types/react-native": "^0.72.8",
-    "@types/react-test-renderer": "^18.0.0",
+    "@types/react-test-renderer": "^18.3.1",
     "babel-jest": "^29.6.3",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
@@ -61,7 +66,7 @@
     "prettier": "^3.4.2",
     "react-native-svg-transformer": "^1.5.0",
     "react-test-renderer": "18.3.1",
-    "typescript": "5.0.4"
+    "typescript": "^5.0.4"
   },
   "engines": {
     "node": ">=18"
