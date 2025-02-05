@@ -7,6 +7,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react-native/all',
     'prettier',
+    '@react-native',
   ],
   plugins: ['@typescript-eslint', 'react', 'react-native', 'prettier'],
   env: {
@@ -41,7 +42,9 @@ module.exports = {
   },
   settings: {
     'import/resolver': {
+      typescript: {},
       node: {
+        paths: ['src'],
         extensions: [
           '.js',
           '.jsx',

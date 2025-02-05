@@ -1,17 +1,7 @@
 import React from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
-import { componentStyles } from '../styles/common';
-import CheckIcon from '../assets/icons/ic_check.svg';
-
-/**
- * 네일 이미지 데이터 타입
- */
-export interface NailData {
-  /** 네일 아이템의 고유 식별자 */
-  id: string;
-  /** 네일 이미지 소스 */
-  source: ReturnType<typeof require>;
-}
+import { componentStyles } from '~/app/styles/common';
+import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 
 /**
  * 선택 가능한 네일 이미지 컴포넌트
@@ -35,11 +25,11 @@ interface NailItemProps {
   onSelect: () => void;
 }
 
-function NailItem({
+export default function NailItem({
   source,
   isSelected,
   onSelect,
-}: NailItemProps): JSX.Element {
+}: NailItemProps) {
   return (
     <TouchableOpacity
       onPress={onSelect}
@@ -56,5 +46,3 @@ function NailItem({
     </TouchableOpacity>
   );
 }
-
-export default NailItem;

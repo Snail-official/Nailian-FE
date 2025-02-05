@@ -6,16 +6,16 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
+import { colors, typography, spacing, commonStyles } from '~/app/styles/common';
 import LinearGradient from 'react-native-linear-gradient';
-import { colors, typography, spacing, commonStyles } from '../styles/common';
-import nailAssets from '../assets/images';
-import NailItem, { NailData } from '../components/NailItem';
-import Toast from '../components/Toast';
+import NailItem from '~/features/nail-selection/ui/NailItem';
+import Toast from '~/shared/ui/Toast';
+import { NailData } from '~/features/nail-selection/model/types';
+import nailAssets from '~/entities/nail/model/assets';
 
 /**
  * 초기 네일 이미지 데이터 생성
  * 15개의 이미지를 6개의 에셋으로 순환하며 표시
- * @example [{ id: '0', source: nailAssets.nail1 }, ...]
  */
 const initialNails = Array.from({ length: 15 }, (_, index) => ({
   id: String(index),
@@ -24,12 +24,16 @@ const initialNails = Array.from({ length: 15 }, (_, index) => ({
 
 /**
  * 온보딩 네일 선택 화면
- * 사용자가 마음에 드는 네일 디자인을 3개 이상 선택하는 화면
+ *
+ * 사용자가 마음에 드는 네일 디자인을 3개 이상 선택하는 화면입니다.
+ * - 최소 3개 이상 선택해야 다음 단계로 진행할 수 있습니다.
+ * - 최대 10개까지 선택할 수 있습니다.
+ * - 스크롤 시 추가 이미지가 로드됩니다.
  */
-function ItemSeparator(): JSX.Element {
-  return <View style={{ height: 11 }} />;
-}
 
+/**
+ * 스타일 정의
+ */
 const styles = StyleSheet.create({
   buttonWrapper: {
     alignItems: 'center',
@@ -72,15 +76,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.large,
   },
   header: {
-    marginBottom: 28,
+    marginBottom: 28, // 텍스트와 이미지 사이 간격
     paddingHorizontal: spacing.large,
-    paddingTop: spacing.xlarge, // 텍스트와 이미지 사이 간격
-  },
-  nailImage: {
-    backgroundColor: colors.gray200,
-    borderRadius: 4,
-    height: '100%',
-    width: '100%',
+    paddingTop: spacing.xlarge,
   },
   nailItem: {
     height: 103,
@@ -90,27 +88,36 @@ const styles = StyleSheet.create({
     gap: 11,
     justifyContent: 'flex-start',
   },
+  separator: {
+    height: 11,
+  },
   title: {
     ...typography.head1,
     color: colors.gray850,
   },
 });
 
-function OnboardingDefaultScreen(): JSX.Element {
+function ItemSeparator() {
+  return <View style={styles.separator} />;
+}
+
+export default function NailSelectScreen() {
   // 상태 관리
   const [nails, setNails] = useState<NailData[]>(initialNails); // 표시할 네일 이미지 목록
   const [selectedNails, setSelectedNails] = useState<string[]>([]);
   const [isEnabled, setIsEnabled] = useState(false); // 완료 버튼 활성화 상태
   const [isLoading, setIsLoading] = useState(false); // 추가 이미지 로딩 상태
-  const [showToast, setShowToast] = useState(false);
-  const toastTimerRef = useRef<number>();
+  const [showToast, setShowToast] = useState(false); // 토스트 표시 상태
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   /**
    * 추가 네일 이미지 로드 함수
    * 스크롤이 하단에 도달하면 15개의 새로운 이미지를 추가
    */
   const loadMoreNails = () => {
-    if (isLoading) return;
+    if (isLoading) {
+      return;
+    }
 
     setIsLoading(true);
     const currentLength = nails.length;
@@ -137,8 +144,7 @@ function OnboardingDefaultScreen(): JSX.Element {
         const newSelected = prev.filter(nailId => nailId !== id);
         setIsEnabled(newSelected.length >= 3);
         return newSelected;
-      }
-      if (prev.length >= 10) {
+      } else if (prev.length >= 10) {
         // 10개 초과 선택 시 토스트 표시
         if (toastTimerRef.current) {
           clearTimeout(toastTimerRef.current);
@@ -151,11 +157,12 @@ function OnboardingDefaultScreen(): JSX.Element {
         }, 2000); // 2초 후 토스트 숨김
 
         return prev;
+      } else {
+        // 선택 추가
+        const newSelected = [...prev, id];
+        setIsEnabled(newSelected.length >= 3);
+        return newSelected;
       }
-      // 선택 추가
-      const newSelected = [...prev, id];
-      setIsEnabled(newSelected.length >= 3);
-      return newSelected;
     });
   };
 
@@ -238,5 +245,3 @@ function OnboardingDefaultScreen(): JSX.Element {
     </View>
   );
 }
-
-export default OnboardingDefaultScreen;

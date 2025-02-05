@@ -6,28 +6,10 @@
  */
 
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import OnboardingLoginScreen from './src/screens/OnboardingLoginScreen';
-import OnboardingDefaultScreen from './src/screens/OnboardingDefaultScreen';
-
-const Stack = createNativeStackNavigator();
+import { AppNavigation } from './src/app/providers/navigation';
 
 function App(): React.JSX.Element {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen
-          name="OnboardingLogin"
-          component={OnboardingLoginScreen}
-        />
-        <Stack.Screen
-          name="OnboardingDefault"
-          component={OnboardingDefaultScreen}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+  return <AppNavigation />;
 }
 
 export default App;

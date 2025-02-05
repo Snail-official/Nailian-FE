@@ -1,6 +1,12 @@
-import { TextStyle, ViewStyle } from 'react-native';
+import { ViewStyle } from 'react-native';
 
-// 색상 팔레트
+/**
+ * 공통 스타일 정의
+ *
+ * 앱 전반에서 사용되는 색상, 타이포그래피, 간격, 공통 스타일을 정의합니다.
+ */
+
+/** 색상 팔레트 */
 export const colors = {
   white: '#FFFFFF',
   black: '#000000',
@@ -9,19 +15,12 @@ export const colors = {
   gray200: '#E5E5E5',
   purple200: '#F5D0FF',
   purple500: '#CD19FF',
-  kakaoYellow: '#FEE500',
-};
+  KakaoYellow: '#FEE500',
+} as const;
 
-// 타이포그래피
-export const typography: {
-  title: TextStyle;
-  body: TextStyle;
-  button: TextStyle;
-  head1: TextStyle;
-  head2: TextStyle;
-  title2: TextStyle;
-  body2: TextStyle;
-} = {
+/** 타이포그래피 스타일 */
+export const typography = {
+  /** 큰 제목 - 24px Bold */
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -62,15 +61,15 @@ export const typography: {
     letterSpacing: -0.14,
     color: colors.gray850,
   },
-};
+} as const;
 
-// 레이아웃
+/** 여백 및 간격 */
 export const spacing = {
-  small: 8,
-  medium: 16,
-  large: 24,
-  xlarge: 32,
-};
+  small: 8, // 작은 여백
+  medium: 16, // 중간 여백
+  large: 24, // 큰 여백
+  xlarge: 32, // 매우 큰 여백
+} as const;
 
 // 공통 스타일
 export const commonStyles: {
