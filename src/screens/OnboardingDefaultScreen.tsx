@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Image,
-  ListRenderItem,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { colors, typography, spacing, commonStyles } from '../styles/common';
 import nailAssets from '../assets/images';
+import NailItem, { NailData } from '../components/NailItem';
+import Toast from '../components/Toast';
 
 /**
  * 초기 네일 이미지 데이터 생성
@@ -23,8 +23,13 @@ const initialNails = Array.from({ length: 15 }, (_, index) => ({
 }));
 
 /**
- * 스타일 정의
+ * 온보딩 네일 선택 화면
+ * 사용자가 마음에 드는 네일 디자인을 3개 이상 선택하는 화면
  */
+function ItemSeparator(): JSX.Element {
+  return <View style={{ height: 11 }} />;
+}
+
 const styles = StyleSheet.create({
   buttonWrapper: {
     alignItems: 'center',
@@ -91,37 +96,20 @@ const styles = StyleSheet.create({
   },
 });
 
-// ItemSeparator 컴포넌트를 일반 함수로 변경
-function ItemSeparator(): JSX.Element {
-  return <View style={{ height: 11 }} />;
-}
-
-// source 타입 정의
-type NailItem = {
-  id: string;
-  source: ReturnType<typeof require>;
-};
-
-/**
- * 온보딩 네일 선택 화면
- * 사용자가 마음에 드는 네일 디자인을 3개 이상 선택하는 화면
- */
 function OnboardingDefaultScreen(): JSX.Element {
   // 상태 관리
-  const [nails, setNails] = useState(initialNails); // 표시할 네일 이미지 목록
+  const [nails, setNails] = useState<NailData[]>(initialNails); // 표시할 네일 이미지 목록
+  const [selectedNails, setSelectedNails] = useState<string[]>([]);
   const [isEnabled, setIsEnabled] = useState(false); // 완료 버튼 활성화 상태
   const [isLoading, setIsLoading] = useState(false); // 추가 이미지 로딩 상태
+  const [showToast, setShowToast] = useState(false);
+  const toastTimerRef = useRef<number>();
 
-  const renderNailItem: ListRenderItem<NailItem> = React.useCallback(
-    ({ item }) => (
-      <View style={styles.nailItem}>
-        <Image source={item.source} style={styles.nailImage} />
-      </View>
-    ),
-    [],
-  );
-
-  const loadMoreNails = React.useCallback(() => {
+  /**
+   * 추가 네일 이미지 로드 함수
+   * 스크롤이 하단에 도달하면 15개의 새로운 이미지를 추가
+   */
+  const loadMoreNails = () => {
     if (isLoading) return;
 
     setIsLoading(true);
@@ -133,9 +121,67 @@ function OnboardingDefaultScreen(): JSX.Element {
           `nail${((currentLength + index) % 6) + 1}` as keyof typeof nailAssets
         ],
     }));
+
     setNails(prev => [...prev, ...newNails]);
     setIsLoading(false);
-  }, [isLoading, nails.length]);
+  };
+
+  /**
+   * 선택 처리 함수
+   * @param id 선택한 네일의 ID
+   */
+  const handleNailSelect = (id: string) => {
+    setSelectedNails(prev => {
+      if (prev.includes(id)) {
+        // 선택 해제
+        const newSelected = prev.filter(nailId => nailId !== id);
+        setIsEnabled(newSelected.length >= 3);
+        return newSelected;
+      }
+      if (prev.length >= 10) {
+        // 10개 초과 선택 시 토스트 표시
+        if (toastTimerRef.current) {
+          clearTimeout(toastTimerRef.current);
+        }
+
+        setShowToast(true);
+        toastTimerRef.current = setTimeout(() => {
+          setShowToast(false);
+          toastTimerRef.current = undefined;
+        }, 2000); // 2초 후 토스트 숨김
+
+        return prev;
+      }
+      // 선택 추가
+      const newSelected = [...prev, id];
+      setIsEnabled(newSelected.length >= 3);
+      return newSelected;
+    });
+  };
+
+  /**
+   * 개별 네일 이미지 렌더링 컴포넌트
+   * FlatList의 renderItem으로 사용
+   */
+  const renderNailItem = ({ item }: { item: NailData }) => (
+    <View style={styles.nailItem}>
+      <NailItem
+        source={item.source}
+        isSelected={selectedNails.includes(item.id)}
+        onSelect={() => handleNailSelect(item.id)}
+      />
+    </View>
+  );
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(
+    () => () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    },
+    [],
+  );
 
   return (
     <View style={styles.container}>
@@ -175,11 +221,20 @@ function OnboardingDefaultScreen(): JSX.Element {
                 : styles.completeButtonDisabled,
             ]}
             disabled={!isEnabled}
+            onPress={() => {
+              if (isEnabled) {
+                // 버튼 활성화 상태일 때만 처리
+                // TODO: 여기에 완료 처리 로직 추가
+              }
+            }}
           >
             <Text style={styles.completeButtonText}>선택 완료</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Toast 컴포넌트 */}
+      <Toast message="최대 10개까지 선택할 수 있어요" visible={showToast} />
     </View>
   );
 }

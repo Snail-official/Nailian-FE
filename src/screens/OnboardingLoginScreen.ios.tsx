@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
 });
 
-function OnboardingLoginScreen(): JSX.Element {
+function OnboardingLoginScreen({ navigation }: Props): JSX.Element {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
