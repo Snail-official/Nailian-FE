@@ -36,11 +36,22 @@ module.exports = {
     'react-native/no-inline-styles': 'warn',
     'react-native/no-raw-text': 'warn',
     'react-native/split-platform-components': 'warn',
+    'global-require': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
   },
   settings: {
     'import/resolver': {
       node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: [
+          '.js',
+          '.jsx',
+          '.ts',
+          '.tsx',
+          '.android.js',
+          '.android.tsx',
+          '.ios.js',
+          '.ios.tsx',
+        ],
       },
     },
   },

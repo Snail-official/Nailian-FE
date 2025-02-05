@@ -4,10 +4,12 @@ import { TextStyle, ViewStyle } from 'react-native';
 export const colors = {
   white: '#FFFFFF',
   black: '#000000',
-  kakaoYellow: '#FEE500',
   borderGray: '#E5E5E5',
   gray850: '#131313',
   gray200: '#E5E5E5',
+  purple200: '#F5D0FF',
+  purple500: '#CD19FF',
+  kakaoYellow: '#FEE500',
 };
 
 // 타이포그래피
@@ -15,8 +17,10 @@ export const typography: {
   title: TextStyle;
   body: TextStyle;
   button: TextStyle;
+  head1: TextStyle;
   head2: TextStyle;
   title2: TextStyle;
+  body2: TextStyle;
 } = {
   title: {
     fontSize: 24,
@@ -31,6 +35,12 @@ export const typography: {
     fontSize: 16,
     fontWeight: '600',
   },
+  head1: {
+    fontFamily: 'Pretendard',
+    fontSize: 22,
+    fontWeight: '700',
+    lineHeight: 33,
+  },
   head2: {
     fontSize: 20,
     fontFamily: 'Pretendard',
@@ -43,6 +53,14 @@ export const typography: {
     fontSize: 16,
     fontWeight: '600',
     lineHeight: 24,
+  },
+  body2: {
+    fontFamily: 'Pretendard',
+    fontSize: 14,
+    fontWeight: '600',
+    lineHeight: 21,
+    letterSpacing: -0.14,
+    color: colors.gray850,
   },
 };
 
@@ -80,3 +98,34 @@ export const commonStyles: {
     borderRadius: 8,
   },
 };
+
+export const componentStyles = {
+  nailItem: {
+    container: {
+      width: 103,
+      height: 103,
+      position: 'relative',
+    },
+    image: {
+      width: '100%',
+      height: '100%',
+      borderRadius: 4,
+      backgroundColor: colors.gray200,
+    },
+    selectedOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderWidth: 2,
+      borderColor: colors.gray850,
+      borderRadius: 4,
+    },
+    checkIconContainer: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+    },
+  },
+} as const;
