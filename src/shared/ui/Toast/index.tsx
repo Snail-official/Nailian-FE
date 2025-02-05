@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Text, StyleSheet, Animated } from 'react-native';
-import { colors, typography } from '../styles/common';
-import ErrorIcon from '../assets/icons/ic_error.svg';
+import { colors, typography } from '~/shared/styles/design';
+import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
 
 /**
  * 토스트 메시지 컴포넌트
@@ -22,35 +22,7 @@ interface ToastProps {
   visible: boolean;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    alignSelf: 'center',
-    backgroundColor: colors.white,
-    borderRadius: 32,
-    elevation: 5,
-    flexDirection: 'row',
-    gap: 8,
-    justifyContent: 'center',
-    padding: 14,
-    paddingLeft: 20,
-    paddingRight: 24,
-    position: 'absolute',
-    shadowColor: colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 33,
-    top: 32, // 화면 상단으로부터 9.36%로 추후 변경
-  },
-  message: {
-    ...typography.body2,
-  },
-});
-
-function Toast({ message, visible }: ToastProps): JSX.Element {
+export default function Toast({ message, visible }: ToastProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(-20)).current;
 
@@ -110,4 +82,31 @@ function Toast({ message, visible }: ToastProps): JSX.Element {
   );
 }
 
-export default Toast;
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 32,
+    elevation: 5,
+    flexDirection: 'row',
+    gap: 8,
+    justifyContent: 'center',
+    padding: 14,
+    paddingLeft: 20,
+    paddingRight: 24,
+    position: 'absolute',
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 33,
+    top: 32,
+  },
+  message: {
+    ...typography.body2_SB,
+    color: colors.gray850,
+  },
+});
