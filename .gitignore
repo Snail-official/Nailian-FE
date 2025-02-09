@@ -72,3 +72,13 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# MSW
+src/mocks/assets
+src/mocks/data/*
+!src/mocks/data/types.ts
+
+
+# Environment variables
+.env
+.env.* 
