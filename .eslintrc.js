@@ -37,6 +37,7 @@ module.exports = {
     'react-native/no-inline-styles': 'warn',
     'react-native/no-raw-text': 'warn',
     'react-native/split-platform-components': 'warn',
+    'import/no-unresolved': ['error', { ignore: ['^@env$'] }],
     'global-require': 'off',
     '@typescript-eslint/no-var-requires': 'off',
   },

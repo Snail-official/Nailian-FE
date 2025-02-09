@@ -1,8 +1,10 @@
 {
   "extends": "@tsconfig/react-native/tsconfig.json",
+  "include": ["src", "global.d.ts", "env.d.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@env": ["./node_modules/react-native-dotenv"],
       "~/*": ["src/*"]
     }
   }

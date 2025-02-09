@@ -3,3 +3,4 @@ android/
 ios/
 build/
 metro.config.js
+env*
