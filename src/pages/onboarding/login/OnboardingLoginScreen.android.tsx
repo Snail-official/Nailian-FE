@@ -1,0 +1,104 @@
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import LogoIcon from '~/shared/assets/icons/logo.svg';
+import KakaoIcon from '~/shared/assets/icons/kakao.svg';
+import GoogleIcon from '~/shared/assets/icons/google.svg';
+import {
+  colors,
+  typography,
+  spacing,
+  commonStyles,
+} from '~/shared/styles/design';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '~/shared/types/navigation';
+
+type Props = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'OnboardingLogin'>;
+};
+
+/**
+ * 온보딩 로그인 화면 (Android)
+ *
+ * 소셜 로그인 옵션을 제공하는 첫 화면입니다.
+ * - Kakao 로그인
+ * - Google 로그인
+ */
+export default function OnboardingLoginScreen({ navigation }: Props) {
+  return (
+    <View style={styles.container}>
+      <View style={styles.contentContainer}>
+        <View style={styles.header}>
+          <Text style={styles.title}>더욱더 편리한{'\n'}내일의 시작,</Text>
+        </View>
+        <View style={styles.logoContainer}>
+          <LogoIcon width={176} height={73} />
+        </View>
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.kakaoButton}
+          onPress={() => navigation.navigate('OnboardingDefault')}
+        >
+          <KakaoIcon width={24} height={24} />
+          <Text style={styles.buttonText}>Kakao로 계속하기</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.googleButton}
+          onPress={() => navigation.navigate('OnboardingDefault')}
+        >
+          <GoogleIcon width={24} height={24} />
+          <Text style={styles.buttonText}>Google로 계속하기</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    gap: spacing.small,
+    marginBottom: spacing.large,
+    padding: spacing.large,
+  },
+  buttonText: {
+    ...typography.title2_SB,
+    color: colors.gray850,
+  },
+  container: {
+    ...commonStyles.screen,
+    alignSelf: 'center',
+    height: 800,
+    width: 360,
+  },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: spacing.large,
+    paddingTop: spacing.xlarge,
+  },
+  googleButton: {
+    ...commonStyles.socialButton,
+    backgroundColor: colors.white,
+    borderColor: colors.borderGray,
+    borderWidth: 1,
+  },
+  header: {
+    paddingTop: spacing.xlarge,
+  },
+  kakaoButton: {
+    ...commonStyles.socialButton,
+    backgroundColor: colors.kakaoYellow,
+  },
+  logoContainer: {
+    backgroundColor: colors.gray200,
+    borderRadius: 8,
+    height: 73,
+    marginTop: spacing.medium,
+    width: 176,
+  },
+  title: {
+    ...typography.head2_B,
+    color: colors.gray850,
+  },
+});

@@ -10,5 +10,12 @@ module.exports = {
         allowUndefined: true,
       },
     ],
+    [
+      'babel-plugin-root-import',
+      {
+        rootPathPrefix: '~',
+        rootPathSuffix: 'src',
+      },
+    ],
   ],
 };

@@ -7,6 +7,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react-native/all',
     'prettier',
+    '@react-native',
   ],
   plugins: ['@typescript-eslint', 'react', 'react-native', 'prettier'],
   env: {
@@ -37,11 +38,24 @@ module.exports = {
     'react-native/no-raw-text': 'warn',
     'react-native/split-platform-components': 'warn',
     'import/no-unresolved': ['error', { ignore: ['^@env$'] }],
+    'global-require': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
   },
   settings: {
     'import/resolver': {
+      typescript: {},
       node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        paths: ['src'],
+        extensions: [
+          '.js',
+          '.jsx',
+          '.ts',
+          '.tsx',
+          '.android.js',
+          '.android.tsx',
+          '.ios.js',
+          '.ios.tsx',
+        ],
       },
     },
   },
