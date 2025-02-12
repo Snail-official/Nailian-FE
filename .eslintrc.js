@@ -40,6 +40,7 @@ module.exports = {
     'import/no-unresolved': ['error', { ignore: ['^@env$'] }],
     'global-require': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    'import/prefer-default-export': 'off',
   },
   settings: {
     'import/resolver': {
