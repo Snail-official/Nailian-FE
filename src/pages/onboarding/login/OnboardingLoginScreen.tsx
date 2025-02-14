@@ -1,8 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
 import LogoIcon from '~/shared/assets/icons/logo.svg';
 import KakaoIcon from '~/shared/assets/icons/kakao.svg';
 import GoogleIcon from '~/shared/assets/icons/google.svg';
+import AppleIcon from '~/shared/assets/icons/apple.svg';
 import {
   colors,
   typography,
@@ -11,19 +18,44 @@ import {
 } from '~/shared/styles/design';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
+import { login } from '@react-native-seoul/kakao-login';
+import { loginWithKakao } from '~/entities/user/api';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'OnboardingLogin'>;
 };
 
 /**
- * 온보딩 로그인 화면 (Android)
+ * 온보딩 로그인 화면
  *
- * 소셜 로그인 옵션을 제공하는 첫 화면입니다.
+ * iOS:
+ * - Apple 로그인
+ * - Kakao 로그인
+ *
+ * Android:
  * - Kakao 로그인
  * - Google 로그인
  */
 export default function OnboardingLoginScreen({ navigation }: Props) {
+  const handleKakaoLogin = async () => {
+    try {
+      const kakaoToken = await login();
+
+      const response = await loginWithKakao({
+        kakaoAccessToken: kakaoToken.accessToken,
+      });
+
+      if (!response.data) {
+        throw new Error('서비스 로그인 응답이 올바르지 않습니다.');
+      }
+
+      // 로그인 성공 후 다음 화면으로 이동
+      navigation.replace('OnboardingDefault');
+    } catch (error) {
+      console.error('카카오 로그인 실패:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
@@ -36,27 +68,45 @@ export default function OnboardingLoginScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.kakaoButton}
-          onPress={() => navigation.navigate('OnboardingDefault')}
-        >
+        {/* Kakao 로그인 버튼 (공통) */}
+        <TouchableOpacity style={styles.kakaoButton} onPress={handleKakaoLogin}>
           <KakaoIcon width={24} height={24} />
           <Text style={styles.buttonText}>Kakao로 계속하기</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.googleButton}
-          onPress={() => navigation.navigate('OnboardingDefault')}
-        >
-          <GoogleIcon width={24} height={24} />
-          <Text style={styles.buttonText}>Google로 계속하기</Text>
-        </TouchableOpacity>
+        {/* 플랫폼별 로그인 버튼 렌더링 */}
+        {Platform.OS === 'ios' ? (
+          <TouchableOpacity
+            style={styles.appleButton}
+            onPress={() => navigation.navigate('OnboardingDefault')}
+          >
+            <AppleIcon width={24} height={24} />
+            <Text style={[styles.buttonText, styles.appleButtonText]}>
+              Apple로 계속하기
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={() => navigation.navigate('OnboardingDefault')}
+          >
+            <GoogleIcon width={24} height={24} />
+            <Text style={styles.buttonText}>Google로 계속하기</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  appleButton: {
+    ...commonStyles.socialButton,
+    backgroundColor: colors.black,
+  },
+  appleButtonText: {
+    color: colors.white,
+  },
   buttonContainer: {
     gap: spacing.small,
     marginBottom: spacing.large,
@@ -89,6 +139,17 @@ const styles = StyleSheet.create({
   kakaoButton: {
     ...commonStyles.socialButton,
     backgroundColor: colors.kakaoYellow,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    backgroundColor: colors.gray200,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: colors.gray850,
+    fontSize: 16,
+    marginTop: 10,
   },
   logoContainer: {
     backgroundColor: colors.gray200,
