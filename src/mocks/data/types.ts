@@ -51,6 +51,7 @@ export interface INailPreference {
 }
 
 export interface IUser {
+  refreshToken?: string;
   id: number;
   nickname?: string;
   profileImage?: string;
