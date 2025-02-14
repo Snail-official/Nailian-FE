@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import LogoIcon from '~/shared/assets/icons/logo.svg';
 import KakaoIcon from '~/shared/assets/icons/kakao.svg';
@@ -20,6 +21,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { login } from '@react-native-seoul/kakao-login';
 import { loginWithKakao } from '~/entities/user/api';
+import { useAuthStore } from '~/shared/store/authStore';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'OnboardingLogin'>;
@@ -37,6 +39,21 @@ type Props = {
  * - Google 로그인
  */
 export default function OnboardingLoginScreen({ navigation }: Props) {
+  const { loadTokens, setTokens } = useAuthStore();
+  const [isCheckingLogin, setIsCheckingLogin] = React.useState(true);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      await loadTokens();
+      if (useAuthStore.getState().accessToken) {
+        navigation.replace('OnboardingDefault');
+      }
+      setIsCheckingLogin(false);
+    };
+
+    checkLoginStatus();
+  }, [navigation, loadTokens]);
+
   const handleKakaoLogin = async () => {
     try {
       const kakaoToken = await login();
@@ -49,12 +66,24 @@ export default function OnboardingLoginScreen({ navigation }: Props) {
         throw new Error('서비스 로그인 응답이 올바르지 않습니다.');
       }
 
+      // Zustand 스토어에 토큰 저장
+      await setTokens(response.data.accessToken, response.data.refreshToken);
+
       // 로그인 성공 후 다음 화면으로 이동
       navigation.replace('OnboardingDefault');
     } catch (error) {
       console.error('카카오 로그인 실패:', error);
     }
   };
+
+  if (isCheckingLogin) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.purple200} />
+        <Text style={styles.loadingText}>로그인 상태 확인 중...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
