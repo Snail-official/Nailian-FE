@@ -51,6 +51,7 @@ export interface INailPreference {
 }
 
 export interface IUser {
+  onboardingProgress: number;
   refreshToken?: string;
   id: number;
   nickname?: string;

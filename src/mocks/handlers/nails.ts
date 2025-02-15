@@ -23,6 +23,7 @@ import {
   NailStyle,
 } from '../../shared/api/types';
 import { createSuccessResponse, createErrorResponse } from '../utils/response';
+import { ONBOARDING_FLAGS } from '../constants/onboarding';
 
 /* ─────────────────── 네일 API 핸들러 (Nail API Handlers) ─────────────────── */
 
@@ -129,6 +130,7 @@ const nailHandlers = [
    */
   http.post(`${API_BASE_URL}/nails/preferences`, async ({ request }) => {
     const body = (await request.json()) as SaveNailPreferenceRequest;
+    const user = users[0];
 
     if (
       !Array.isArray(body.selectedPreferences) ||
@@ -141,6 +143,19 @@ const nailHandlers = [
     }
     if (body.selectedPreferences.length > 10) {
       return createErrorResponse('최대 10개까지 선택할 수 있습니다.', 400);
+    }
+
+    // 기존 네일 취향이 없는 경우 온보딩 과정
+    const isOnboarding = user.preferredStyles.length === 0;
+
+    // 네일 취향 저장
+    user.preferredStyles = body.selectedPreferences.map(id => styles[id]);
+
+    if (isOnboarding) {
+      // 온보딩 과정이라면, 온보딩 진행 상태 업데이트 (비트 연산 |= 사용)
+      if (!(user.onboardingProgress & ONBOARDING_FLAGS.OnboardingPreferences)) {
+        user.onboardingProgress |= ONBOARDING_FLAGS.OnboardingPreferences;
+      }
     }
 
     const response: SaveNailPreferenceResponse = {
