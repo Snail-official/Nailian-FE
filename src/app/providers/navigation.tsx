@@ -5,6 +5,7 @@ import type { RootStackParamList } from '~/shared/types/navigation';
 /* eslint-disable import/no-unresolved */
 import NailSelectScreen from '~/pages/onboarding/nail-select';
 import OnboardingEntryScreen from '~/pages/onboarding/entry';
+import OnboardingNicknameScreen from '~/pages/onboarding/nickname';
 import OnboardingLoginScreen from '~/pages/onboarding/login/OnboardingLoginScreen';
 /* eslint-enable import/no-unresolved */
 
@@ -29,6 +30,10 @@ export default function AppNavigation() {
         <Stack.Screen
           name="OnboardingEntry"
           component={OnboardingEntryScreen}
+        />
+        <Stack.Screen
+          name="OnboardingNickname"
+          component={OnboardingNicknameScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
