@@ -1,5 +1,10 @@
 import React from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  ImageSourcePropType,
+} from 'react-native';
 import { componentStyles } from '~/shared/styles/design';
 import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 
@@ -18,7 +23,7 @@ import CheckIcon from '~/shared/assets/icons/ic_check.svg';
  */
 interface NailItemProps {
   /** 네일 이미지 소스 */
-  source: ReturnType<typeof require>;
+  source: ImageSourcePropType;
   /** 선택 상태 */
   isSelected: boolean;
   /** 선택 이벤트 핸들러 */
