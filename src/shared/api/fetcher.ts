@@ -24,14 +24,12 @@ const fetcher = async <T>({
   timeout = 10000,
 }: {
   endpoint: string;
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   headers?: Record<string, string>;
   query?: Record<string, string | number>;
   body?: Record<string, unknown>;
   timeout?: number;
 }): Promise<T> => {
-  console.log(body);
-
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 

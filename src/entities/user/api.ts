@@ -8,6 +8,8 @@ import {
   LogoutResponse,
   TokenReissueRequest,
   TokenReissueResponse,
+  UpdateNicknameRequest,
+  UpdateNicknameResponse,
   UserMeResponse,
 } from '../../shared/api/types';
 
@@ -65,6 +67,22 @@ export const fetchUserProfile = async (): Promise<UserMeResponse> =>
   fetcher({
     endpoint: '/users/me', // 사용자 프로필 조회 API 엔드포인트
   });
+
+/**
+ * 닉네임 수정 API 호출
+ *
+ * @param {UpdateNicknameRequest} data - 새로운 닉네임 정보
+ * @returns {Promise<UpdateNicknameResponse>} 닉네임 변경 성공 여부 반환
+ */
+export const updateNickname = async ({
+  nickname,
+}: UpdateNicknameRequest): Promise<UpdateNicknameResponse> =>
+  fetcher({
+    endpoint: '/users/me/nickname',
+    method: 'PATCH',
+    body: { nickname },
+  });
+
 /**
  * 온보딩 상태 조회 API 호출
  *

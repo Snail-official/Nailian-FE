@@ -32,6 +32,14 @@ export type UserMeResponse = ApiResponse<{
   profileImage?: string;
 }>;
 
+/** 닉네임 수정 요청 */
+export interface UpdateNicknameRequest {
+  nickname: string;
+}
+
+/** 닉네임 수정 응답 */
+export type UpdateNicknameResponse = ApiResponse<null>;
+
 /* ─────────────────── 인증 (Auth) ─────────────────── */
 
 /** 카카오 로그인 요청 */
