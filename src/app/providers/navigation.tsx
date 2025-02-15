@@ -2,12 +2,11 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '~/shared/types/navigation';
-/* eslint-disable import/no-unresolved */
+
 import NailSelectScreen from '~/pages/onboarding/nail-select';
 import OnboardingEntryScreen from '~/pages/onboarding/entry';
 import OnboardingNicknameScreen from '~/pages/onboarding/nickname';
-import OnboardingLoginScreen from '~/pages/onboarding/login/OnboardingLoginScreen';
-/* eslint-enable import/no-unresolved */
+import SocialLoginScreen from '~/pages/SocialLoginScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,10 +21,7 @@ export default function AppNavigation() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen
-          name="OnboardingLogin"
-          component={OnboardingLoginScreen}
-        />
+        <Stack.Screen name="SocialLogin" component={SocialLoginScreen} />
         <Stack.Screen
           name="OnboardingEntry"
           component={OnboardingEntryScreen}

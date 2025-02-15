@@ -26,7 +26,7 @@
  */
 export type RootStackParamList = {
   /** 온보딩 로그인 화면 */
-  OnboardingLogin: undefined;
+  SocialLogin: undefined;
 
   /** 온보딩 진입점 (온보딩 여부를 체크하고 다음 화면으로 이동) */
   OnboardingEntry: undefined;
