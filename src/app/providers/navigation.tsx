@@ -7,6 +7,7 @@ import NailSelectScreen from '~/pages/onboarding/nail-select';
 import OnboardingEntryScreen from '~/pages/onboarding/entry';
 import OnboardingNicknameScreen from '~/pages/onboarding/nickname';
 import SocialLoginScreen from '~/pages/SocialLoginScreen';
+import MainHomeScreen from '~/pages/MainHomeScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -34,6 +35,7 @@ export default function AppNavigation() {
           name="OnboardingPreferences"
           component={NailSelectScreen}
         />
+        <Stack.Screen name="MainHome" component={MainHomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

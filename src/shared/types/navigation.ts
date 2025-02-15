@@ -34,4 +34,7 @@ export type RootStackParamList = {
   /** 온보딩 개별 페이지 */
   OnboardingNickname: undefined;
   OnboardingPreferences: undefined;
+
+  /** 홈 화면 */
+  MainHome: undefined;
 };
