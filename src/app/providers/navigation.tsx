@@ -26,7 +26,6 @@ export default function AppNavigation() {
           name="OnboardingLogin"
           component={OnboardingLoginScreen}
         />
-        <Stack.Screen name="OnboardingDefault" component={NailSelectScreen} />
         <Stack.Screen
           name="OnboardingEntry"
           component={OnboardingEntryScreen}
@@ -34,6 +33,10 @@ export default function AppNavigation() {
         <Stack.Screen
           name="OnboardingNickname"
           component={OnboardingNicknameScreen}
+        />
+        <Stack.Screen
+          name="OnboardingPreferences"
+          component={NailSelectScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

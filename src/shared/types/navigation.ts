@@ -33,7 +33,5 @@ export type RootStackParamList = {
 
   /** 온보딩 개별 페이지 */
   OnboardingNickname: undefined;
-
-  /** 온보딩 네일 선택 화면 */
-  OnboardingDefault: undefined;
+  OnboardingPreferences: undefined;
 };

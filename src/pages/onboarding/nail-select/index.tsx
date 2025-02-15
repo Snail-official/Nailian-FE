@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -15,17 +15,12 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import NailItem from '~/features/nail-selection/ui/NailItem';
 import Toast from '~/shared/ui/Toast';
-import { NailData } from '~/features/nail-selection/model/types';
-import nailAssets from '~/entities/nail/model/assets';
-
-/**
- * 초기 네일 이미지 데이터 생성
- * 15개의 이미지를 6개의 에셋으로 순환하며 표시
- */
-const initialNails = Array.from({ length: 15 }, (_, index) => ({
-  id: String(index),
-  source: nailAssets[`nail${(index % 6) + 1}` as keyof typeof nailAssets],
-}));
+import { NailPreferencesResponse } from '~/shared/api/types';
+import {
+  fetchNailPreferences,
+  saveNailPreferences,
+} from '~/entities/nail-preference/api';
+import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 
 /**
  * 온보딩 네일 선택 화면
@@ -40,11 +35,16 @@ function ItemSeparator() {
 }
 
 export default function NailSelectScreen() {
+  const { goToNextOnboardingStep } = useOnboardingNavigation();
+
   // 상태 관리
-  const [nails, setNails] = useState<NailData[]>(initialNails); // 표시할 네일 이미지 목록
+  const [nails, setNails] = useState<{ id: string; imageUrl: string }[]>([]);
   const [selectedNails, setSelectedNails] = useState<string[]>([]);
+
+  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
   const [isEnabled, setIsEnabled] = useState(false); // 완료 버튼 활성화 상태
   const [isLoading, setIsLoading] = useState(false); // 추가 이미지 로딩 상태
+  const [hasMore, setHasMore] = useState(true);
   const [showToast, setShowToast] = useState(false); // 토스트 표시 상태
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -52,24 +52,38 @@ export default function NailSelectScreen() {
    * 추가 네일 이미지 로드 함수
    * 스크롤이 하단에 도달하면 15개의 새로운 이미지를 추가
    */
-  const loadMoreNails = () => {
-    if (isLoading) {
-      return;
-    }
+  const loadNailPreferences = useCallback(
+    async (page = 1) => {
+      if (isLoading || !hasMore) return; // 더 이상 불러올 데이터가 없으면 중단
 
-    setIsLoading(true);
-    const currentLength = nails.length;
-    const newNails = Array.from({ length: 15 }, (_, index) => ({
-      id: String(currentLength + index),
-      source:
-        nailAssets[
-          `nail${((currentLength + index) % 6) + 1}` as keyof typeof nailAssets
-        ],
-    }));
+      try {
+        setIsLoading(true);
+        const response: NailPreferencesResponse = await fetchNailPreferences({
+          page,
+          size: 24,
+        });
+        if (response.data) {
+          const newData =
+            response.data?.data.map(nail => ({
+              ...nail,
+              id: String(nail.id), // id를 String으로 변환
+            })) ?? [];
 
-    setNails(prev => [...prev, ...newNails]);
-    setIsLoading(false);
-  };
+          setNails(prev => [...prev, ...newData]);
+          setCurrentPage(page);
+          setHasMore(
+            response.data.pageInfo.currentPage <
+              response.data.pageInfo.totalPages,
+          );
+        }
+      } catch (error) {
+        console.error('네일 취향 목록 불러오기 실패:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isLoading, hasMore],
+  );
 
   /**
    * 선택 처리 함수
@@ -108,25 +122,76 @@ export default function NailSelectScreen() {
    * 개별 네일 이미지 렌더링 컴포넌트
    * FlatList의 renderItem으로 사용
    */
-  const renderNailItem = ({ item }: { item: NailData }) => (
+  const renderNailItem = ({
+    item,
+  }: {
+    item: { id: string; imageUrl: string };
+  }) => (
     <View style={styles.nailItem}>
       <NailItem
-        source={item.source}
+        source={{ uri: item.imageUrl }}
         isSelected={selectedNails.includes(item.id)}
         onSelect={() => handleNailSelect(item.id)}
       />
     </View>
   );
 
-  // 컴포넌트 언마운트 시 타이머 정리
-  useEffect(
-    () => () => {
+  const handleCompleteSelection = async () => {
+    if (!isEnabled) return; // 최소 3개 선택하지 않으면 처리 X
+
+    try {
+      setIsLoading(true); // 로딩 상태 활성화
+
+      // 선택한 네일 취향 저장 API 호출
+      await saveNailPreferences({
+        selectedPreferences: selectedNails.map(i => Number(i)),
+      });
+
+      // 성공 시 다음 온보딩 단계로 이동
+      goToNextOnboardingStep();
+    } catch (error: unknown) {
+      console.error('네일 취향 저장 실패:', error);
+
+      let errorMessage = '네일 취향 저장에 실패했습니다.';
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error
+      ) {
+        errorMessage =
+          (error as { response?: { data?: { message?: string } } }).response
+            ?.data?.message || errorMessage;
+      }
+    } finally {
+      setIsLoading(false); // 로딩 상태 해제
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      try {
+        if (isMounted) {
+          await loadNailPreferences(1);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
       if (toastTimerRef.current) {
         clearTimeout(toastTimerRef.current);
       }
-    },
-    [],
-  );
+    };
+  }, [loadNailPreferences]);
 
   return (
     <View style={styles.container}>
@@ -138,17 +203,20 @@ export default function NailSelectScreen() {
       </View>
 
       {/* 네일 이미지 그리드 */}
-      <FlatList
-        data={nails}
-        renderItem={renderNailItem}
-        keyExtractor={item => item.id}
-        numColumns={3}
-        contentContainerStyle={styles.gridContainer}
-        columnWrapperStyle={styles.row}
-        ItemSeparatorComponent={ItemSeparator}
-        onEndReached={loadMoreNails}
-        onEndReachedThreshold={0.1}
-      />
+      {nails.length > 0 && (
+        <FlatList
+          data={nails}
+          renderItem={renderNailItem}
+          keyExtractor={item => String(item.id)}
+          numColumns={3}
+          contentContainerStyle={styles.gridContainer}
+          columnWrapperStyle={styles.row}
+          ItemSeparatorComponent={ItemSeparator}
+          onEndReached={() => loadNailPreferences(currentPage + 1)}
+          onEndReachedThreshold={0.1}
+          removeClippedSubviews={false}
+        />
+      )}
 
       {/* 하단 그라데이션 영역 */}
       <View style={styles.gradientWrapper}>
@@ -165,15 +233,12 @@ export default function NailSelectScreen() {
                 ? styles.completeButtonEnabled
                 : styles.completeButtonDisabled,
             ]}
-            disabled={!isEnabled}
-            onPress={() => {
-              if (isEnabled) {
-                // 버튼 활성화 상태일 때만 처리
-                // TODO: 여기에 완료 처리 로직 추가
-              }
-            }}
+            disabled={!isEnabled || isLoading}
+            onPress={handleCompleteSelection} // 변경된 함수 적용
           >
-            <Text style={styles.completeButtonText}>선택 완료</Text>
+            <Text style={styles.completeButtonText}>
+              {isLoading ? '저장 중...' : '선택 완료'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
