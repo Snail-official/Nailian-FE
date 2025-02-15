@@ -1,5 +1,7 @@
 import fetcher from '../../shared/api/fetcher';
 import {
+  GetOnboardingStatusRequest,
+  GetOnboardingStatusResponse,
   KakaoAuthRequest,
   KakaoAuthResponse,
   LogoutRequest,
@@ -62,4 +64,16 @@ export const logoutFromService = ({
 export const fetchUserProfile = async (): Promise<UserMeResponse> =>
   fetcher({
     endpoint: '/users/me', // 사용자 프로필 조회 API 엔드포인트
+  });
+/**
+ * 온보딩 상태 조회 API 호출
+ *
+ * @param {GetOnboardingStatusRequest} params - 지원하는 최대 온보딩 버전
+ * @returns {Promise<GetOnboardingStatusResponse>} 현재 온보딩 진행 상태 반환
+ */
+export const fetchOnboardingStatus = async ({
+  maxSupportedVersion,
+}: GetOnboardingStatusRequest): Promise<GetOnboardingStatusResponse> =>
+  fetcher({
+    endpoint: `/onboarding-status?maxSupportedVersion=${maxSupportedVersion}`,
   });
