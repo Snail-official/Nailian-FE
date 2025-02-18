@@ -24,7 +24,7 @@ import { loginWithKakao } from '~/entities/user/api';
 import { useAuthStore } from '~/shared/store/authStore';
 
 type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'OnboardingLogin'>;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'SocialLogin'>;
 };
 
 /**
@@ -38,7 +38,7 @@ type Props = {
  * - Kakao 로그인
  * - Google 로그인
  */
-export default function OnboardingLoginScreen({ navigation }: Props) {
+export default function SocialLoginScreen({ navigation }: Props) {
   const { loadTokens, setTokens } = useAuthStore();
   const [isCheckingLogin, setIsCheckingLogin] = React.useState(true);
 
@@ -46,7 +46,7 @@ export default function OnboardingLoginScreen({ navigation }: Props) {
     const checkLoginStatus = async () => {
       await loadTokens();
       if (useAuthStore.getState().accessToken) {
-        navigation.replace('OnboardingDefault');
+        navigation.replace('OnboardingEntry');
       }
       setIsCheckingLogin(false);
     };
@@ -70,7 +70,7 @@ export default function OnboardingLoginScreen({ navigation }: Props) {
       await setTokens(response.data.accessToken, response.data.refreshToken);
 
       // 로그인 성공 후 다음 화면으로 이동
-      navigation.replace('OnboardingDefault');
+      navigation.replace('OnboardingEntry');
     } catch (error) {
       console.error('카카오 로그인 실패:', error);
     }
@@ -105,20 +105,14 @@ export default function OnboardingLoginScreen({ navigation }: Props) {
 
         {/* 플랫폼별 로그인 버튼 렌더링 */}
         {Platform.OS === 'ios' ? (
-          <TouchableOpacity
-            style={styles.appleButton}
-            onPress={() => navigation.navigate('OnboardingDefault')}
-          >
+          <TouchableOpacity style={styles.appleButton}>
             <AppleIcon width={24} height={24} />
             <Text style={[styles.buttonText, styles.appleButtonText]}>
               Apple로 계속하기
             </Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={() => navigation.navigate('OnboardingDefault')}
-          >
+          <TouchableOpacity style={styles.googleButton}>
             <GoogleIcon width={24} height={24} />
             <Text style={styles.buttonText}>Google로 계속하기</Text>
           </TouchableOpacity>
