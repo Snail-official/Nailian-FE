@@ -32,6 +32,37 @@ export type UserMeResponse = ApiResponse<{
   profileImage?: string;
 }>;
 
+/* ─────────────────── 인증 (Auth) ─────────────────── */
+
+/** 카카오 로그인 요청 */
+export interface KakaoAuthRequest {
+  kakaoAccessToken: string;
+}
+
+/** 카카오 로그인 응답 */
+export type KakaoAuthResponse = ApiResponse<{
+  accessToken: string;
+  refreshToken: string;
+}>;
+
+/** 액세스 토큰 재발급 요청 */
+export interface TokenReissueRequest {
+  refreshToken: string;
+}
+
+/** 액세스 토큰 재발급 응답 */
+export type TokenReissueResponse = ApiResponse<{
+  accessToken: string;
+}>;
+
+/** 로그아웃 요청 */
+export interface LogoutRequest {
+  accessToken: string;
+}
+
+/** 로그아웃 응답 */
+export type LogoutResponse = ApiResponse<null>;
+
 /* ─────────────────── 네일 (Nails) ─────────────────── */
 
 /** 네일 디자인 카테고리 */
