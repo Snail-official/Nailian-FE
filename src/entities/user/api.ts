@@ -1,11 +1,15 @@
 import fetcher from '../../shared/api/fetcher';
 import {
+  GetOnboardingStatusRequest,
+  GetOnboardingStatusResponse,
   KakaoAuthRequest,
   KakaoAuthResponse,
   LogoutRequest,
   LogoutResponse,
   TokenReissueRequest,
   TokenReissueResponse,
+  UpdateNicknameRequest,
+  UpdateNicknameResponse,
   UserMeResponse,
 } from '../../shared/api/types';
 
@@ -62,4 +66,32 @@ export const logoutFromService = ({
 export const fetchUserProfile = async (): Promise<UserMeResponse> =>
   fetcher({
     endpoint: '/users/me', // 사용자 프로필 조회 API 엔드포인트
+  });
+
+/**
+ * 닉네임 수정 API 호출
+ *
+ * @param {UpdateNicknameRequest} data - 새로운 닉네임 정보
+ * @returns {Promise<UpdateNicknameResponse>} 닉네임 변경 성공 여부 반환
+ */
+export const updateNickname = async ({
+  nickname,
+}: UpdateNicknameRequest): Promise<UpdateNicknameResponse> =>
+  fetcher({
+    endpoint: '/users/me/nickname',
+    method: 'PATCH',
+    body: { nickname },
+  });
+
+/**
+ * 온보딩 상태 조회 API 호출
+ *
+ * @param {GetOnboardingStatusRequest} params - 지원하는 최대 온보딩 버전
+ * @returns {Promise<GetOnboardingStatusResponse>} 현재 온보딩 진행 상태 반환
+ */
+export const fetchOnboardingStatus = async ({
+  maxSupportedVersion,
+}: GetOnboardingStatusRequest): Promise<GetOnboardingStatusResponse> =>
+  fetcher({
+    endpoint: `/onboarding-status?maxSupportedVersion=${maxSupportedVersion}`,
   });
