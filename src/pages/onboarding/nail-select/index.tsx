@@ -124,11 +124,14 @@ export default function NailSelectScreen() {
    */
   const renderNailItem = ({
     item,
+    index,
   }: {
     item: { id: string; imageUrl: string };
+    index: number;
   }) => (
     <View style={styles.nailItem}>
       <NailItem
+        key={`nail-${item.id}-${index}`}
         source={{ uri: item.imageUrl }}
         isSelected={selectedNails.includes(item.id)}
         onSelect={() => handleNailSelect(item.id)}
@@ -207,7 +210,7 @@ export default function NailSelectScreen() {
         <FlatList
           data={nails}
           renderItem={renderNailItem}
-          keyExtractor={item => String(item.id)}
+          keyExtractor={(item, index) => `nail-${item.id}-${index}`}
           numColumns={3}
           contentContainerStyle={styles.gridContainer}
           columnWrapperStyle={styles.row}
