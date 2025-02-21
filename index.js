@@ -6,7 +6,7 @@ import 'react-native-url-polyfill/auto';
 
 async function enableMocking() {
   if (!__DEV__) return;
-
+  if (process.env.NODE_ENV !== 'development') return;
   try {
     await startMockServer();
   } catch (error) {
