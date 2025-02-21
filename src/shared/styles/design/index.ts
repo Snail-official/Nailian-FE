@@ -8,13 +8,32 @@ import { ViewStyle } from 'react-native';
 
 /** 색상 팔레트 */
 export const colors = {
+  // Gray Scale
+  gray850: '#131313',
+  gray800: '#1F1F1F',
+  gray750: '#303030',
+  gray700: '#424242',
+  gray650: '#575757',
+  gray600: '#737373',
+  gray500: '#A6A6A6',
+  gray400: '#C5C5C5',
+  gray300: '#D6D6D6',
+  gray200: '#E5E5E5',
+  gray100: '#F5F5F5',
+  gray50: '#FAFAFA',
   white: '#FFFFFF',
+  // Primary Color
+  purple500: '#CD19FF',
+  purple200: '#F5D0FF',
+  // Sub Color
+  gray900: '#111111',
+  // Semantic Color
+  warn_red: '#FF3D40',
+  // Toast Color
+  toast_black: '#000000', // Opacity: 80%
+  // Legacy colors (keeping for backward compatibility)
   black: '#000000',
   borderGray: '#E5E5E5',
-  gray850: '#131313',
-  gray200: '#E5E5E5',
-  purple200: '#F5D0FF',
-  purple500: '#CD19FF',
   kakaoYellow: '#FEE500',
 } as const;
 

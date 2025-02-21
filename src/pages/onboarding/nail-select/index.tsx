@@ -21,6 +21,7 @@ import {
   saveNailPreferences,
 } from '~/entities/nail-preference/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
+import Gradient from '~/shared/ui/Gradient';
 
 /**
  * 온보딩 네일 선택 화면
@@ -221,13 +222,8 @@ export default function NailSelectScreen() {
         />
       )}
 
-      {/* 하단 그라데이션 영역 */}
-      <View style={styles.gradientWrapper}>
-        <LinearGradient
-          style={styles.gradient}
-          colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.9)']}
-          locations={[0, 1]}
-        />
+      {/* 하단 그라디언트 영역 */}
+      <Gradient style={styles.gradientWrapper}>
         <View style={styles.buttonWrapper}>
           <TouchableOpacity
             style={[
@@ -237,14 +233,14 @@ export default function NailSelectScreen() {
                 : styles.completeButtonDisabled,
             ]}
             disabled={!isEnabled || isLoading}
-            onPress={handleCompleteSelection} // 변경된 함수 적용
+            onPress={handleCompleteSelection}
           >
             <Text style={styles.completeButtonText}>
-              {isLoading ? '저장 중...' : '선택 완료'}
+              {isLoading ? '저장 중...' : '시작하기'}
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Gradient>
 
       {/* Toast 컴포넌트 */}
       <Toast message="최대 10개까지 선택할 수 있어요" visible={showToast} />
@@ -283,10 +279,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     height: 812,
     width: 375,
-  },
-  gradient: {
-    height: 40,
-    width: '100%',
   },
   gradientWrapper: {
     bottom: 0,
