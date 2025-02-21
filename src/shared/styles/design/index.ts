@@ -98,6 +98,20 @@ export const typography = {
     lineHeight: 18, // 150%
     letterSpacing: -0.12,
   },
+  body5_M: {
+    fontFamily: 'Pretendard',
+    fontSize: 14,
+    fontWeight: '500',
+    lineHeight: 21, // 150%
+    letterSpacing: -0.14, // -1%
+  },
+  caption_M: {
+    fontFamily: 'Pretendard',
+    fontSize: 10,
+    fontWeight: '500',
+    lineHeight: 15, // 150%
+    letterSpacing: -0.1, // -1%
+  },
 } as const;
 
 /** 여백 및 간격 */
