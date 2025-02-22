@@ -96,7 +96,9 @@ export default function Toast({
         },
       ]}
     >
-      {position === 'top' && <ErrorIcon width={20} height={20} />}
+      {position === 'top' && (
+        <ErrorIcon width={20} height={20} color={colors.gray650} />
+      )}
       <Text
         style={position === 'top' ? styles.topMessage : styles.bottomMessage}
       >
@@ -132,22 +134,26 @@ const styles = StyleSheet.create({
     color: colors.gray850,
   },
   topToast: {
+    alignItems: 'center',
     alignSelf: 'center',
     backgroundColor: colors.white,
     borderRadius: 32,
-    elevation: 5,
+    elevation: 8,
+    flexDirection: 'row',
     gap: 8,
     justifyContent: 'center',
     padding: 14,
     paddingLeft: 20,
     paddingRight: 24,
+    position: 'absolute',
     shadowColor: colors.black,
     shadowOffset: {
       width: 0,
-      height: 0,
+      height: 4,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.25,
     shadowRadius: 33,
     top: 32,
+    zIndex: 999,
   },
 });

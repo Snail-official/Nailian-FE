@@ -14,7 +14,6 @@ import {
   saveNailPreferences,
 } from '~/entities/nail-preference/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
-import Gradient from '~/shared/ui/Gradient';
 import Button from '~/shared/ui/Button';
 
 /**
