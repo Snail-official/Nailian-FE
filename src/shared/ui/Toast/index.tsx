@@ -15,16 +15,26 @@ import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
  *   visible={showToast}
  * />
  */
+type ToastPosition = 'top' | 'bottom';
+
 interface ToastProps {
   /** 표시할 메시지 내용 */
   message: string;
   /** 토스트 표시 여부 */
   visible: boolean;
+  /** 토스트 위치 (기본값: top) */
+  position: ToastPosition;
 }
 
-export default function Toast({ message, visible }: ToastProps) {
+export default function Toast({
+  message,
+  visible,
+  position = 'top',
+}: ToastProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(-20)).current;
+  const translateY = useRef(
+    new Animated.Value(position === 'top' ? -20 : 20),
+  ).current;
 
   useEffect(() => {
     // 진행 중인 애니메이션 중지
@@ -34,7 +44,7 @@ export default function Toast({ message, visible }: ToastProps) {
     if (visible) {
       // 초기 상태로 리셋
       fadeAnim.setValue(0);
-      translateY.setValue(-20);
+      translateY.setValue(position === 'top' ? -20 : 20);
 
       // 토스트 표시 애니메이션
       Animated.parallel([
@@ -58,44 +68,70 @@ export default function Toast({ message, visible }: ToastProps) {
           useNativeDriver: true,
         }),
         Animated.timing(translateY, {
-          toValue: -20,
+          toValue: position === 'top' ? -20 : 20,
           duration: 300,
           useNativeDriver: true,
         }),
       ]).start();
     }
-  }, [visible, fadeAnim, translateY]);
+  }, [visible, fadeAnim, translateY, position]);
 
   return (
     <Animated.View
       style={[
         styles.container,
+        position === 'top' ? styles.topToast : styles.bottomToast,
         {
           opacity: fadeAnim,
           transform: [{ translateY }],
         },
       ]}
     >
-      <ErrorIcon width={20} height={20} />
-      <Text style={styles.message}>{message}</Text>
+      {position === 'top' && <ErrorIcon width={20} height={20} />}
+      <Text
+        style={position === 'top' ? styles.topMessage : styles.bottomMessage}
+      >
+        {message}
+      </Text>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  bottomMessage: {
+    ...typography.body2_SB,
+    color: colors.white,
+    letterSpacing: -0.14,
+  },
+  bottomToast: {
+    alignSelf: 'center',
+    backgroundColor: colors.toast_black,
+    borderRadius: 8,
+    bottom: 32,
+    height: 49,
+    justifyContent: 'center',
+    padding: 10,
+    width: 331,
+  },
   container: {
     alignItems: 'center',
+    flexDirection: 'row',
+    position: 'absolute',
+  },
+  topMessage: {
+    ...typography.body2_SB,
+    color: colors.gray850,
+  },
+  topToast: {
     alignSelf: 'center',
     backgroundColor: colors.white,
     borderRadius: 32,
     elevation: 5,
-    flexDirection: 'row',
     gap: 8,
     justifyContent: 'center',
     padding: 14,
     paddingLeft: 20,
     paddingRight: 24,
-    position: 'absolute',
     shadowColor: colors.black,
     shadowOffset: {
       width: 0,
@@ -104,9 +140,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 33,
     top: 32,
-  },
-  message: {
-    ...typography.body2_SB,
-    color: colors.gray850,
   },
 });
