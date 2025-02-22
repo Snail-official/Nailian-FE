@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import {
+  Text,
+  TextInput,
+  Alert,
+  StyleSheet,
+  KeyboardAvoidingView,
+  View,
+} from 'react-native';
 import { updateNickname } from '~/entities/user/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
+import { typography, colors } from '~/shared/styles/design';
+import Button from '~/shared/ui/Button';
 
 export default function OnboardingNicknameScreen() {
   const [nickname, setNickname] = useState('안녕하세요');
@@ -34,28 +43,52 @@ export default function OnboardingNicknameScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>닉네임을 입력하세요</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="닉네임"
-        value={nickname}
-        onChangeText={setNickname}
-        editable={!loading} // API 요청 중 입력 비활성화
-      />
-      <Button
-        title={loading ? '저장 중...' : '다음'}
-        onPress={handleNicknameSubmit}
-        disabled={loading}
-      />
-    </View>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <View style={styles.content}>
+        <Text style={styles.title}>닉네임을 입력하세요</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="닉네임"
+          value={nickname}
+          onChangeText={setNickname}
+          editable={!loading}
+        />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button
+          variant="primaryLarge"
+          onPress={handleNicknameSubmit}
+          loading={loading}
+        >
+          <Text style={[styles.buttonText, typography.title2_SB]}>
+            입력 완료
+          </Text>
+        </Button>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const BORDER_COLOR = '#ccc';
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center', flex: 1, justifyContent: 'center' },
+  buttonContainer: {
+    alignItems: 'center',
+    paddingBottom: 16,
+    width: '100%',
+  },
+  buttonText: {
+    color: colors.white,
+  },
+  container: {
+    flex: 1,
+  },
+  content: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    width: '100%',
+  },
   input: {
     borderBottomWidth: 1,
     borderColor: BORDER_COLOR,
@@ -63,5 +96,9 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '80%',
   },
-  title: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
+  title: {
+    ...typography.head2_B,
+    color: colors.gray850,
+    marginBottom: 10,
+  },
 });

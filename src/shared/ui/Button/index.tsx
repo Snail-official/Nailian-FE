@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { TouchableOpacity, Text, StyleSheet, TextStyle } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import Gradient from '../Gradient';
@@ -24,7 +24,10 @@ type ButtonVariant =
   | 'secondaryLarge'
   | 'secondarySmall'
   | 'primaryMediumGradient'
-  | 'secondaryMediumGradient';
+  | 'secondaryMediumGradient'
+  | 'kakaoMedium'
+  | 'appleMedium'
+  | 'googleMedium';
 
 interface ButtonStyleProps {
   height: number;
@@ -32,6 +35,9 @@ interface ButtonStyleProps {
   enabledColor: string;
   disabledColor: string;
   textStyle: TextStyle;
+  borderRadius?: number;
+  borderColor?: string;
+  borderWidth?: number;
 }
 
 const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
@@ -41,6 +47,7 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     enabledColor: colors.purple500,
     disabledColor: colors.purple200,
     textStyle: typography.title2_SB,
+    borderRadius: 8,
   },
   secondaryMedium: {
     height: 48,
@@ -48,6 +55,7 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     enabledColor: colors.gray900,
     disabledColor: colors.gray300,
     textStyle: typography.title2_SB,
+    borderRadius: 8,
   },
   primaryLarge: {
     height: 52,
@@ -69,6 +77,7 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     enabledColor: colors.gray900,
     disabledColor: colors.gray100,
     textStyle: typography.body2_SB,
+    borderRadius: 8,
   },
   primaryMediumGradient: {
     height: 48,
@@ -76,6 +85,7 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     enabledColor: colors.purple500,
     disabledColor: colors.purple200,
     textStyle: typography.title2_SB,
+    borderRadius: 8,
   },
   secondaryMediumGradient: {
     height: 48,
@@ -83,20 +93,47 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     enabledColor: colors.gray900,
     disabledColor: colors.gray300,
     textStyle: typography.title2_SB,
+    borderRadius: 8,
+  },
+  kakaoMedium: {
+    height: 48,
+    width: 331,
+    enabledColor: colors.kakaoYellow,
+    disabledColor: colors.kakaoYellow,
+    textStyle: typography.title2_SB,
+    borderRadius: 8,
+  },
+  appleMedium: {
+    height: 48,
+    width: 331,
+    enabledColor: colors.black,
+    disabledColor: colors.black,
+    textStyle: typography.title2_SB,
+    borderRadius: 8,
+  },
+  googleMedium: {
+    height: 48,
+    width: 331,
+    enabledColor: colors.white,
+    disabledColor: colors.white,
+    textStyle: typography.title2_SB,
+    borderRadius: 8,
+    borderColor: colors.borderGray,
+    borderWidth: 1,
   },
 };
 
 interface ButtonProps {
   /** 버튼 내부 텍스트 */
-  children: string;
+  children: ReactNode;
   /** 버튼 클릭 핸들러 */
   onPress: () => void;
   /** 버튼 활성화 여부 */
-  disabled?: boolean;
+  disabled: boolean;
   /** 로딩 상태 표시 여부 */
-  loading?: boolean;
+  loading: boolean;
   /** 버튼 스타일 variant */
-  variant?: ButtonVariant;
+  variant: ButtonVariant;
 }
 
 function Button({
@@ -120,14 +157,19 @@ function Button({
             disabled || loading
               ? variantStyle.disabledColor
               : variantStyle.enabledColor,
+          borderRadius: variantStyle.borderRadius ?? 0,
+          borderColor: variantStyle.borderColor,
+          borderWidth: variantStyle.borderWidth,
         },
       ]}
       disabled={disabled || loading}
       onPress={onPress}
     >
-      <Text style={[styles.text, variantStyle.textStyle]}>
-        {loading ? '저장 중...' : children}
-      </Text>
+      {loading ? (
+        <Text style={[styles.text, variantStyle.textStyle]}>저장 중...</Text>
+      ) : (
+        children
+      )}
     </TouchableOpacity>
   );
 
@@ -138,16 +180,9 @@ function Button({
   );
 }
 
-Button.defaultProps = {
-  disabled: false,
-  loading: false,
-  variant: 'primaryMedium',
-};
-
 const styles = StyleSheet.create({
   base: {
     alignItems: 'center',
-    borderRadius: 8,
     justifyContent: 'center',
   },
   text: {
