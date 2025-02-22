@@ -8,9 +8,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "prepare": "husky install",
-    "start": "cross-env ENVFILE=.env.production NODE_ENV=production react-native start",
+    "start": "cross-env ENVFILE=.env.production react-native start --reset-cache",
     "test": "jest",
-    "dev": "cross-env ENVFILE=.env NODE_ENV=development react-native start"
+    "dev": "cross-env ENVFILE=.env react-native start --reset-cache"
   },
   "husky": {
     "hooks": {

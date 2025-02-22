@@ -1,4 +1,5 @@
 import { AppRegistry } from 'react-native';
+import { ENV } from '@env';
 import App from './App';
 import { name as appName } from './app.json';
 import { startMockServer } from './src/mocks/server';
@@ -6,7 +7,7 @@ import 'react-native-url-polyfill/auto';
 
 async function enableMocking() {
   if (!__DEV__) return;
-  if (process.env.NODE_ENV !== 'development') return;
+  if (ENV !== 'development') return;
   try {
     await startMockServer();
   } catch (error) {
