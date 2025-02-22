@@ -19,6 +19,22 @@ interface ModalProps {
   onConfirm: () => void;
 }
 
+/**
+ * 모달 컴포넌트
+ *
+ * 사용자의 주의가 필요한 중요한 액션이나 정보를 표시하는 오버레이 컴포넌트입니다.
+ * 경고 아이콘, 제목, 설명, 그리고 두 개의 액션 버튼을 포함합니다.
+ *
+ * @example
+ * <Modal
+ *   title="정말 탈퇴하시겠어요?"
+ *   description="소중한 정보가 모두 사라져요"
+ *   confirmText="탈퇴하기"
+ *   cancelText="돌아가기"
+ *   onConfirm={handleWithdraw}
+ *   onCancel={handleClose}
+ * />
+ */
 export default function Modal({
   title,
   description,

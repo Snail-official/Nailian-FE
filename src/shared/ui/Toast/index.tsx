@@ -6,13 +6,22 @@ import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
 /**
  * 토스트 메시지 컴포넌트
  *
- * 화면 상단에 일시적으로 표시되는 알림 메시지입니다.
- * fade와 slide 애니메이션이 포함되어 있으며, 자동으로 사라집니다.
+ * 사용자에게 일시적인 피드백을 제공하는 알림 메시지입니다.
+ * 상단과 하단에 표시 가능하며, 자동으로 사라지는 애니메이션이 포함되어 있습니다.
  *
  * @example
+ * // 상단 토스트
  * <Toast
  *   message="최대 10개까지 선택할 수 있어요"
  *   visible={showToast}
+ *   position="top"
+ * />
+ *
+ * // 하단 토스트
+ * <Toast
+ *   message="저장되었습니다"
+ *   visible={showToast}
+ *   position="bottom"
  * />
  */
 type ToastPosition = 'top' | 'bottom';

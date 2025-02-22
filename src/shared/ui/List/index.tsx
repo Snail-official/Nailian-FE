@@ -12,6 +12,24 @@ interface ListItemProps {
   onPress: () => void;
 }
 
+/**
+ * 리스트 아이템 컴포넌트
+ *
+ * 선택 가능한 리스트 아이템을 표시하는 컴포넌트입니다.
+ * 선택 시 텍스트 스타일이 변경되고 체크 아이콘이 표시됩니다.
+ *
+ * @example
+ * <ListItem
+ *   text="화이트"
+ *   selected={selectedItem === 'white'}
+ *   onPress={() => handleSelect('white')}
+ * />
+ *
+ * @property {string} text - 표시할 텍스트
+ * @property {boolean} selected - 선택 여부
+ * @property {() => void} onPress - 클릭 핸들러
+ */
+
 export default function ListItem({ text, selected, onPress }: ListItemProps) {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>

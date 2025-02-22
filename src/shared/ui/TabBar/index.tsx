@@ -16,6 +16,26 @@ interface TabBarFooterProps {
   onTabPress: (tab: 'home' | 'gallery' | 'profile') => void;
 }
 
+/**
+ * 탭바 컴포넌트
+ *
+ * 앱의 상단 헤더와 하단 네비게이션을 구성하는 컴포넌트입니다.
+ * 헤더는 뒤로가기와 타이틀을, 푸터는 메인 네비게이션 탭을 제공합니다.
+ *
+ * @example
+ * // 헤더 사용
+ * <TabBarHeader
+ *   title="웨딩네일"
+ *   onBack={() => navigation.goBack()}
+ * />
+ *
+ * // 푸터 사용
+ * <TabBarFooter
+ *   activeTab="home"
+ *   onTabPress={(tab) => handleTabPress(tab)}
+ * />
+ */
+
 export function TabBarHeader({ title, onBack }: TabBarHeaderProps) {
   return (
     <View style={styles.header}>
