@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Platform,
   ActivityIndicator,
 } from 'react-native';
@@ -22,6 +21,7 @@ import { RootStackParamList } from '~/shared/types/navigation';
 import { login } from '@react-native-seoul/kakao-login';
 import { loginWithKakao } from '~/entities/user/api';
 import { useAuthStore } from '~/shared/store/authStore';
+import Button from '~/shared/ui/Button';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'SocialLogin'>;
@@ -88,55 +88,74 @@ export default function SocialLoginScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>더욱더 편리한{'\n'}내일의 시작,</Text>
-        </View>
         <View style={styles.logoContainer}>
-          <LogoIcon width={176} height={73} />
+          <LogoIcon width={171.11} height={56} />
+          <Text style={styles.logoText}>
+            AR 네일 체험과 네일샵 예약을 한 번에
+          </Text>
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
-        {/* Kakao 로그인 버튼 (공통) */}
-        <TouchableOpacity style={styles.kakaoButton} onPress={handleKakaoLogin}>
-          <KakaoIcon width={24} height={24} />
-          <Text style={styles.buttonText}>Kakao로 계속하기</Text>
-        </TouchableOpacity>
-
-        {/* 플랫폼별 로그인 버튼 렌더링 */}
+        {/* 플랫폼별 로그인 버튼 */}
         {Platform.OS === 'ios' ? (
-          <TouchableOpacity style={styles.appleButton}>
-            <AppleIcon width={24} height={24} />
-            <Text style={[styles.buttonText, styles.appleButtonText]}>
-              Apple로 계속하기
-            </Text>
-          </TouchableOpacity>
+          <Button
+            variant="appleMedium"
+            onPress={() => {}}
+            disabled={false}
+            loading={false}
+          >
+            <View style={styles.socialButtonContent}>
+              <AppleIcon width={24} height={24} />
+              <Text style={[styles.buttonText, typography.title2_SB]}>
+                Apple로 계속하기
+              </Text>
+            </View>
+          </Button>
         ) : (
-          <TouchableOpacity style={styles.googleButton}>
-            <GoogleIcon width={24} height={24} />
-            <Text style={styles.buttonText}>Google로 계속하기</Text>
-          </TouchableOpacity>
+          <Button
+            variant="kakaoMedium"
+            onPress={handleKakaoLogin}
+            disabled={false}
+            loading={false}
+          >
+            <View style={styles.socialButtonContent}>
+              <KakaoIcon width={24} height={24} />
+              <Text style={[styles.buttonText, typography.title2_SB]}>
+                Kakao로 계속하기
+              </Text>
+            </View>
+          </Button>
         )}
+
+        {/* 구글 로그인 버튼 (공통) */}
+        <Button
+          variant="googleMedium"
+          onPress={() => {}}
+          disabled={false}
+          loading={false}
+        >
+          <View style={styles.socialButtonContent}>
+            <GoogleIcon width={24} height={24} />
+            <Text style={[styles.buttonText, typography.title2_SB]}>
+              Google로 계속하기
+            </Text>
+          </View>
+        </Button>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  appleButton: {
-    ...commonStyles.socialButton,
-    backgroundColor: colors.black,
-  },
-  appleButtonText: {
-    color: colors.white,
-  },
   buttonContainer: {
-    gap: spacing.small,
-    marginBottom: spacing.large,
-    padding: spacing.large,
+    alignItems: 'center',
+    gap: spacing.medium,
+    marginBottom: spacing.xlarge,
+    paddingHorizontal: spacing.large,
+    width: '100%',
   },
   buttonText: {
-    ...typography.title2_SB,
     color: colors.gray850,
   },
   container: {
@@ -147,21 +166,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    justifyContent: 'center',
     paddingHorizontal: spacing.large,
-    paddingTop: spacing.xlarge,
-  },
-  googleButton: {
-    ...commonStyles.socialButton,
-    backgroundColor: colors.white,
-    borderColor: colors.borderGray,
-    borderWidth: 1,
-  },
-  header: {
-    paddingTop: spacing.xlarge,
-  },
-  kakaoButton: {
-    ...commonStyles.socialButton,
-    backgroundColor: colors.kakaoYellow,
   },
   loadingContainer: {
     alignItems: 'center',
@@ -175,14 +181,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   logoContainer: {
-    backgroundColor: colors.gray200,
-    borderRadius: 8,
-    height: 73,
-    marginTop: spacing.medium,
-    width: 176,
+    alignItems: 'center',
   },
-  title: {
-    ...typography.head2_B,
-    color: colors.gray850,
+  logoText: {
+    ...typography.body4_M,
+    color: colors.gray650,
+    letterSpacing: -0.12,
+    marginTop: spacing.small,
+  },
+  socialButtonContent: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.small,
   },
 });

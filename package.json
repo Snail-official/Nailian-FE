@@ -8,8 +8,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "prepare": "husky install",
-    "start": "react-native start",
-    "test": "jest"
+    "start": "cross-env ENVFILE=.env.production react-native start --reset-cache",
+    "test": "jest",
+    "dev": "cross-env ENVFILE=.env react-native start --reset-cache"
   },
   "husky": {
     "hooks": {
@@ -59,6 +60,7 @@
     "@types/react-test-renderer": "^18.3.1",
     "babel-jest": "^29.6.3",
     "babel-plugin-root-import": "^6.6.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^10.0.1",

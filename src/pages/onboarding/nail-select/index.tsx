@@ -1,18 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import {
   colors,
   typography,
   spacing,
   commonStyles,
 } from '~/shared/styles/design';
-import LinearGradient from 'react-native-linear-gradient';
 import NailItem from '~/features/nail-selection/ui/NailItem';
 import Toast from '~/shared/ui/Toast';
 import { NailPreferencesResponse } from '~/shared/api/types';
@@ -21,6 +14,7 @@ import {
   saveNailPreferences,
 } from '~/entities/nail-preference/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
+import Button from '~/shared/ui/Button';
 
 /**
  * 온보딩 네일 선택 화면
@@ -124,11 +118,14 @@ export default function NailSelectScreen() {
    */
   const renderNailItem = ({
     item,
+    index,
   }: {
     item: { id: string; imageUrl: string };
+    index: number;
   }) => (
     <View style={styles.nailItem}>
       <NailItem
+        key={`nail-${item.id}-${index}`}
         source={{ uri: item.imageUrl }}
         isSelected={selectedNails.includes(item.id)}
         onSelect={() => handleNailSelect(item.id)}
@@ -207,7 +204,7 @@ export default function NailSelectScreen() {
         <FlatList
           data={nails}
           renderItem={renderNailItem}
-          keyExtractor={item => String(item.id)}
+          keyExtractor={(item, index) => `nail-${item.id}-${index}`}
           numColumns={3}
           contentContainerStyle={styles.gridContainer}
           columnWrapperStyle={styles.row}
@@ -218,30 +215,15 @@ export default function NailSelectScreen() {
         />
       )}
 
-      {/* 하단 그라데이션 영역 */}
-      <View style={styles.gradientWrapper}>
-        <LinearGradient
-          style={styles.gradient}
-          colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.9)']}
-          locations={[0, 1]}
-        />
-        <View style={styles.buttonWrapper}>
-          <TouchableOpacity
-            style={[
-              styles.completeButton,
-              isEnabled
-                ? styles.completeButtonEnabled
-                : styles.completeButtonDisabled,
-            ]}
-            disabled={!isEnabled || isLoading}
-            onPress={handleCompleteSelection} // 변경된 함수 적용
-          >
-            <Text style={styles.completeButtonText}>
-              {isLoading ? '저장 중...' : '선택 완료'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* 버튼 영역 */}
+      <Button
+        variant="primaryMediumGradient"
+        disabled={!isEnabled}
+        loading={isLoading}
+        onPress={handleCompleteSelection}
+      >
+        <Text style={[styles.buttonText, typography.title2_SB]}>시작하기</Text>
+      </Button>
 
       {/* Toast 컴포넌트 */}
       <Toast message="최대 10개까지 선택할 수 있어요" visible={showToast} />
@@ -253,26 +235,7 @@ export default function NailSelectScreen() {
  * 스타일 정의
  */
 const styles = StyleSheet.create({
-  buttonWrapper: {
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    paddingVertical: spacing.medium, // 16px
-  },
-  completeButton: {
-    alignItems: 'center',
-    borderRadius: 8,
-    height: 48,
-    justifyContent: 'center',
-    width: 331,
-  },
-  completeButtonDisabled: {
-    backgroundColor: colors.purple200,
-  },
-  completeButtonEnabled: {
-    backgroundColor: colors.purple500,
-  },
-  completeButtonText: {
-    ...typography.title2_SB,
+  buttonText: {
     color: colors.white,
   },
   container: {
@@ -281,22 +244,13 @@ const styles = StyleSheet.create({
     height: 812,
     width: 375,
   },
-  gradient: {
-    height: 40,
-    width: '100%',
-  },
-  gradientWrapper: {
-    bottom: 0,
-    position: 'absolute',
-    width: '100%',
-  },
   gridContainer: {
     paddingHorizontal: spacing.large,
   },
   header: {
     marginBottom: 28,
     paddingHorizontal: spacing.large,
-    paddingTop: spacing.xlarge, // 텍스트와 이미지 사이 간격
+    paddingTop: spacing.xlarge,
   },
   nailItem: {
     height: 103,
