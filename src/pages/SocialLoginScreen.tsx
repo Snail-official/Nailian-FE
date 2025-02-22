@@ -88,18 +88,23 @@ export default function SocialLoginScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>더욱더 편리한{'\n'}내일의 시작,</Text>
-        </View>
         <View style={styles.logoContainer}>
-          <LogoIcon width={176} height={73} />
+          <LogoIcon width={171.11} height={56} />
+          <Text style={styles.logoText}>
+            AR 네일 체험과 네일샵 예약을 한 번에
+          </Text>
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
         {/* 플랫폼별 로그인 버튼 */}
         {Platform.OS === 'ios' ? (
-          <Button variant="appleMedium" onPress={() => {}}>
+          <Button
+            variant="appleMedium"
+            onPress={() => {}}
+            disabled={false}
+            loading={false}
+          >
             <View style={styles.socialButtonContent}>
               <AppleIcon width={24} height={24} />
               <Text style={[styles.buttonText, typography.title2_SB]}>
@@ -108,7 +113,12 @@ export default function SocialLoginScreen({ navigation }: Props) {
             </View>
           </Button>
         ) : (
-          <Button variant="kakaoMedium" onPress={handleKakaoLogin}>
+          <Button
+            variant="kakaoMedium"
+            onPress={handleKakaoLogin}
+            disabled={false}
+            loading={false}
+          >
             <View style={styles.socialButtonContent}>
               <KakaoIcon width={24} height={24} />
               <Text style={[styles.buttonText, typography.title2_SB]}>
@@ -119,7 +129,12 @@ export default function SocialLoginScreen({ navigation }: Props) {
         )}
 
         {/* 구글 로그인 버튼 (공통) */}
-        <Button variant="googleMedium" onPress={() => {}}>
+        <Button
+          variant="googleMedium"
+          onPress={() => {}}
+          disabled={false}
+          loading={false}
+        >
           <View style={styles.socialButtonContent}>
             <GoogleIcon width={24} height={24} />
             <Text style={[styles.buttonText, typography.title2_SB]}>
@@ -151,11 +166,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    justifyContent: 'center',
     paddingHorizontal: spacing.large,
-    paddingTop: spacing.xlarge,
-  },
-  header: {
-    paddingTop: spacing.xlarge,
   },
   loadingContainer: {
     alignItems: 'center',
@@ -169,19 +181,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   logoContainer: {
-    backgroundColor: colors.gray200,
-    borderRadius: 8,
-    height: 73,
-    marginTop: spacing.medium,
-    width: 176,
+    alignItems: 'center',
+  },
+  logoText: {
+    ...typography.body4_M,
+    color: colors.gray650,
+    letterSpacing: -0.12,
+    marginTop: spacing.small,
   },
   socialButtonContent: {
     alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.small,
-  },
-  title: {
-    ...typography.head2_B,
-    color: colors.gray850,
   },
 });

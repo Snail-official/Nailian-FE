@@ -59,6 +59,7 @@ export default function OnboardingNicknameScreen() {
           variant="primaryLarge"
           onPress={handleNicknameSubmit}
           loading={loading}
+          disabled={false}
         >
           <Text style={[styles.buttonText, typography.title2_SB]}>
             입력 완료
