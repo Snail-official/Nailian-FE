@@ -63,11 +63,6 @@ export type TokenReissueResponse = ApiResponse<{
   accessToken: string;
 }>;
 
-/** 로그아웃 요청 */
-export interface LogoutRequest {
-  accessToken: string;
-}
-
 /** 로그아웃 응답 */
 export type LogoutResponse = ApiResponse<null>;
 
