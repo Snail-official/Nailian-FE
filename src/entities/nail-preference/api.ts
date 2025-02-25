@@ -37,5 +37,5 @@ export const saveNailPreferences = ({
   fetcher({
     endpoint: '/nails/preferences', // 네일 취향 저장 API 엔드포인트
     method: 'POST',
-    body: { selectedPreferences },
+    body: { preferences: selectedPreferences },
   });

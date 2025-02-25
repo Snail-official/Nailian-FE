@@ -17,8 +17,8 @@ export interface PaginationRequest {
 export interface PaginatedResponse<T> {
   pageInfo: {
     currentPage: number;
+    totalElements: number;
     totalPages: number;
-    totalItems: number;
   };
   data: T[];
 }
@@ -237,15 +237,42 @@ export type SimilarNailSetsResponse = ApiResponse<
 
 /** 네일 세트 생성 요청 */
 export interface CreateNailSetRequest {
-  thumb: number;
-  index: number;
-  middle: number;
-  ring: number;
-  pinky: number;
+  thumb: {
+    id: number;
+  };
+  index: {
+    id: number;
+  };
+  middle: {
+    id: number;
+  };
+  ring: {
+    id: number;
+  };
+  pinky: {
+    id: number;
+  };
 }
 
 /** 네일 세트 생성 응답 */
-export type CreateNailSetResponse = ApiResponse<{ id: number }>;
+export type CreateNailSetResponse = ApiResponse<{
+  id: number;
+  thumb: {
+    imageUrl: string;
+  };
+  index: {
+    imageUrl: string;
+  };
+  middle: {
+    imageUrl: string;
+  };
+  ring: {
+    imageUrl: string;
+  };
+  pinky: {
+    imageUrl: string;
+  };
+}>;
 
 /** 내 네일 세트 목록 조회 요청 */
 export interface GetUserNailSetsRequest extends PaginationRequest {}
@@ -254,11 +281,21 @@ export interface GetUserNailSetsRequest extends PaginationRequest {}
 export type UserNailSetsResponse = ApiResponse<
   PaginatedResponse<{
     id: number;
-    thumb: string;
-    index: string;
-    middle: string;
-    ring: string;
-    pinky: string;
+    thumb: {
+      imageUrl: string;
+    };
+    index: {
+      imageUrl: string;
+    };
+    middle: {
+      imageUrl: string;
+    };
+    ring: {
+      imageUrl: string;
+    };
+    pinky: {
+      imageUrl: string;
+    };
   }>
 >;
 
