@@ -137,68 +137,61 @@ export type SaveNailPreferenceResponse = ApiResponse<null>;
 
 /* ─────────────────── 네일 세트 (Nail Sets) ─────────────────── */
 
-/** 네일 스타일 타입 */
-export type NailStyle =
-  | 'WEDDING'
-  | 'TREND'
-  | 'SIMPLE'
-  | 'LOVELY'
-  | 'PASTEL'
-  | 'NUDE'
-  | 'DARK'
-  | 'NEON'
-  | 'GLITTER'
-  | 'MATTE'
-  | 'CHROME'
-  | 'MARBLE'
-  | 'OMBRE'
-  | 'ANIMAL PRINT'
-  | 'FLORAL'
-  | 'GEOMETRIC'
-  | 'ELEGANT'
-  | 'CUTE'
-  | 'LUXURY'
-  | 'MINIMAL'
-  | 'RETRO'
-  | 'KOREAN'
-  | 'JAPANESE'
-  | 'FRENCH TIP'
-  | 'SPRING'
-  | 'SUMMER'
-  | 'AUTUMN'
-  | 'WINTER'
-  | 'CHRISTMAS'
-  | 'HALLOWEEN';
-
 /** 네일 세트 목록 조회 응답 */
 export type NailSetCollectionResponse = ApiResponse<
   {
-    style: NailStyle;
+    style: {
+      id: number;
+      name: string;
+    };
     nailSets: {
       id: number;
-      thumb: string;
-      index: string;
-      middle: string;
-      ring: string;
-      pinky: string;
+      thumb: {
+        imageUrl: string;
+      };
+      index: {
+        imageUrl: string;
+      };
+      middle: {
+        imageUrl: string;
+      };
+      ring: {
+        imageUrl: string;
+      };
+      pinky: {
+        imageUrl: string;
+      };
     }[];
   }[]
 >;
 
 /** 네일 피드 조회 요청 */
 export interface GetNailFeedRequest extends PaginationRequest {
-  style: NailStyle;
+  style: {
+    id: number;
+    name: string;
+  };
 }
 
 /** 네일 피드 조회 응답 */
 export type NailFeedResponse = ApiResponse<
   PaginatedResponse<{
     id: number;
-    thumb: string;
-    index: string;
-    middle: string;
-    ring: string;
-    pinky: string;
+    thumb: {
+      imageUrl: string;
+    };
+    index: {
+      imageUrl: string;
+    };
+    middle: {
+      imageUrl: string;
+    };
+    ring: {
+      imageUrl: string;
+    };
+    pinky: {
+      imageUrl: string;
+    };
   }>
 >;
 
@@ -230,18 +223,31 @@ export type NailSetDetailResponse = ApiResponse<{
 /** 유사 네일 세트 목록 조회 요청 */
 export interface GetSimilarNailSetsRequest extends PaginationRequest {
   nailSetId: number;
-  style: NailStyle;
+  style: {
+    id: number;
+    name: string;
+  };
 }
 
 /** 유사 네일 세트 목록 조회 응답 */
 export type SimilarNailSetsResponse = ApiResponse<
   PaginatedResponse<{
     id: number;
-    thumb: string;
-    index: string;
-    middle: string;
-    ring: string;
-    pinky: string;
+    thumb: {
+      imageUrl: string;
+    };
+    index: {
+      imageUrl: string;
+    };
+    middle: {
+      imageUrl: string;
+    };
+    ring: {
+      imageUrl: string;
+    };
+    pinky: {
+      imageUrl: string;
+    };
   }>
 >;
 
