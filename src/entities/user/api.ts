@@ -89,5 +89,6 @@ export const fetchOnboardingStatus = async ({
   maxSupportedVersion,
 }: GetOnboardingStatusRequest): Promise<GetOnboardingStatusResponse> =>
   fetcher({
-    endpoint: `/onboarding-status?maxSupportedVersion=${maxSupportedVersion}`,
+    endpoint: '/onboarding-status',
+    query: { maxSupportedVersion },
   });

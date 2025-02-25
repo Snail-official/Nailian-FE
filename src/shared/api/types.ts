@@ -210,11 +210,21 @@ export interface GetNailSetDetailRequest {
 /** 특정 네일 세트 상세 조회 응답 */
 export type NailSetDetailResponse = ApiResponse<{
   id: number;
-  thumb: string;
-  index: string;
-  middle: string;
-  ring: string;
-  pinky: string;
+  thumb: {
+    imageUrl: string;
+  };
+  index: {
+    imageUrl: string;
+  };
+  middle: {
+    imageUrl: string;
+  };
+  ring: {
+    imageUrl: string;
+  };
+  pinky: {
+    imageUrl: string;
+  };
 }>;
 
 /** 유사 네일 세트 목록 조회 요청 */
