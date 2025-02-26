@@ -9,14 +9,14 @@
  *   pageInfo: {
  *     currentPage: number;
  *     totalPages: number;
- *     totalItems: number;
+ *     totalElements: number;
  *   };
  *   data: T[];
  * }} 페이지네이션이 적용된 데이터
  */
 const createPaginatedResponse = <T>(items: T[], page: number, size: number) => {
-  const totalItems = items.length; // 전체 항목 개수
-  const totalPages = Math.ceil(totalItems / size); // 총 페이지 개수
+  const totalElements = items.length; // 전체 항목 개수
+  const totalPages = Math.ceil(totalElements / size); // 총 페이지 개수
 
   // 현재 페이지 번호 보정 (1 이상, 최대 totalPages 이하)
   const currentPage = Math.max(1, Math.min(page, totalPages));
@@ -30,7 +30,7 @@ const createPaginatedResponse = <T>(items: T[], page: number, size: number) => {
     pageInfo: {
       currentPage,
       totalPages,
-      totalItems,
+      totalElements,
     },
     data: paginatedItems,
   };

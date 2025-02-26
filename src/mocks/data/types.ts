@@ -1,4 +1,4 @@
-export type Category = 'ONE COLOR' | 'FRENCH' | 'GRADIENT' | 'ART';
+export type Category = 'ONE_COLOR' | 'FRENCH' | 'GRADIENT' | 'ART';
 export type Color =
   | 'WHITE'
   | 'BLACK'
@@ -9,38 +9,6 @@ export type Color =
   | 'BLUE'
   | 'SILVER';
 export type Shape = 'SQUARE' | 'ROUND' | 'ALMOND' | 'BALLERINA' | 'STILETTO';
-
-export type NailStyle =
-  | 'WEDDING'
-  | 'TREND'
-  | 'SIMPLE'
-  | 'LOVELY'
-  | 'PASTEL'
-  | 'NUDE'
-  | 'DARK'
-  | 'NEON'
-  | 'GLITTER'
-  | 'MATTE'
-  | 'CHROME'
-  | 'MARBLE'
-  | 'OMBRE'
-  | 'ANIMAL PRINT'
-  | 'FLORAL'
-  | 'GEOMETRIC'
-  | 'ELEGANT'
-  | 'CUTE'
-  | 'LUXURY'
-  | 'MINIMAL'
-  | 'RETRO'
-  | 'KOREAN'
-  | 'JAPANESE'
-  | 'FRENCH TIP'
-  | 'SPRING'
-  | 'SUMMER'
-  | 'AUTUMN'
-  | 'WINTER'
-  | 'CHRISTMAS'
-  | 'HALLOWEEN';
 
 export interface INailPreference {
   id: number;
@@ -75,7 +43,7 @@ export interface INailSet {
   middle: INail;
   ring: INail;
   pinky: INail;
-  style: NailStyle[];
+  style: string[];
 }
 
 export interface IBanner {

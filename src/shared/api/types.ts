@@ -83,7 +83,7 @@ export type GetOnboardingStatusResponse = ApiResponse<{
 /* ─────────────────── 네일 (Nails) ─────────────────── */
 
 /** 네일 디자인 카테고리 */
-export type Category = 'ONE COLOR' | 'FRENCH' | 'GRADIENT' | 'ART';
+export type Category = 'ONE_COLOR' | 'FRENCH' | 'GRADIENT' | 'ART';
 
 /** 네일 컬러 */
 export type Color =
@@ -129,7 +129,7 @@ export type NailPreferencesResponse = ApiResponse<
 
 /** 네일 취향 저장 요청 */
 export interface SaveNailPreferenceRequest {
-  selectedPreferences: number[];
+  preferences: number[];
 }
 
 /** 네일 취향 저장 응답 */
