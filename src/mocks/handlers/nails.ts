@@ -20,7 +20,6 @@ import {
   GetNailsRequest,
   GetNailPreferencesRequest,
   NailFeedResponse,
-  NailStyle,
 } from '../../shared/api/types';
 import { createSuccessResponse, createErrorResponse } from '../utils/response';
 import { ONBOARDING_FLAGS } from '../constants/onboarding';
@@ -132,16 +131,13 @@ const nailHandlers = [
     const body = (await request.json()) as SaveNailPreferenceRequest;
     const user = users[0];
 
-    if (
-      !Array.isArray(body.selectedPreferences) ||
-      body.selectedPreferences.length < 3
-    ) {
+    if (!Array.isArray(body.preferences) || body.preferences.length < 3) {
       return createErrorResponse(
         '최소 3개 이상의 네일을 선택해야 합니다.',
         422,
       );
     }
-    if (body.selectedPreferences.length > 10) {
+    if (body.preferences.length > 10) {
       return createErrorResponse('최대 10개까지 선택할 수 있습니다.', 400);
     }
 
@@ -149,7 +145,7 @@ const nailHandlers = [
     const isOnboarding = user.preferredStyles.length === 0;
 
     // 네일 취향 저장
-    user.preferredStyles = body.selectedPreferences.map(id => styles[id]);
+    user.preferredStyles = body.preferences.map(id => styles[id]);
 
     if (isOnboarding) {
       // 온보딩 과정이라면, 온보딩 진행 상태 업데이트 (비트 연산 |= 사용)
@@ -174,7 +170,7 @@ const nailHandlers = [
    * @returns 성공 시 추천 네일 세트 목록, 실패 시 오류 응답
    */
   http.get(`${API_BASE_URL}/nail-sets/recommendations`, async () => {
-    const recommendNailStyle: NailStyle[] = ['SIMPLE', 'TREND', 'WEDDING'];
+    const recommendNailStyle = ['SIMPLE', 'TREND', 'WEDDING'];
 
     if (!nailSets || nailSets.length === 0) {
       return createErrorResponse('추천 네일 데이터를 찾을 수 없습니다.', 404);
@@ -187,29 +183,55 @@ const nailHandlers = [
     );
 
     const groupedNailSets: Record<
-      NailStyle,
+      string,
       {
-        style: NailStyle;
+        style: {
+          id: number;
+          name: string;
+        };
         nailSets: {
           id: number;
-          thumb: string;
-          index: string;
-          middle: string;
-          ring: string;
-          pinky: string;
+          thumb: {
+            imageUrl: string;
+          };
+          index: {
+            imageUrl: string;
+          };
+          middle: {
+            imageUrl: string;
+          };
+          ring: {
+            imageUrl: string;
+          };
+          pinky: {
+            imageUrl: string;
+          };
         }[];
       }
     > = {} as Record<
-      NailStyle,
+      string,
       {
-        style: NailStyle;
+        style: {
+          id: number;
+          name: string;
+        };
         nailSets: {
           id: number;
-          thumb: string;
-          index: string;
-          middle: string;
-          ring: string;
-          pinky: string;
+          thumb: {
+            imageUrl: string;
+          };
+          index: {
+            imageUrl: string;
+          };
+          middle: {
+            imageUrl: string;
+          };
+          ring: {
+            imageUrl: string;
+          };
+          pinky: {
+            imageUrl: string;
+          };
         }[];
       }
     >;
@@ -217,18 +239,33 @@ const nailHandlers = [
     filteredNailSets.forEach(nailSet => {
       nailSet.style.forEach(style => {
         if (recommendNailStyle.includes(style)) {
+          const styleId = recommendNailStyle.indexOf(style);
+
           groupedNailSets[style] = groupedNailSets[style] ?? {
-            style,
+            style: {
+              id: styleId,
+              name: style,
+            },
             nailSets: [],
           };
 
           groupedNailSets[style].nailSets.push({
             id: nailSet.id,
-            thumb: nailSet.thumb.imageUrl,
-            index: nailSet.index.imageUrl,
-            middle: nailSet.middle.imageUrl,
-            ring: nailSet.ring.imageUrl,
-            pinky: nailSet.pinky.imageUrl,
+            thumb: {
+              imageUrl: nailSet.thumb.imageUrl,
+            },
+            index: {
+              imageUrl: nailSet.index.imageUrl,
+            },
+            middle: {
+              imageUrl: nailSet.middle.imageUrl,
+            },
+            ring: {
+              imageUrl: nailSet.ring.imageUrl,
+            },
+            pinky: {
+              imageUrl: nailSet.pinky.imageUrl,
+            },
           });
         }
       });
@@ -263,11 +300,11 @@ const nailHandlers = [
 
     const simplifiedNailSets = userNailSets.map(set => ({
       id: set.id,
-      thumb: set.thumb.imageUrl,
-      index: set.index.imageUrl,
-      middle: set.middle.imageUrl,
-      ring: set.ring.imageUrl,
-      pinky: set.pinky.imageUrl,
+      thumb: { imageUrl: set.thumb.imageUrl },
+      index: { imageUrl: set.index.imageUrl },
+      middle: { imageUrl: set.middle.imageUrl },
+      ring: { imageUrl: set.ring.imageUrl },
+      pinky: { imageUrl: set.pinky.imageUrl },
     }));
 
     const paginatedResponse = createPaginatedResponse(
@@ -308,11 +345,11 @@ const nailHandlers = [
       );
     }
 
-    const thumb = nails.find(n => n.id === body.thumb);
-    const index = nails.find(n => n.id === body.index);
-    const middle = nails.find(n => n.id === body.middle);
-    const ring = nails.find(n => n.id === body.ring);
-    const pinky = nails.find(n => n.id === body.pinky);
+    const thumb = nails.find(n => n.id === body.thumb.id);
+    const index = nails.find(n => n.id === body.index.id);
+    const middle = nails.find(n => n.id === body.middle.id);
+    const ring = nails.find(n => n.id === body.ring.id);
+    const pinky = nails.find(n => n.id === body.pinky.id);
 
     if (!thumb || !index || !middle || !ring || !pinky) {
       return createErrorResponse(
@@ -339,6 +376,11 @@ const nailHandlers = [
       message: '네일 세트가 성공적으로 생성되었습니다.',
       data: {
         id: newNailSet.id,
+        thumb: { imageUrl: newNailSet.thumb.imageUrl },
+        index: { imageUrl: newNailSet.index.imageUrl },
+        middle: { imageUrl: newNailSet.middle.imageUrl },
+        ring: { imageUrl: newNailSet.ring.imageUrl },
+        pinky: { imageUrl: newNailSet.pinky.imageUrl },
       },
     };
 
@@ -355,7 +397,7 @@ const nailHandlers = [
   http.get(`${API_BASE_URL}/nail-sets/feed`, async ({ request }) => {
     const url = new URL(request.url);
     const style = url.searchParams.get('style')?.toUpperCase() as
-      | NailStyle
+      | string
       | undefined;
     const page = Number(url.searchParams.get('page')) || 1;
     const size = Number(url.searchParams.get('size')) || 9;
@@ -377,11 +419,11 @@ const nailHandlers = [
 
     const formattedNailSets = filteredNailSets.map(nailSet => ({
       id: nailSet.id,
-      thumb: nailSet.thumb.imageUrl,
-      index: nailSet.index.imageUrl,
-      middle: nailSet.middle.imageUrl,
-      ring: nailSet.ring.imageUrl,
-      pinky: nailSet.pinky.imageUrl,
+      thumb: { imageUrl: nailSet.thumb.imageUrl },
+      index: { imageUrl: nailSet.index.imageUrl },
+      middle: { imageUrl: nailSet.middle.imageUrl },
+      ring: { imageUrl: nailSet.ring.imageUrl },
+      pinky: { imageUrl: nailSet.pinky.imageUrl },
     }));
 
     const paginatedResponse = createPaginatedResponse(
@@ -419,11 +461,11 @@ const nailHandlers = [
       message: '네일 세트 조회 성공',
       data: {
         id: nailSet.id,
-        thumb: nailSet.thumb.imageUrl,
-        index: nailSet.index.imageUrl,
-        middle: nailSet.middle.imageUrl,
-        ring: nailSet.ring.imageUrl,
-        pinky: nailSet.pinky.imageUrl,
+        thumb: { imageUrl: nailSet.thumb.imageUrl },
+        index: { imageUrl: nailSet.index.imageUrl },
+        middle: { imageUrl: nailSet.middle.imageUrl },
+        ring: { imageUrl: nailSet.ring.imageUrl },
+        pinky: { imageUrl: nailSet.pinky.imageUrl },
       },
     };
 
@@ -443,7 +485,7 @@ const nailHandlers = [
       const { nailSetId } = params;
       const url = new URL(request.url);
       const style = url.searchParams.get('style')?.toUpperCase() as
-        | NailStyle
+        | string
         | undefined;
       const page = Number(url.searchParams.get('page')) || 1;
       const size = Number(url.searchParams.get('size')) || 9;
@@ -465,11 +507,11 @@ const nailHandlers = [
 
       const transformedSets = similarNailSets.map(set => ({
         id: set.id,
-        thumb: set.thumb.imageUrl,
-        index: set.index.imageUrl,
-        middle: set.middle.imageUrl,
-        ring: set.ring.imageUrl,
-        pinky: set.pinky.imageUrl,
+        thumb: { imageUrl: set.thumb.imageUrl },
+        index: { imageUrl: set.index.imageUrl },
+        middle: { imageUrl: set.middle.imageUrl },
+        ring: { imageUrl: set.ring.imageUrl },
+        pinky: { imageUrl: set.pinky.imageUrl },
       }));
 
       const paginatedResponse = createPaginatedResponse(

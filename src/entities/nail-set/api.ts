@@ -69,7 +69,7 @@ export const fetchNailSetFeed = async ({
 }: GetNailFeedRequest): Promise<NailFeedResponse> =>
   fetcher({
     endpoint: '/nail-sets/feed',
-    query: { style, page, size },
+    query: { style: style.id, page, size },
   });
 
 /**
@@ -99,5 +99,5 @@ export const fetchSimilarNailSets = async ({
 }: GetSimilarNailSetsRequest): Promise<SimilarNailSetsResponse> =>
   fetcher({
     endpoint: `/nail-sets/${nailSetId}/similar`,
-    query: { style, page, size },
+    query: { style: style.id, page, size },
   });

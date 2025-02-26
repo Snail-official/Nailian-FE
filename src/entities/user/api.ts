@@ -4,7 +4,6 @@ import {
   GetOnboardingStatusResponse,
   KakaoAuthRequest,
   KakaoAuthResponse,
-  LogoutRequest,
   LogoutResponse,
   TokenReissueRequest,
   TokenReissueResponse,
@@ -46,16 +45,13 @@ export const reissueAccessToken = ({
 /**
  * 로그아웃 API 호출
  *
- * @param {LogoutRequest} data - 현재 액세스 토큰
+ * @header {Authorization: Bearer {accessToken}}
  * @returns {Promise<LogoutResponse>} 로그아웃 성공 여부 반환
  */
-export const logoutFromService = ({
-  accessToken,
-}: LogoutRequest): Promise<LogoutResponse> =>
+export const logoutFromService = (): Promise<LogoutResponse> =>
   fetcher({
     endpoint: '/auth/logout',
     method: 'POST',
-    body: { accessToken },
   });
 
 /**
@@ -93,5 +89,6 @@ export const fetchOnboardingStatus = async ({
   maxSupportedVersion,
 }: GetOnboardingStatusRequest): Promise<GetOnboardingStatusResponse> =>
   fetcher({
-    endpoint: `/onboarding-status?maxSupportedVersion=${maxSupportedVersion}`,
+    endpoint: '/onboarding-status',
+    query: { maxSupportedVersion },
   });

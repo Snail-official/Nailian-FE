@@ -17,8 +17,8 @@ export interface PaginationRequest {
 export interface PaginatedResponse<T> {
   pageInfo: {
     currentPage: number;
+    totalElements: number;
     totalPages: number;
-    totalItems: number;
   };
   data: T[];
 }
@@ -63,11 +63,6 @@ export type TokenReissueResponse = ApiResponse<{
   accessToken: string;
 }>;
 
-/** 로그아웃 요청 */
-export interface LogoutRequest {
-  accessToken: string;
-}
-
 /** 로그아웃 응답 */
 export type LogoutResponse = ApiResponse<null>;
 
@@ -88,7 +83,7 @@ export type GetOnboardingStatusResponse = ApiResponse<{
 /* ─────────────────── 네일 (Nails) ─────────────────── */
 
 /** 네일 디자인 카테고리 */
-export type Category = 'ONE COLOR' | 'FRENCH' | 'GRADIENT' | 'ART';
+export type Category = 'ONE_COLOR' | 'FRENCH' | 'GRADIENT' | 'ART';
 
 /** 네일 컬러 */
 export type Color =
@@ -134,7 +129,7 @@ export type NailPreferencesResponse = ApiResponse<
 
 /** 네일 취향 저장 요청 */
 export interface SaveNailPreferenceRequest {
-  selectedPreferences: number[];
+  preferences: number[];
 }
 
 /** 네일 취향 저장 응답 */
@@ -142,68 +137,61 @@ export type SaveNailPreferenceResponse = ApiResponse<null>;
 
 /* ─────────────────── 네일 세트 (Nail Sets) ─────────────────── */
 
-/** 네일 스타일 타입 */
-export type NailStyle =
-  | 'WEDDING'
-  | 'TREND'
-  | 'SIMPLE'
-  | 'LOVELY'
-  | 'PASTEL'
-  | 'NUDE'
-  | 'DARK'
-  | 'NEON'
-  | 'GLITTER'
-  | 'MATTE'
-  | 'CHROME'
-  | 'MARBLE'
-  | 'OMBRE'
-  | 'ANIMAL PRINT'
-  | 'FLORAL'
-  | 'GEOMETRIC'
-  | 'ELEGANT'
-  | 'CUTE'
-  | 'LUXURY'
-  | 'MINIMAL'
-  | 'RETRO'
-  | 'KOREAN'
-  | 'JAPANESE'
-  | 'FRENCH TIP'
-  | 'SPRING'
-  | 'SUMMER'
-  | 'AUTUMN'
-  | 'WINTER'
-  | 'CHRISTMAS'
-  | 'HALLOWEEN';
-
 /** 네일 세트 목록 조회 응답 */
 export type NailSetCollectionResponse = ApiResponse<
   {
-    style: NailStyle;
+    style: {
+      id: number;
+      name: string;
+    };
     nailSets: {
       id: number;
-      thumb: string;
-      index: string;
-      middle: string;
-      ring: string;
-      pinky: string;
+      thumb: {
+        imageUrl: string;
+      };
+      index: {
+        imageUrl: string;
+      };
+      middle: {
+        imageUrl: string;
+      };
+      ring: {
+        imageUrl: string;
+      };
+      pinky: {
+        imageUrl: string;
+      };
     }[];
   }[]
 >;
 
 /** 네일 피드 조회 요청 */
 export interface GetNailFeedRequest extends PaginationRequest {
-  style: NailStyle;
+  style: {
+    id: number;
+    name: string;
+  };
 }
 
 /** 네일 피드 조회 응답 */
 export type NailFeedResponse = ApiResponse<
   PaginatedResponse<{
     id: number;
-    thumb: string;
-    index: string;
-    middle: string;
-    ring: string;
-    pinky: string;
+    thumb: {
+      imageUrl: string;
+    };
+    index: {
+      imageUrl: string;
+    };
+    middle: {
+      imageUrl: string;
+    };
+    ring: {
+      imageUrl: string;
+    };
+    pinky: {
+      imageUrl: string;
+    };
   }>
 >;
 
@@ -215,42 +203,92 @@ export interface GetNailSetDetailRequest {
 /** 특정 네일 세트 상세 조회 응답 */
 export type NailSetDetailResponse = ApiResponse<{
   id: number;
-  thumb: string;
-  index: string;
-  middle: string;
-  ring: string;
-  pinky: string;
+  thumb: {
+    imageUrl: string;
+  };
+  index: {
+    imageUrl: string;
+  };
+  middle: {
+    imageUrl: string;
+  };
+  ring: {
+    imageUrl: string;
+  };
+  pinky: {
+    imageUrl: string;
+  };
 }>;
 
 /** 유사 네일 세트 목록 조회 요청 */
 export interface GetSimilarNailSetsRequest extends PaginationRequest {
   nailSetId: number;
-  style: NailStyle;
+  style: {
+    id: number;
+    name: string;
+  };
 }
 
 /** 유사 네일 세트 목록 조회 응답 */
 export type SimilarNailSetsResponse = ApiResponse<
   PaginatedResponse<{
     id: number;
-    thumb: string;
-    index: string;
-    middle: string;
-    ring: string;
-    pinky: string;
+    thumb: {
+      imageUrl: string;
+    };
+    index: {
+      imageUrl: string;
+    };
+    middle: {
+      imageUrl: string;
+    };
+    ring: {
+      imageUrl: string;
+    };
+    pinky: {
+      imageUrl: string;
+    };
   }>
 >;
 
 /** 네일 세트 생성 요청 */
 export interface CreateNailSetRequest {
-  thumb: number;
-  index: number;
-  middle: number;
-  ring: number;
-  pinky: number;
+  thumb: {
+    id: number;
+  };
+  index: {
+    id: number;
+  };
+  middle: {
+    id: number;
+  };
+  ring: {
+    id: number;
+  };
+  pinky: {
+    id: number;
+  };
 }
 
 /** 네일 세트 생성 응답 */
-export type CreateNailSetResponse = ApiResponse<{ id: number }>;
+export type CreateNailSetResponse = ApiResponse<{
+  id: number;
+  thumb: {
+    imageUrl: string;
+  };
+  index: {
+    imageUrl: string;
+  };
+  middle: {
+    imageUrl: string;
+  };
+  ring: {
+    imageUrl: string;
+  };
+  pinky: {
+    imageUrl: string;
+  };
+}>;
 
 /** 내 네일 세트 목록 조회 요청 */
 export interface GetUserNailSetsRequest extends PaginationRequest {}
@@ -259,11 +297,21 @@ export interface GetUserNailSetsRequest extends PaginationRequest {}
 export type UserNailSetsResponse = ApiResponse<
   PaginatedResponse<{
     id: number;
-    thumb: string;
-    index: string;
-    middle: string;
-    ring: string;
-    pinky: string;
+    thumb: {
+      imageUrl: string;
+    };
+    index: {
+      imageUrl: string;
+    };
+    middle: {
+      imageUrl: string;
+    };
+    ring: {
+      imageUrl: string;
+    };
+    pinky: {
+      imageUrl: string;
+    };
   }>
 >;
 
