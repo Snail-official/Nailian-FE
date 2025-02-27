@@ -41,6 +41,7 @@ module.exports = {
     'global-require': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     'import/prefer-default-export': 'off',
+    'react/require-default-props': 'off',
   },
   settings: {
     'import/resolver': {
