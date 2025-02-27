@@ -32,10 +32,10 @@ export const fetchNailPreferences = ({
  * @returns {Promise<SaveNailPreferenceResponse>} 저장 결과 반환
  */
 export const saveNailPreferences = ({
-  selectedPreferences,
+  preferences,
 }: SaveNailPreferenceRequest): Promise<SaveNailPreferenceResponse> =>
   fetcher({
     endpoint: '/nails/preferences', // 네일 취향 저장 API 엔드포인트
     method: 'POST',
-    body: { preferences: selectedPreferences },
+    body: { preferences },
   });

@@ -32,7 +32,7 @@ interface ToastProps {
   /** 토스트 표시 여부 */
   visible: boolean;
   /** 토스트 위치 (기본값: top) */
-  position: ToastPosition;
+  position?: ToastPosition;
 }
 
 export default function Toast({
