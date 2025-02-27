@@ -1,16 +1,44 @@
-import React from 'react';
-import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  SafeAreaView,
+  Text,
+  Dimensions,
+} from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
-import { colors } from '~/shared/styles/design';
+import { colors, typography } from '~/shared/styles/design';
+import { fetchUserProfile } from '~/entities/user/api';
 import Logo from '~/shared/assets/icons/logo.svg';
 import Banner from './ui/banner';
+
+const { width } = Dimensions.get('window');
+const BANNER_WIDTH = 331;
+const LEFT_MARGIN = (width - BANNER_WIDTH) / 2;
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MainHome'>;
 };
 
 function MainHomeScreen({ navigation }: Props) {
+  const [nickname, setNickname] = useState<string>('');
+
+  // 사용자 정보 가져오기
+  useEffect(() => {
+    const getUserProfile = async () => {
+      try {
+        const response = await fetchUserProfile();
+        setNickname(response.data?.nickname || '');
+      } catch (err) {
+        console.error('사용자 정보 불러오기 실패:', err);
+      }
+    };
+
+    getUserProfile();
+  }, []);
+
   // 배너 클릭 핸들러
   const handleBannerPress = (banner: {
     id: number;
@@ -31,6 +59,14 @@ function MainHomeScreen({ navigation }: Props) {
 
         {/* 배너 */}
         <Banner onBannerPress={handleBannerPress} />
+
+        {/* 추천 아트 타이틀 */}
+        <View style={styles.recommendationContainer}>
+          <Text style={styles.recommendationText}>
+            <Text style={styles.nicknameText}>{nickname}</Text>
+            <Text>님을 위한{'\n'}아트를 추천드려요</Text>
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -43,6 +79,18 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     marginTop: 14,
     width: '100%',
+  },
+  nicknameText: {
+    color: colors.purple500, // #CD19FF
+  },
+  recommendationContainer: {
+    marginTop: 28,
+    paddingHorizontal: LEFT_MARGIN,
+  },
+  recommendationText: {
+    ...typography.head2_B,
+    color: colors.gray850, // #131313
+    lineHeight: 30,
   },
   safeArea: {
     backgroundColor: colors.gray50,

@@ -143,7 +143,6 @@ const styles = StyleSheet.create({
   },
   bannerWrapper: {
     alignItems: 'center',
-    marginBottom: 24,
     width: '100%',
   },
   paginationContainer: {
