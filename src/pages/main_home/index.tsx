@@ -12,6 +12,7 @@ import { RootStackParamList } from '~/shared/types/navigation';
 import { colors, typography } from '~/shared/styles/design';
 import { fetchUserProfile } from '~/entities/user/api';
 import Logo from '~/shared/assets/icons/logo.svg';
+import { TabBarFooter } from '~/shared/ui/TabBar';
 import Banner from './ui/banner';
 
 const { width } = Dimensions.get('window');
@@ -50,29 +51,48 @@ function MainHomeScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView>
-        {/* 로고 */}
-        <View style={styles.logoContainer}>
-          <Logo width={78} height={25} />
-        </View>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* 로고 */}
+          <View style={styles.logoContainer}>
+            <Logo width={78} height={25} />
+          </View>
 
-        {/* 배너 */}
-        <Banner onBannerPress={handleBannerPress} />
+          {/* 배너 */}
+          <Banner onBannerPress={handleBannerPress} />
 
-        {/* 추천 아트 타이틀 */}
-        <View style={styles.recommendationContainer}>
-          <Text style={styles.recommendationText}>
-            <Text style={styles.nicknameText}>{nickname}</Text>
-            <Text>님을 위한{'\n'}아트를 추천드려요</Text>
-          </Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          {/* 추천 아트 타이틀 */}
+          <View style={styles.recommendationContainer}>
+            <Text style={styles.recommendationText}>
+              <Text style={styles.nicknameText}>{nickname}</Text>
+              <Text>님을 위한{'\n'}아트를 추천드려요</Text>
+            </Text>
+          </View>
+
+          {/* 여기에 추가 콘텐츠가 들어갈 수 있음 */}
+        </ScrollView>
+      </SafeAreaView>
+
+      {/* TabBar를 화면 맨 아래에 고정 */}
+      <TabBarFooter
+        activeTab="home"
+        onTabPress={tab => {
+          console.log(`${tab} 탭 클릭됨`);
+        }}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.gray50,
+    flex: 1,
+  },
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -93,7 +113,12 @@ const styles = StyleSheet.create({
     lineHeight: 30,
   },
   safeArea: {
-    backgroundColor: colors.gray50,
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 90,
+  },
+  scrollView: {
     flex: 1,
   },
 });
