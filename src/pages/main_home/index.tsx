@@ -132,6 +132,22 @@ function MainHomeScreen({ navigation }: Props) {
             onStylePress={handleStylePress}
             onNailSetPress={handleNailSetPress}
           />
+
+          {/* 푸터 */}
+          <View style={styles.footer}>
+            <View>
+              <Text style={styles.footerText}>버전 1.0.0</Text>
+              <Text style={styles.footerText}>
+                문의 메일 : snail.official.kr@gmail.com
+              </Text>
+              <View style={styles.footerNotice}>
+                <Text style={styles.footerText}>유의사항</Text>
+                <Text style={styles.footerText}>
+                  • 위 아트 이미지는 모두 AI로 생성되었습니다.
+                </Text>
+              </View>
+            </View>
+          </View>
         </ScrollView>
       </SafeAreaView>
 
@@ -150,6 +166,24 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
     flex: 1,
+  },
+  footer: {
+    alignItems: 'center',
+    backgroundColor: colors.gray50,
+    flexDirection: 'row',
+    paddingBottom: 41,
+    paddingLeft: 26,
+    paddingRight: 167,
+    paddingTop: 25,
+    width: '100%',
+  },
+  footerNotice: {
+    marginTop: 8,
+  },
+  footerText: {
+    ...typography.caption_M,
+    color: colors.gray400,
+    letterSpacing: -0.1,
   },
   logoContainer: {
     alignItems: 'center',
@@ -174,7 +208,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 90,
+    paddingBottom: 60,
   },
   scrollView: {
     flex: 1,
