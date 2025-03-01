@@ -62,7 +62,7 @@ export function TabBarHeader({ title, onBack }: TabBarHeaderProps) {
     <View style={styles.header}>
       {onBack && (
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <BackIcon width={24} height={24} />
+          <BackIcon width={48} height={48} />
         </TouchableOpacity>
       )}
       <Text style={styles.headerTitle}>{title}</Text>
@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     color: colors.gray900,
   },
   backButton: {
+    flexShrink: 0,
     left: 5,
     padding: 8,
     position: 'absolute',

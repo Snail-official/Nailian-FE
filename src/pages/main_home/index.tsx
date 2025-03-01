@@ -14,6 +14,7 @@ import { fetchUserProfile } from '~/entities/user/api';
 import { fetchRecommendedNailSets } from '~/entities/nail-set/api';
 import Logo from '~/shared/assets/icons/logo.svg';
 import { TabBarFooter } from '~/shared/ui/TabBar';
+import NailSetList, { INailSet } from '~/features/nail-set/ui/NailSetList';
 import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
 
@@ -49,6 +50,13 @@ function MainHomeScreen({ navigation }: Props) {
   const [recommendedNailSets, setRecommendedNailSets] = useState<StyleGroup[]>(
     [],
   );
+
+  // NailSetList 상태
+  const [nailSetListVisible, setNailSetListVisible] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   // 사용자 정보 가져오기
   useEffect(() => {
@@ -93,13 +101,19 @@ function MainHomeScreen({ navigation }: Props) {
   // 스타일 클릭 핸들러
   const handleStylePress = (style: { id: number; name: string }) => {
     console.log('스타일 클릭:', style.name);
-    // 필요시 navigation.navigate 등 추가
+    setSelectedStyle(style);
+    setNailSetListVisible(true);
   };
 
   // 네일 세트 클릭 핸들러
   const handleNailSetPress = (nailSet: NailSet) => {
     console.log('네일 세트 클릭:', nailSet.id);
     // 필요시 navigation.navigate 등 추가
+  };
+
+  // NailSetList 닫기 핸들러
+  const handleNailSetListClose = () => {
+    setNailSetListVisible(false);
   };
 
   return (
@@ -151,6 +165,16 @@ function MainHomeScreen({ navigation }: Props) {
         </ScrollView>
       </SafeAreaView>
 
+      {/* 네일 세트 목록 오버레이 */}
+      {selectedStyle && (
+        <NailSetList
+          visible={nailSetListVisible}
+          style={selectedStyle}
+          onNailSetPress={handleNailSetPress}
+          onClose={handleNailSetListClose}
+        />
+      )}
+
       {/* TabBar를 화면 맨 아래에 고정 */}
       <TabBarFooter
         activeTab="home"
@@ -164,7 +188,7 @@ function MainHomeScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.gray50,
     flex: 1,
   },
   footer: {

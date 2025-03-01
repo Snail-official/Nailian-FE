@@ -396,18 +396,29 @@ const nailHandlers = [
    */
   http.get(`${API_BASE_URL}/nail-sets/feed`, async ({ request }) => {
     const url = new URL(request.url);
-    const style = url.searchParams.get('style')?.toUpperCase() as
-      | string
-      | undefined;
+    const styleId = Number(url.searchParams.get('style'));
     const page = Number(url.searchParams.get('page')) || 1;
     const size = Number(url.searchParams.get('size')) || 9;
 
-    if (!style) {
-      return createErrorResponse('스타일을 지정해야 합니다.', 400);
+    if (Number.isNaN(styleId)) {
+      return createErrorResponse('올바른 스타일 ID를 지정해야 합니다.', 400);
+    }
+
+    // 스타일 ID를 기반으로 스타일 이름 찾기 (예시로 매핑 사용)
+    const styleMap = {
+      0: 'SIMPLE',
+      1: 'TREND',
+      2: 'WEDDING',
+    };
+
+    const styleName = styleMap[styleId as keyof typeof styleMap];
+
+    if (!styleName) {
+      return createErrorResponse('존재하지 않는 스타일입니다.', 404);
     }
 
     const filteredNailSets = nailSets.filter(
-      nailSet => nailSet.style.includes(style) && !nailSet.user,
+      nailSet => nailSet.style.includes(styleName) && !nailSet.user,
     );
 
     if (filteredNailSets.length === 0) {
