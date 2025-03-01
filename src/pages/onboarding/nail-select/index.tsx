@@ -141,7 +141,7 @@ export default function NailSelectScreen() {
 
       // 선택한 네일 취향 저장 API 호출
       await saveNailPreferences({
-        selectedPreferences: selectedNails.map(i => Number(i)),
+        preferences: selectedNails.map(i => Number(i)),
       });
 
       // 성공 시 다음 온보딩 단계로 이동

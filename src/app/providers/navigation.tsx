@@ -7,7 +7,7 @@ import NailSelectScreen from '~/pages/onboarding/nail-select';
 import OnboardingEntryScreen from '~/pages/onboarding/entry';
 import OnboardingNicknameScreen from '~/pages/onboarding/nickname';
 import SocialLoginScreen from '~/pages/SocialLoginScreen';
-import MainHomeScreen from '~/pages/MainHomeScreen';
+import MainHomeScreen from '~/pages/main_home';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

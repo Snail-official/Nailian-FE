@@ -72,12 +72,12 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     textStyle: typography.title2_SB,
   },
   secondarySmall: {
-    height: 45,
-    width: 144,
+    height: 33,
+    width: 128,
     enabledColor: colors.gray900,
     disabledColor: colors.gray100,
     textStyle: typography.body2_SB,
-    borderRadius: 8,
+    borderRadius: 4,
   },
   primaryMediumGradient: {
     height: 48,
