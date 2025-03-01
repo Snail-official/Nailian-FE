@@ -495,19 +495,30 @@ const nailHandlers = [
     async ({ params, request }) => {
       const { nailSetId } = params;
       const url = new URL(request.url);
-      const style = url.searchParams.get('style')?.toUpperCase() as
-        | string
-        | undefined;
+      const styleId = Number(url.searchParams.get('style'));
       const page = Number(url.searchParams.get('page')) || 1;
       const size = Number(url.searchParams.get('size')) || 9;
 
-      if (!style) {
-        return createErrorResponse('스타일을 지정해야 합니다.', 400);
+      if (Number.isNaN(styleId)) {
+        return createErrorResponse('올바른 스타일 ID를 지정해야 합니다.', 400);
+      }
+
+      // 스타일 ID를 기반으로 스타일 이름 찾기
+      const styleMap = {
+        0: 'SIMPLE',
+        1: 'TREND',
+        2: 'WEDDING',
+      };
+
+      const styleName = styleMap[styleId as keyof typeof styleMap];
+
+      if (!styleName) {
+        return createErrorResponse('존재하지 않는 스타일입니다.', 404);
       }
 
       const similarNailSets = nailSets.filter(
         set =>
-          set.style.includes(style) &&
+          set.style.includes(styleName) &&
           set.id.toString() !== nailSetId &&
           !set.user,
       );

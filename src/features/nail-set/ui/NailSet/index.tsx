@@ -38,6 +38,13 @@ export interface NailSetProps {
    * 컨테이너 스타일
    */
   style?: StyleProp<ViewStyle>;
+
+  /**
+   * 네일 세트 크기
+   * 'small': 기본 크기 (160x108)
+   * 'large': 상세 화면용 큰 크기 (331x204)
+   */
+  size?: 'small' | 'large';
 }
 
 const DEFAULT_IMAGES = {
@@ -60,15 +67,26 @@ const DEFAULT_IMAGES = {
  *   style={{ width: '90%', backgroundColor: colors.white }}
  * />
  */
-function NailSet({ nailImages, onPress, style }: NailSetProps) {
+function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
+  // 크기에 따른 스케일 팩터 계산
+  const scaleFactor = size === 'large' ? 2.06875 : 1; // 331/160 = 2.06875
+
   // 고정된 네일 크기 설정 - 손가락 비율과 마진 설정
-  const nails = [
+  const defaultNails = [
     { id: 1, name: 'thumb', width: 70, height: 68, margin: 0 },
     { id: 2, name: 'index', width: 50, height: 60, margin: -28 },
     { id: 3, name: 'middle', width: 55, height: 64, margin: -24 },
     { id: 4, name: 'ring', width: 50, height: 60, margin: -24 },
     { id: 5, name: 'pinky', width: 45, height: 54, margin: -22 },
   ];
+
+  // 크기에 따라 조정된 네일 설정 계산
+  const nails = defaultNails.map(nail => ({
+    ...nail,
+    width: Math.round(nail.width * scaleFactor),
+    height: Math.round(nail.height * scaleFactor),
+    margin: Math.round(nail.margin * scaleFactor),
+  }));
 
   // 이미지 소스 가져오기
   const getImageSource = (fingerName: string): ImageSourcePropType => {
@@ -91,7 +109,11 @@ function NailSet({ nailImages, onPress, style }: NailSetProps) {
 
   return (
     <Container
-      style={[styles.container, style]}
+      style={[
+        styles.container,
+        size === 'large' ? styles.largeContainer : styles.smallContainer,
+        style,
+      ]}
       onPress={onPress}
       activeOpacity={0.8}
     >
@@ -121,10 +143,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.gray50,
     borderRadius: 4,
-    height: 108,
     justifyContent: 'center',
     padding: 2,
-    width: 160,
+  },
+  largeContainer: {
+    height: 204,
+    width: 331,
   },
   nailContainer: {
     alignItems: 'center',
@@ -135,6 +159,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
+  },
+  smallContainer: {
+    height: 108,
+    width: 160,
   },
 });
 

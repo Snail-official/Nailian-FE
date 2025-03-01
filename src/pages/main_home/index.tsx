@@ -14,7 +14,9 @@ import { fetchUserProfile } from '~/entities/user/api';
 import { fetchRecommendedNailSets } from '~/entities/nail-set/api';
 import Logo from '~/shared/assets/icons/logo.svg';
 import { TabBarFooter } from '~/shared/ui/TabBar';
-import NailSetList, { INailSet } from '~/features/nail-set/ui/NailSetList';
+import NailSetList from '~/features/nail-set/ui/NailSetList';
+import NailSetDetail from '~/features/nail-set/ui/NailSetDetail';
+import Toast from '~/shared/ui/Toast';
 import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
 
@@ -58,6 +60,15 @@ function MainHomeScreen({ navigation }: Props) {
     name: string;
   } | null>(null);
 
+  // NailSetDetail 상태
+  const [nailSetDetailVisible, setNailSetDetailVisible] = useState(false);
+  const [selectedNailSet, setSelectedNailSet] = useState<NailSet | null>(null);
+  const [bookmarkedNailSets, setBookmarkedNailSets] = useState<number[]>([]);
+
+  // 토스트 상태
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
   // 사용자 정보 가져오기
   useEffect(() => {
     const getUserProfile = async () => {
@@ -88,6 +99,32 @@ function MainHomeScreen({ navigation }: Props) {
     getRecommendedNailSets();
   }, []);
 
+  // MainHomeScreen에서만 토스트 함수 구현
+  const showBookmarkToast = (isAdd: boolean) => {
+    setToastMessage(
+      isAdd ? '보관함에 저장되었습니다' : '보관함에서 삭제되었습니다',
+    );
+    setToastVisible(true);
+
+    // 3초 후에 토스트 닫기
+    setTimeout(() => {
+      setToastVisible(false);
+    }, 3000);
+  };
+
+  // 북마크 토글 핸들러
+  const handleBookmarkToggle = (nailSetId: number) => {
+    const isAlreadyBookmarked = bookmarkedNailSets.includes(nailSetId);
+
+    if (isAlreadyBookmarked) {
+      setBookmarkedNailSets(bookmarkedNailSets.filter(id => id !== nailSetId));
+    } else {
+      setBookmarkedNailSets([...bookmarkedNailSets, nailSetId]);
+    }
+
+    showBookmarkToast(!isAlreadyBookmarked);
+  };
+
   // 배너 클릭 핸들러
   const handleBannerPress = (banner: {
     id: number;
@@ -105,15 +142,55 @@ function MainHomeScreen({ navigation }: Props) {
     setNailSetListVisible(true);
   };
 
-  // 네일 세트 클릭 핸들러
+  // 네일 세트 클릭 핸들러 (RecommendedNailSets용)
+  const handleRecommendedNailSetPress = (
+    nailSet: NailSet,
+    style: { id: number; name: string },
+  ) => {
+    console.log('추천 네일 세트 클릭:', nailSet.id);
+    setSelectedNailSet(nailSet);
+    setSelectedStyle(style);
+    setNailSetDetailVisible(true);
+  };
+
+  // 네일 세트 클릭 핸들러 (NailSetList용)
   const handleNailSetPress = (nailSet: NailSet) => {
     console.log('네일 세트 클릭:', nailSet.id);
-    // 필요시 navigation.navigate 등 추가
+    setSelectedNailSet(nailSet);
+    setNailSetDetailVisible(true);
   };
 
   // NailSetList 닫기 핸들러
   const handleNailSetListClose = () => {
     setNailSetListVisible(false);
+  };
+
+  // NailSetDetail 닫기 핸들러
+  const handleNailSetDetailClose = () => {
+    setNailSetDetailVisible(false);
+  };
+
+  // 네일 세트 변경 핸들러 추가
+  const handleNailSetChange = (newNailSetId: number) => {
+    // 선택된 네일 세트 목록에서 새로운 ID에 해당하는 네일 세트 찾기
+    const allNailSets: NailSet[] = [];
+
+    // 추천 네일 세트 목록에서 검색
+    recommendedNailSets.forEach(group => {
+      group.nailSets.forEach(nailSet => {
+        allNailSets.push(nailSet);
+      });
+    });
+
+    // NailSetList를 통해 가져온 모든 네일 세트도 검색 대상에 포함
+    // 이 부분은 NailSetList 컴포넌트에서 데이터를 가져오는 형태에 맞게 조정 필요
+    // 예시 코드이므로 실제 구현에 맞게 수정해야 함
+
+    const newNailSet = allNailSets.find(item => item.id === newNailSetId);
+
+    if (newNailSet) {
+      setSelectedNailSet(newNailSet);
+    }
   };
 
   return (
@@ -144,7 +221,7 @@ function MainHomeScreen({ navigation }: Props) {
             leftMargin={LEFT_MARGIN}
             nailSets={recommendedNailSets}
             onStylePress={handleStylePress}
-            onNailSetPress={handleNailSetPress}
+            onNailSetPress={handleRecommendedNailSetPress}
           />
 
           {/* 푸터 */}
@@ -175,6 +252,19 @@ function MainHomeScreen({ navigation }: Props) {
         />
       )}
 
+      {/* 네일 세트 상세 오버레이 */}
+      {selectedNailSet && selectedStyle && (
+        <NailSetDetail
+          visible={nailSetDetailVisible}
+          nailSetId={selectedNailSet.id}
+          style={selectedStyle}
+          onClose={handleNailSetDetailClose}
+          isBookmarked={bookmarkedNailSets.includes(selectedNailSet.id)}
+          onBookmarkPress={handleBookmarkToggle}
+          onNailSetChange={handleNailSetChange}
+        />
+      )}
+
       {/* TabBar를 화면 맨 아래에 고정 */}
       <TabBarFooter
         activeTab="home"
@@ -182,6 +272,9 @@ function MainHomeScreen({ navigation }: Props) {
           console.log(`${tab} 탭 클릭됨`);
         }}
       />
+
+      {/* 토스트 메시지 */}
+      <Toast message={toastMessage} visible={toastVisible} position="bottom" />
     </View>
   );
 }

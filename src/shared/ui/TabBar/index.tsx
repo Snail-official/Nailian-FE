@@ -11,6 +11,7 @@ type TabType = 'home' | 'ar_experience' | 'my_page';
 interface TabBarHeaderProps {
   title: string;
   onBack: () => void;
+  rightContent?: React.ReactNode;
 }
 
 interface TabBarFooterProps {
@@ -48,6 +49,7 @@ const TAB_DATA = [
  * <TabBarHeader
  *   title="웨딩네일"
  *   onBack={() => navigation.goBack()}
+ *   rightContent={<BookmarkIcon />} // 선택적인 우측 콘텐츠
  * />
  *
  * // 푸터 사용
@@ -57,7 +59,11 @@ const TAB_DATA = [
  * />
  */
 
-export function TabBarHeader({ title, onBack }: TabBarHeaderProps) {
+export function TabBarHeader({
+  title,
+  onBack,
+  rightContent,
+}: TabBarHeaderProps) {
   return (
     <View style={styles.header}>
       {onBack && (
@@ -66,6 +72,7 @@ export function TabBarHeader({ title, onBack }: TabBarHeaderProps) {
         </TouchableOpacity>
       )}
       <Text style={styles.headerTitle}>{title}</Text>
+      {rightContent && <View style={styles.rightContent}>{rightContent}</View>}
     </View>
   );
 }
@@ -137,6 +144,13 @@ const styles = StyleSheet.create({
     ...typography.title2_SB,
     color: colors.gray900,
     textAlign: 'center',
+  },
+  rightContent: {
+    bottom: 0,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 16,
+    top: 0,
   },
   tabItem: {
     alignItems: 'center',

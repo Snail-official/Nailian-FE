@@ -33,7 +33,10 @@ interface RecommendedNailSetsProps {
   leftMargin: number;
   nailSets: StyleGroup[];
   onStylePress: (style: { id: number; name: string }) => void;
-  onNailSetPress: (nailSet: NailSet) => void;
+  onNailSetPress: (
+    nailSet: NailSet,
+    style: { id: number; name: string },
+  ) => void;
 }
 
 // 구분선 컴포넌트
@@ -48,10 +51,17 @@ function RecommendedNailSets({
   onNailSetPress,
 }: RecommendedNailSetsProps) {
   // 네일 세트 렌더링 함수
-  const renderNailSet = ({ item }: { item: NailSet }) => (
+  const renderNailSet = (
+    {
+      item,
+    }: {
+      item: NailSet;
+    },
+    styleInfo: { id: number; name: string },
+  ) => (
     <TouchableOpacity
       style={styles.nailSetItem}
-      onPress={() => onNailSetPress(item)}
+      onPress={() => onNailSetPress(item, styleInfo)}
     >
       <NailSet nailImages={item} />
     </TouchableOpacity>
@@ -76,7 +86,7 @@ function RecommendedNailSets({
           <FlatList
             horizontal
             data={styleGroup.nailSets}
-            renderItem={renderNailSet}
+            renderItem={itemInfo => renderNailSet(itemInfo, styleGroup.style)}
             keyExtractor={item => `nail-set-${item.id}`}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={[
