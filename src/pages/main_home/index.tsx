@@ -11,13 +11,34 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { colors, typography } from '~/shared/styles/design';
 import { fetchUserProfile } from '~/entities/user/api';
+import { fetchRecommendedNailSets } from '~/entities/nail-set/api';
 import Logo from '~/shared/assets/icons/logo.svg';
 import { TabBarFooter } from '~/shared/ui/TabBar';
 import Banner from './ui/banner';
+import RecommendedNailSets from './ui/recommended-nail-sets';
 
 const { width } = Dimensions.get('window');
 const BANNER_WIDTH = 331;
 const LEFT_MARGIN = (width - BANNER_WIDTH) / 2;
+
+// 네일 세트 인터페이스 정의
+interface NailSet {
+  id: number;
+  thumb: { imageUrl: string };
+  index: { imageUrl: string };
+  middle: { imageUrl: string };
+  ring: { imageUrl: string };
+  pinky: { imageUrl: string };
+}
+
+// 스타일 그룹 인터페이스 정의
+interface StyleGroup {
+  style: {
+    id: number;
+    name: string;
+  };
+  nailSets: NailSet[];
+}
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MainHome'>;
@@ -25,6 +46,9 @@ type Props = {
 
 function MainHomeScreen({ navigation }: Props) {
   const [nickname, setNickname] = useState<string>('');
+  const [recommendedNailSets, setRecommendedNailSets] = useState<StyleGroup[]>(
+    [],
+  );
 
   // 사용자 정보 가져오기
   useEffect(() => {
@@ -40,6 +64,22 @@ function MainHomeScreen({ navigation }: Props) {
     getUserProfile();
   }, []);
 
+  // 추천 네일 세트 가져오기
+  useEffect(() => {
+    const getRecommendedNailSets = async () => {
+      try {
+        const response = await fetchRecommendedNailSets();
+        if (response.data) {
+          setRecommendedNailSets(response.data);
+        }
+      } catch (err) {
+        console.error('추천 네일 세트 불러오기 실패:', err);
+      }
+    };
+
+    getRecommendedNailSets();
+  }, []);
+
   // 배너 클릭 핸들러
   const handleBannerPress = (banner: {
     id: number;
@@ -47,6 +87,18 @@ function MainHomeScreen({ navigation }: Props) {
     link: string;
   }) => {
     console.log('배너 클릭:', banner.id);
+    // 필요시 navigation.navigate 등 추가
+  };
+
+  // 스타일 클릭 핸들러
+  const handleStylePress = (style: { id: number; name: string }) => {
+    console.log('스타일 클릭:', style.name);
+    // 필요시 navigation.navigate 등 추가
+  };
+
+  // 네일 세트 클릭 핸들러
+  const handleNailSetPress = (nailSet: NailSet) => {
+    console.log('네일 세트 클릭:', nailSet.id);
     // 필요시 navigation.navigate 등 추가
   };
 
@@ -73,7 +125,13 @@ function MainHomeScreen({ navigation }: Props) {
             </Text>
           </View>
 
-          {/* 여기에 추가 콘텐츠가 들어갈 수 있음 */}
+          {/* 추천 네일 세트 목록 */}
+          <RecommendedNailSets
+            leftMargin={LEFT_MARGIN}
+            nailSets={recommendedNailSets}
+            onStylePress={handleStylePress}
+            onNailSetPress={handleNailSetPress}
+          />
         </ScrollView>
       </SafeAreaView>
 
@@ -90,7 +148,7 @@ function MainHomeScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.gray50,
+    backgroundColor: colors.white,
     flex: 1,
   },
   logoContainer: {
