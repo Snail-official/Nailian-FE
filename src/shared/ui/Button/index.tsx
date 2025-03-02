@@ -72,12 +72,12 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     textStyle: typography.title2_SB,
   },
   secondarySmall: {
-    height: 33,
-    width: 128,
+    height: 44,
+    width: 144,
     enabledColor: colors.gray900,
     disabledColor: colors.gray100,
     textStyle: typography.body2_SB,
-    borderRadius: 4,
+    borderRadius: 8,
   },
   primaryMediumGradient: {
     height: 48,
@@ -145,6 +145,7 @@ function Button({
 }: ButtonProps) {
   const variantStyle = BUTTON_STYLES[variant];
   const isGradientVariant = variant.includes('Gradient');
+  const isSecondarySmall = variant === 'secondarySmall';
 
   const buttonContent = (
     <TouchableOpacity
@@ -160,9 +161,10 @@ function Button({
           borderRadius: variantStyle.borderRadius ?? 0,
           borderColor: variantStyle.borderColor,
           borderWidth: variantStyle.borderWidth,
+          ...(isSecondarySmall ? { padding: 12 } : {}),
         },
       ]}
-      disabled={disabled || loading}
+      disabled={false}
       onPress={onPress}
     >
       {loading ? (
