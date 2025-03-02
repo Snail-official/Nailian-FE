@@ -14,8 +14,10 @@ import { colors, typography } from '~/shared/styles/design';
 import { fetchUserProfile, logoutFromService } from '~/entities/user/api';
 import { fetchUserNailSets } from '~/entities/nail-set/api';
 import { TabBarFooter } from '~/shared/ui/TabBar';
+import Modal from '~/shared/ui/Modal';
 import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
 import UnsubscribeIcon from '~/shared/assets/icons/ic_unsubscribe.svg';
+import { useAuthStore } from '~/shared/store/authStore';
 
 const BookmarkBar = require('~/shared/assets/images/bookmark_bar.png');
 const ProfileImage = require('~/shared/assets/images/img_profile.png');
@@ -27,6 +29,9 @@ interface MyPageProps {
 function MyPageScreen({ navigation }: MyPageProps) {
   const [nickname, setNickname] = useState<string>('');
   const [bookmarkCount, setBookmarkCount] = useState<number>(0);
+  const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
+  const [showUnsubscribeModal, setShowUnsubscribeModal] =
+    useState<boolean>(false);
 
   // 모든 데이터 호출을 하나의 useEffect로 통합
   useEffect(() => {
@@ -56,10 +61,23 @@ function MyPageScreen({ navigation }: MyPageProps) {
     };
   }, []);
 
+  // 로그아웃 모달 표시
+  const handleLogoutButtonPress = () => {
+    setShowLogoutModal(true);
+  };
+
+  // 로그아웃 취소
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
+  };
+
   // 로그아웃 처리
   const handleLogout = async () => {
     try {
       await logoutFromService();
+      // 로컬에 저장된 인증 토큰 제거
+      await useAuthStore.getState().clearTokens();
+      setShowLogoutModal(false);
       navigation.replace('SocialLogin');
     } catch (err) {
       console.error('로그아웃 실패:', err);
@@ -100,117 +118,173 @@ function MyPageScreen({ navigation }: MyPageProps) {
     }
   };
 
+  // 회원 탈퇴 모달 표시
+  const handleUnsubscribeButtonPress = () => {
+    setShowUnsubscribeModal(true);
+  };
+
+  // 회원 탈퇴 취소
+  const handleUnsubscribeCancel = () => {
+    setShowUnsubscribeModal(false);
+  };
+
   // 회원 탈퇴 처리
   const handleUnsubscribe = () => {
-    // 구현 필요: 탈퇴하기 모달 창 표시
-    console.log('탈퇴하기 모달 표시');
+    // 실제 탈퇴 API가 없으므로 콘솔 로그만 출력
+    console.log('회원 탈퇴 처리');
+    setShowUnsubscribeModal(false);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.mainContainer}>
-        <View style={styles.container}>
-          <ScrollView
-            style={styles.scrollContainer}
-            contentContainerStyle={styles.scrollContent}
-            removeClippedSubviews={false}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* 프로필 섹션 */}
-            <View style={styles.profileSection}>
-              <View style={styles.profileImageContainer}>
-                <Image source={ProfileImage} style={styles.profileImage} />
-              </View>
-              <Text style={styles.nickname}>{nickname || '네일조아'}</Text>
-            </View>
-
-            {/* 구분선 */}
-            <View style={styles.divider} />
-
-            {/* 네일 보관함 */}
-            <TouchableOpacity
-              style={styles.bookmarkContainer}
-              onPress={handleNailBookmarkPress}
+    <>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.mainContainer}>
+          <View style={styles.container}>
+            <ScrollView
+              style={styles.scrollContainer}
+              contentContainerStyle={styles.scrollContent}
+              removeClippedSubviews={false}
+              showsVerticalScrollIndicator={false}
             >
-              <View style={styles.bookmarkContent}>
-                <View style={styles.bookmarkTextContainer}>
-                  <Text style={styles.bookmarkTitle}>네일 보관함</Text>
+              {/* 프로필 섹션 */}
+              <View style={styles.profileSection}>
+                <View style={styles.profileImageContainer}>
+                  <Image source={ProfileImage} style={styles.profileImage} />
                 </View>
-                <View style={styles.bookmarkCountContainer}>
-                  <Text
-                    style={styles.bookmarkCount}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {bookmarkCount}
-                  </Text>
+                <Text style={styles.nickname}>{nickname || '네일조아'}</Text>
+              </View>
+
+              {/* 구분선 */}
+              <View style={styles.divider} />
+
+              {/* 네일 보관함 */}
+              <TouchableOpacity
+                style={styles.bookmarkContainer}
+                onPress={handleNailBookmarkPress}
+              >
+                <View style={styles.bookmarkContent}>
+                  <View style={styles.bookmarkTextContainer}>
+                    <Text style={styles.bookmarkTitle}>네일 보관함</Text>
+                  </View>
+                  <View style={styles.bookmarkCountContainer}>
+                    <Text
+                      style={styles.bookmarkCount}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {bookmarkCount}
+                    </Text>
+                    <ArrowRightIcon
+                      width={24}
+                      height={24}
+                      color={colors.gray100}
+                    />
+                  </View>
+                </View>
+                <Image source={BookmarkBar} style={styles.bookmarkBar} />
+              </TouchableOpacity>
+
+              {/* 메뉴 리스트 */}
+              <View style={styles.menuList}>
+                {/* 1:1 문의 */}
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={() => handleMenuPress('1:1 문의')}
+                >
+                  <Text style={styles.menuText}>1:1 문의</Text>
                   <ArrowRightIcon
                     width={24}
                     height={24}
-                    color={colors.gray100}
-                  />
-                </View>
-              </View>
-              <Image source={BookmarkBar} style={styles.bookmarkBar} />
-            </TouchableOpacity>
-
-            {/* 메뉴 리스트 */}
-            <View style={styles.menuList}>
-              {/* 1:1 문의 */}
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleMenuPress('1:1 문의')}
-              >
-                <Text style={styles.menuText}>1:1 문의</Text>
-                <ArrowRightIcon width={24} height={24} color={colors.gray400} />
-              </TouchableOpacity>
-
-              {/* FAQ */}
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleMenuPress('FAQ')}
-              >
-                <Text style={styles.menuText}>FAQ</Text>
-                <ArrowRightIcon width={24} height={24} color={colors.gray400} />
-              </TouchableOpacity>
-
-              {/* 약관 및 정책 */}
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleMenuPress('약관 및 정책')}
-              >
-                <Text style={styles.menuText}>약관 및 정책</Text>
-                <ArrowRightIcon width={24} height={24} color={colors.gray400} />
-              </TouchableOpacity>
-
-              {/* 로그아웃 */}
-              <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                <Text style={styles.menuText}>로그아웃</Text>
-                <ArrowRightIcon width={24} height={24} color={colors.gray400} />
-              </TouchableOpacity>
-
-              {/* 탈퇴하기 */}
-              <View style={styles.unsubscribeContainer}>
-                <TouchableOpacity
-                  style={styles.unsubscribeButton}
-                  onPress={handleUnsubscribe}
-                >
-                  <Text style={styles.unsubscribeText}>탈퇴하기</Text>
-                  <UnsubscribeIcon
-                    width={16}
-                    height={16}
                     color={colors.gray400}
                   />
                 </TouchableOpacity>
+
+                {/* FAQ */}
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={() => handleMenuPress('FAQ')}
+                >
+                  <Text style={styles.menuText}>FAQ</Text>
+                  <ArrowRightIcon
+                    width={24}
+                    height={24}
+                    color={colors.gray400}
+                  />
+                </TouchableOpacity>
+
+                {/* 약관 및 정책 */}
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={() => handleMenuPress('약관 및 정책')}
+                >
+                  <Text style={styles.menuText}>약관 및 정책</Text>
+                  <ArrowRightIcon
+                    width={24}
+                    height={24}
+                    color={colors.gray400}
+                  />
+                </TouchableOpacity>
+
+                {/* 로그아웃 */}
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={handleLogoutButtonPress}
+                >
+                  <Text style={styles.menuText}>로그아웃</Text>
+                  <ArrowRightIcon
+                    width={24}
+                    height={24}
+                    color={colors.gray400}
+                  />
+                </TouchableOpacity>
+
+                {/* 탈퇴하기 */}
+                <View style={styles.unsubscribeContainer}>
+                  <TouchableOpacity
+                    style={styles.unsubscribeButton}
+                    onPress={handleUnsubscribeButtonPress}
+                  >
+                    <Text style={styles.unsubscribeText}>탈퇴하기</Text>
+                    <UnsubscribeIcon
+                      width={16}
+                      height={16}
+                      color={colors.gray400}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </ScrollView>
+            </ScrollView>
+          </View>
+          <View style={styles.tabBarContainer}>
+            <TabBarFooter activeTab="my_page" onTabPress={handleTabPress} />
+          </View>
         </View>
-        <View style={styles.tabBarContainer}>
-          <TabBarFooter activeTab="my_page" onTabPress={handleTabPress} />
-        </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+
+      {/* 로그아웃 모달 */}
+      {showLogoutModal && (
+        <Modal
+          title="로그아웃하시겠어요?"
+          description=" "
+          confirmText="로그아웃"
+          cancelText="돌아가기"
+          onConfirm={handleLogout}
+          onCancel={handleLogoutCancel}
+        />
+      )}
+
+      {/* 탈퇴 모달 */}
+      {showUnsubscribeModal && (
+        <Modal
+          title="정말 탈퇴하시겠어요?"
+          description="소중한 정보가 모두 사라져요"
+          confirmText="탈퇴하기"
+          cancelText="돌아가기"
+          onConfirm={handleUnsubscribe}
+          onCancel={handleUnsubscribeCancel}
+        />
+      )}
+    </>
   );
 }
 

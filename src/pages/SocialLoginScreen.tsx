@@ -6,7 +6,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import LogoIcon from '~/shared/assets/icons/logo.svg';
+import LogoIcon from '~/shared/assets/icons/logo_sig.svg';
 import KakaoIcon from '~/shared/assets/icons/kakao.svg';
 import GoogleIcon from '~/shared/assets/icons/google.svg';
 import AppleIcon from '~/shared/assets/icons/apple.svg';
