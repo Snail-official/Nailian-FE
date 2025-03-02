@@ -15,12 +15,6 @@
  * const route = useRoute<RouteProp<RootStackParamList, 'SomeScreen'>>();
  * const { param1, param2 } = route.params;
  *
- * @note 향후 확장 예정:
- * OnboardingDefault: {
- *   preSelectedNailIds?: string[];  // 이전에 선택했던 네일 ID들 (마이페이지/홈 연동)
- *   maxSelection?: number;          // 최대 선택 가능 개수
- * }
- *
  * @see https://reactnavigation.org/docs/params/
  * @see https://reactnavigation.org/docs/typescript/#type-checking-the-navigator
  */
