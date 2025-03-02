@@ -37,4 +37,7 @@ export type RootStackParamList = {
 
   /** 홈 화면 */
   MainHome: undefined;
+
+  /** 마이 페이지 */
+  MyPage: undefined;
 };

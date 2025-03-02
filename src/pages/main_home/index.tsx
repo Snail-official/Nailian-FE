@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CommonActions } from '@react-navigation/native';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { colors, typography } from '~/shared/styles/design';
 import { fetchUserProfile } from '~/entities/user/api';
@@ -68,6 +69,18 @@ function MainHomeScreen({ navigation }: Props) {
   // 토스트 상태
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  // 탭 변경 핸들러 추가
+  const handleTabPress = (tab: 'home' | 'ar_experience' | 'my_page') => {
+    if (tab === 'home') return; // 이미 홈 화면이므로 아무 작업도 하지 않음
+
+    if (tab === 'my_page') {
+      navigation.navigate('MyPage');
+    } else {
+      // AR 체험 페이지로 이동 (구현 필요)
+      console.log('AR 체험 페이지로 이동');
+    }
+  };
 
   // 사용자 정보 가져오기
   useEffect(() => {
@@ -194,94 +207,98 @@ function MainHomeScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* 로고 */}
-          <View style={styles.logoContainer}>
-            <Logo width={78} height={25} />
-          </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.mainContainer}>
+        <View style={styles.container}>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            removeClippedSubviews={false}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* 로고 */}
+            <View style={styles.logoContainer}>
+              <Logo width={78} height={25} />
+            </View>
 
-          {/* 배너 */}
-          <Banner onBannerPress={handleBannerPress} />
+            {/* 배너 */}
+            <Banner onBannerPress={handleBannerPress} />
 
-          {/* 추천 아트 타이틀 */}
-          <View style={styles.recommendationContainer}>
-            <Text style={styles.recommendationText}>
-              <Text style={styles.nicknameText}>{nickname}</Text>
-              <Text>님을 위한{'\n'}아트를 추천드려요</Text>
-            </Text>
-          </View>
-
-          {/* 추천 네일 세트 목록 */}
-          <RecommendedNailSets
-            leftMargin={LEFT_MARGIN}
-            nailSets={recommendedNailSets}
-            onStylePress={handleStylePress}
-            onNailSetPress={handleRecommendedNailSetPress}
-          />
-
-          {/* 푸터 */}
-          <View style={styles.footer}>
-            <View>
-              <Text style={styles.footerText}>버전 1.0.0</Text>
-              <Text style={styles.footerText}>
-                문의 메일 : snail.official.kr@gmail.com
+            {/* 추천 아트 타이틀 */}
+            <View style={styles.recommendationContainer}>
+              <Text style={styles.recommendationText}>
+                <Text style={styles.nicknameText}>{nickname}</Text>
+                <Text>님을 위한{'\n'}아트를 추천드려요</Text>
               </Text>
-              <View style={styles.footerNotice}>
-                <Text style={styles.footerText}>유의사항</Text>
+            </View>
+
+            {/* 추천 네일 세트 목록 */}
+            <RecommendedNailSets
+              leftMargin={LEFT_MARGIN}
+              nailSets={recommendedNailSets}
+              onStylePress={handleStylePress}
+              onNailSetPress={handleRecommendedNailSetPress}
+            />
+
+            {/* 푸터 */}
+            <View style={styles.footer}>
+              <View>
+                <Text style={styles.footerText}>버전 1.0.0</Text>
                 <Text style={styles.footerText}>
-                  • 위 아트 이미지는 모두 AI로 생성되었습니다.
+                  문의 메일 : snail.official.kr@gmail.com
                 </Text>
+                <View style={styles.footerNotice}>
+                  <Text style={styles.footerText}>유의사항</Text>
+                  <Text style={styles.footerText}>
+                    • 위 아트 이미지는 모두 AI로 생성되었습니다.
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+          </ScrollView>
 
-      {/* 네일 세트 목록 오버레이 */}
-      {selectedStyle && (
-        <NailSetList
-          visible={nailSetListVisible}
-          style={selectedStyle}
-          onNailSetPress={handleNailSetPress}
-          onClose={handleNailSetListClose}
-        />
-      )}
+          {/* 네일 세트 목록 오버레이 */}
+          {selectedStyle && (
+            <NailSetList
+              visible={nailSetListVisible}
+              style={selectedStyle}
+              onNailSetPress={handleNailSetPress}
+              onClose={handleNailSetListClose}
+            />
+          )}
 
-      {/* 네일 세트 상세 오버레이 */}
-      {selectedNailSet && selectedStyle && (
-        <NailSetDetail
-          visible={nailSetDetailVisible}
-          nailSetId={selectedNailSet.id}
-          style={selectedStyle}
-          onClose={handleNailSetDetailClose}
-          isBookmarked={bookmarkedNailSets.includes(selectedNailSet.id)}
-          onBookmarkPress={handleBookmarkToggle}
-          onNailSetChange={handleNailSetChange}
-        />
-      )}
+          {/* 네일 세트 상세 오버레이 */}
+          {selectedNailSet && selectedStyle && (
+            <NailSetDetail
+              visible={nailSetDetailVisible}
+              nailSetId={selectedNailSet.id}
+              style={selectedStyle}
+              onClose={handleNailSetDetailClose}
+              isBookmarked={bookmarkedNailSets.includes(selectedNailSet.id)}
+              onBookmarkPress={handleBookmarkToggle}
+              onNailSetChange={handleNailSetChange}
+            />
+          )}
 
-      {/* TabBar를 화면 맨 아래에 고정 */}
-      <TabBarFooter
-        activeTab="home"
-        onTabPress={tab => {
-          console.log(`${tab} 탭 클릭됨`);
-        }}
-      />
+          {/* 토스트 메시지 */}
+          <Toast
+            message={toastMessage}
+            visible={toastVisible}
+            position="bottom"
+          />
+        </View>
 
-      {/* 토스트 메시지 */}
-      <Toast message={toastMessage} visible={toastVisible} position="bottom" />
-    </View>
+        <View style={styles.tabBarContainer}>
+          <TabBarFooter activeTab="home" onTabPress={handleTabPress} />
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.gray50,
+    backgroundColor: colors.white,
     flex: 1,
   },
   footer: {
@@ -309,6 +326,10 @@ const styles = StyleSheet.create({
     marginTop: 14,
     width: '100%',
   },
+  mainContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   nicknameText: {
     color: colors.purple500, // #CD19FF
   },
@@ -322,13 +343,18 @@ const styles = StyleSheet.create({
     lineHeight: 30,
   },
   safeArea: {
+    backgroundColor: colors.white,
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 60,
+    paddingBottom: 74, // 탭바 높이만큼 패딩 추가
   },
   scrollView: {
     flex: 1,
+  },
+  tabBarContainer: {
+    borderTopColor: colors.gray100,
+    borderTopWidth: 1,
   },
 });
 

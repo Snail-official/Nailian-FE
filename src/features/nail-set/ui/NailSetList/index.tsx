@@ -221,6 +221,7 @@ function NailSetList({
             numColumns={2}
             columnWrapperStyle={styles.row}
             showsVerticalScrollIndicator={false}
+            removeClippedSubviews={false}
             contentContainerStyle={styles.listContent}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.3}

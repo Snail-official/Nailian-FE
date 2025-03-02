@@ -89,6 +89,7 @@ function RecommendedNailSets({
             renderItem={itemInfo => renderNailSet(itemInfo, styleGroup.style)}
             keyExtractor={item => `nail-set-${item.id}`}
             showsHorizontalScrollIndicator={false}
+            removeClippedSubviews={false}
             contentContainerStyle={[
               styles.nailSetList,
               { paddingLeft: leftMargin },

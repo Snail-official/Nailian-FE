@@ -16,7 +16,6 @@ import {
 } from '~/entities/nail-set/api';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import Toast from '~/shared/ui/Toast';
-import Button from '~/shared/ui/Button';
 import { INailSet } from '../NailSetList';
 import NailSet from '../NailSet';
 
@@ -343,6 +342,7 @@ function NailSetDetail({
                   renderItem={renderNailSetItem}
                   keyExtractor={item => `similar-nail-set-${item.id}`}
                   showsVerticalScrollIndicator={false}
+                  removeClippedSubviews={false}
                   contentContainerStyle={styles.nailSetList}
                   columnWrapperStyle={styles.columnWrapper}
                   ItemSeparatorComponent={RowSeparator}
@@ -451,9 +451,6 @@ const styles = StyleSheet.create({
   nailSetList: {
     paddingBottom: 20,
     paddingHorizontal: 20,
-  },
-  nailSetSeparator: {
-    width: 8,
   },
   rowSeparator: {
     height: 12,
