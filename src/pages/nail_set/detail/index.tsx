@@ -10,6 +10,7 @@ import {
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
+import { INailSet } from '~/shared/types/nail-set';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, typography } from '~/shared/styles/design';
 import { TabBarHeader } from '~/shared/ui/TabBar';
@@ -17,22 +18,14 @@ import {
   fetchNailSetDetail,
   fetchSimilarNailSets,
   createUserNailSet,
+  fetchUserNailSets,
 } from '~/entities/nail-set/api';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
+import TrashIcon from '~/shared/assets/icons/ic_trash.svg';
 import { useToast } from '~/shared/ui/Toast';
 import NailSet from '~/features/nail-set/ui/NailSet';
-
-/**
- * 네일 세트 데이터 인터페이스
- */
-interface INailSet {
-  id: number;
-  thumb: { imageUrl: string };
-  index: { imageUrl: string };
-  middle: { imageUrl: string };
-  ring: { imageUrl: string };
-  pinky: { imageUrl: string };
-}
+import ArButton from '~/features/nail-set-ar/ui/ArButton';
+import Modal from '~/shared/ui/Modal';
 
 type NailSetDetailScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -55,6 +48,34 @@ function RowSeparator() {
 /**
  * 네일 세트 상세 페이지
  * 네일 세트의 상세 정보와 유사한 네일 세트 목록을 보여줍니다.
+ *
+ * 주요 기능:
+ * - 선택한 네일 세트의 상세 이미지 표시
+ * - 'AR 내 손에 올려보기' 기능
+ * - 북마크 모드: 보관함에서 네일 삭제 기능
+ * - 일반 모드: 보관함에 네일 저장 기능
+ * - 유사한 네일 세트 또는 보관함의 다른 네일 세트 목록 표시
+ * - 무한 스크롤을 통한 추가 네일 세트 로드
+ *
+ * @returns {JSX.Element} 네일 세트 상세 페이지 컴포넌트
+ *
+ * @example
+ * // 기본 사용법 (네비게이션을 통해 접근)
+ * navigation.navigate('NailSetDetailPage', {
+ *   nailSetId: 1,
+ *   styleId: 2,
+ *   styleName: '프렌치',
+ *   isBookmarked: false
+ * });
+ *
+ * @example
+ * // 북마크 모드로 접근 (보관함에서 접근)
+ * navigation.navigate('NailSetDetailPage', {
+ *   nailSetId: 1,
+ *   styleId: 0,  // 0은 북마크 모드를 의미
+ *   styleName: '네일 보관함',
+ *   isBookmarked: true
+ * });
  */
 function NailSetDetailPage() {
   const navigation = useNavigation<NailSetDetailScreenNavigationProp>();
@@ -71,6 +92,7 @@ function NailSetDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(initialBookmarkState);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // 하단 토스트 사용
   const { showToast, ToastComponent } = useToast('bottom');
@@ -81,6 +103,9 @@ function NailSetDetailPage() {
   const [similarError, setSimilarError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
+  // 북마크 모드 여부 확인 (styleId가 0이면 북마크 모드)
+  const isBookmarkMode = styleId === 0;
 
   // 네일 세트 상세 정보 가져오기
   const fetchNailSetInfo = useCallback(async () => {
@@ -101,24 +126,45 @@ function NailSetDetailPage() {
     }
   }, [nailSetId]);
 
-  // 유사한 네일 세트 목록 가져오기
-  const fetchSimilarNailSetList = useCallback(
+  // 유사한 네일 세트 또는 북마크된 다른 네일 세트 가져오기
+  const fetchNailSets = useCallback(
     async (pageToFetch = 1, refresh = false) => {
-      if (!styleId || !nailSetId) return;
+      if (!nailSetId) return;
 
       setSimilarLoading(true);
       setSimilarError(null);
       try {
-        const style = { id: styleId, name: styleName };
-        const response = await fetchSimilarNailSets({
-          nailSetId,
-          style,
-          page: pageToFetch,
-          size: 10,
-        });
+        let response;
+        if (isBookmarkMode) {
+          // 북마크 모드일 때는 사용자의 다른 북마크된 네일 세트를 가져옴
+          response = await fetchUserNailSets({
+            page: pageToFetch,
+            size: 10,
+          });
+        } else {
+          // 일반 모드일 때는 유사한 네일 세트를 가져옴
+          const style = { id: styleId, name: styleName };
+          response = await fetchSimilarNailSets({
+            nailSetId,
+            style,
+            page: pageToFetch,
+            size: 10,
+          });
+        }
 
         if (response.data) {
-          const { data, pageInfo } = response.data;
+          let data, pageInfo;
+          if (isBookmarkMode) {
+            // 북마크 모드일 때 응답 처리
+            data = response.data.data || [];
+            pageInfo = response.data.pageInfo;
+            // 현재 보고 있는 네일 세트는 제외
+            data = data.filter((item: INailSet) => item.id !== nailSetId);
+          } else {
+            // 일반 모드일 때 응답 처리
+            data = response.data.data || [];
+            pageInfo = response.data.pageInfo;
+          }
 
           // 새로고침이면 목록을 대체하고, 아니면 추가
           setSimilarNailSets(prev => (refresh ? data : [...prev, ...data]));
@@ -127,30 +173,43 @@ function NailSetDetailPage() {
           setHasMore(pageInfo.currentPage < pageInfo.totalPages);
           setPage(pageToFetch);
         } else {
-          setSimilarError('유사한 네일 세트를 불러오는데 실패했습니다.');
+          setSimilarError(
+            isBookmarkMode
+              ? '보관함의 다른 네일 세트를 불러오는데 실패했습니다.'
+              : '유사한 네일 세트를 불러오는데 실패했습니다.',
+          );
         }
       } catch (err) {
-        console.error('유사한 네일 세트 불러오기 실패:', err);
-        setSimilarError('유사한 네일 세트를 불러오는데 실패했습니다.');
+        console.error(
+          isBookmarkMode
+            ? '보관함 네일 세트 불러오기 실패:'
+            : '유사한 네일 세트 불러오기 실패:',
+          err,
+        );
+        setSimilarError(
+          isBookmarkMode
+            ? '보관함의 다른 네일 세트를 불러오는데 실패했습니다.'
+            : '유사한 네일 세트를 불러오는데 실패했습니다.',
+        );
       } finally {
         setSimilarLoading(false);
       }
     },
-    [styleId, nailSetId, styleName],
+    [styleId, nailSetId, styleName, isBookmarkMode],
   );
 
   // 컴포넌트 마운트 시 데이터 가져오기
   useEffect(() => {
     fetchNailSetInfo();
-    fetchSimilarNailSetList(1, true);
-  }, [fetchNailSetInfo, fetchSimilarNailSetList]);
+    fetchNailSets(1, true);
+  }, [fetchNailSetInfo, fetchNailSets]);
 
   // 더 불러오기 함수
   const handleLoadMore = useCallback(() => {
     if (!similarLoading && hasMore) {
-      fetchSimilarNailSetList(page + 1);
+      fetchNailSets(page + 1);
     }
-  }, [similarLoading, hasMore, fetchSimilarNailSetList, page]);
+  }, [similarLoading, hasMore, fetchNailSets, page]);
 
   /**
    * 네일 세트 아이템 클릭 핸들러
@@ -189,12 +248,13 @@ function NailSetDetailPage() {
       // 북마크 API 호출
       if (nailSet) {
         // 네일 세트를 보관함에 저장
+        /* TODO: 네일 세트 아이디 타입 수정 후 수정 필요 */
         await createUserNailSet({
-          thumb: { id: nailSet.id },
-          index: { id: nailSet.id },
-          middle: { id: nailSet.id },
-          ring: { id: nailSet.id },
-          pinky: { id: nailSet.id },
+          thumb: { id: nailSet.id as number },
+          index: { id: nailSet.id as number },
+          middle: { id: nailSet.id as number },
+          ring: { id: nailSet.id as number },
+          pinky: { id: nailSet.id as number },
         });
         console.log(
           '네일 세트가 보관함에 성공적으로 저장되었습니다:',
@@ -208,6 +268,52 @@ function NailSetDetailPage() {
       showToast('보관함에 저장되었습니다');
     }
   }, [showToast, nailSet, nailSetId]);
+
+  /**
+   * 북마크 삭제 모달 표시 함수
+   * 북마크 모드에서 휴지통 아이콘 클릭 시 삭제 확인 모달을 표시합니다.
+   */
+  const handleDeleteBookmarkPress = useCallback(() => {
+    setShowDeleteModal(true);
+  }, []);
+
+  /**
+   * 북마크 삭제 취소 함수
+   * 북마크 삭제 모달에서 취소 버튼 클릭 시 모달을 닫습니다.
+   */
+  const handleDeleteCancel = useCallback(() => {
+    setShowDeleteModal(false);
+  }, []);
+
+  /**
+   * 북마크 삭제 처리 함수
+   * 북마크 모드에서 휴지통 아이콘 클릭 시 네일 세트를 보관함에서 삭제합니다.
+   */
+  const handleDeleteBookmark = useCallback(async () => {
+    try {
+      if (!nailSetId) return;
+      // 백엔드 API 구현 전까지는 콘솔 로그만 출력
+      console.log('네일 세트 삭제:', nailSetId);
+      showToast('보관함에서 삭제되었습니다');
+      // 모달 닫기
+      setShowDeleteModal(false);
+      // 목록 화면으로 이동
+      navigation.goBack();
+    } catch (err) {
+      console.error('보관함에서 삭제 실패:', err);
+      showToast('삭제 중 오류가 발생했습니다');
+      setShowDeleteModal(false);
+    }
+  }, [nailSetId, navigation, showToast]);
+
+  /**
+   * AR 기능 핸들러
+   * AR 버튼 클릭 시 "내 손에 올려보기" 기능을 실행합니다.
+   */
+  const handleArButtonPress = useCallback(() => {
+    console.log('AR 기능 실행: 내 손에 올려보기');
+    // AR 기능 구현 전까지는 로그만 출력
+  }, []);
 
   /**
    * 네일 세트 아이템 렌더링 함수
@@ -254,17 +360,26 @@ function NailSetDetailPage() {
     <SafeAreaView style={styles.container}>
       {/* 헤더 */}
       <TabBarHeader
-        title={`${styleName} 상세`}
+        title={isBookmarkMode ? '아트 상세' : `${styleName} 상세`}
         onBack={() => navigation.goBack()}
         rightContent={
-          !isBookmarked && (
+          isBookmarkMode ? (
+            // 북마크 모드일 때는 휴지통 아이콘 표시
+            <TouchableOpacity
+              style={styles.bookmarkIconButton}
+              onPress={handleDeleteBookmarkPress}
+            >
+              <TrashIcon width={24} height={24} color={colors.gray600} />
+            </TouchableOpacity>
+          ) : !isBookmarked ? (
+            // 일반 모드이고 북마크되지 않았을 때만 북마크 아이콘 표시
             <TouchableOpacity
               style={styles.bookmarkIconButton}
               onPress={handleBookmarkToggle}
             >
               <BookmarkIcon width={19} height={18.5} color={colors.gray600} />
             </TouchableOpacity>
-          )
+          ) : null
         }
       />
 
@@ -274,21 +389,32 @@ function NailSetDetailPage() {
           <NailSet nailImages={nailSet} size="large" />
         </View>
 
-        {/* 북마크 버튼 */}
-        <TouchableOpacity
-          style={styles.bookmarkButton}
-          onPress={handleBookmarkToggle}
-          disabled={isBookmarked}
-        >
-          <View style={styles.buttonContent}>
-            <BookmarkIcon width={16} height={16} color={colors.white} />
-            <Text style={styles.bookmarkButtonText}>보관함에 저장</Text>
-          </View>
-        </TouchableOpacity>
+        {/* 버튼 영역 */}
+        <View style={styles.buttonsContainer}>
+          {/* AR 버튼 */}
+          <ArButton onPress={handleArButtonPress} />
 
-        {/* 유사한 네일 세트 섹션 */}
+          {/* 북마크 버튼 (북마크 모드가 아니고 북마크되지 않았을 때만 표시) */}
+          {!isBookmarkMode && !isBookmarked && (
+            <TouchableOpacity
+              style={styles.bookmarkButton}
+              onPress={handleBookmarkToggle}
+            >
+              <View style={styles.buttonContent}>
+                <BookmarkIcon width={16} height={16} color={colors.white} />
+                <Text style={styles.bookmarkButtonText}>보관함에 저장</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* 유사한 네일 세트 또는 보관함의 다른 네일 세트 섹션 */}
         <View style={styles.similarSectionContainer}>
-          <Text style={styles.similarSectionTitle}>선택한 네일과 비슷한</Text>
+          <Text style={styles.similarSectionTitle}>
+            {isBookmarkMode
+              ? '보관함에 있는 다른 아트'
+              : '선택한 네일과 비슷한'}
+          </Text>
           {similarLoading && similarNailSets.length === 0 ? (
             <View style={styles.similarLoadingContainer}>
               <ActivityIndicator size="small" color={colors.purple500} />
@@ -296,6 +422,14 @@ function NailSetDetailPage() {
           ) : similarError && similarNailSets.length === 0 ? (
             <View style={styles.similarErrorContainer}>
               <Text style={styles.errorText}>{similarError}</Text>
+            </View>
+          ) : similarNailSets.length === 0 ? (
+            <View style={styles.similarErrorContainer}>
+              <Text style={styles.noDataText}>
+                {isBookmarkMode
+                  ? '보관함에 다른 네일 세트가 없습니다.'
+                  : '유사한 네일 세트가 없습니다.'}
+              </Text>
             </View>
           ) : (
             <FlatList
@@ -322,7 +456,19 @@ function NailSetDetailPage() {
         </View>
       </View>
 
-      {/* Toast 컴포넌트 교체 */}
+      {/* 삭제 확인 모달 */}
+      {showDeleteModal && (
+        <Modal
+          title="해당 아트를 삭제하시겠어요?"
+          description=" "
+          confirmText="돌아가기"
+          cancelText="삭제하기"
+          onConfirm={handleDeleteCancel}
+          onCancel={handleDeleteBookmark}
+        />
+      )}
+
+      {/* Toast 컴포넌트 */}
       <ToastComponent />
     </SafeAreaView>
   );
@@ -352,6 +498,13 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     width: '100%',
+  },
+  buttonsContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'center',
+    marginBottom: 24,
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -399,6 +552,10 @@ const styles = StyleSheet.create({
   nailSetList: {
     paddingBottom: 20,
     paddingHorizontal: 20,
+  },
+  noDataText: {
+    ...typography.body2_SB,
+    color: colors.gray400,
   },
   rowSeparator: {
     height: 12,

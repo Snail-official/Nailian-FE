@@ -10,6 +10,7 @@ import {
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
+import { INailSet } from '~/shared/types/nail-set';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '~/shared/styles/design';
 import { TabBarHeader } from '~/shared/ui/TabBar';
@@ -25,19 +26,6 @@ const NAIL_SET_WIDTH = 160;
 const HORIZONTAL_SPACING = 12;
 /** 두 네일 세트의 총 너비 (두 컴포넌트 + 간격) */
 const TOTAL_NAIL_SETS_WIDTH = NAIL_SET_WIDTH * 2 + HORIZONTAL_SPACING;
-
-/**
- * 네일 세트 데이터 인터페이스
- */
-interface INailSet {
-  id: number;
-  thumb: { imageUrl: string };
-  index: { imageUrl: string };
-  middle: { imageUrl: string };
-  ring: { imageUrl: string };
-  pinky: { imageUrl: string };
-  isBookmarked?: boolean;
-}
 
 type NailSetListScreenRouteProp = RouteProp<
   RootStackParamList,
