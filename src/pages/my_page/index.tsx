@@ -15,6 +15,7 @@ import { fetchUserProfile, logoutFromService } from '~/entities/user/api';
 import { fetchUserNailSets } from '~/entities/nail-set/api';
 import { TabBarFooter } from '~/shared/ui/TabBar';
 import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
+import UnsubscribeIcon from '~/shared/assets/icons/ic_unsubscribe.svg';
 
 const BookmarkBar = require('~/shared/assets/images/bookmark_bar.png');
 const ProfileImage = require('~/shared/assets/images/img_profile.png');
@@ -73,8 +74,18 @@ function MyPageScreen({ navigation }: MyPageProps) {
 
   // 각 메뉴 항목 클릭 핸들러
   const handleMenuPress = (menuType: string) => {
-    // 구현 필요: 각 메뉴 페이지로 이동
-    console.log(`${menuType} 페이지로 이동`);
+    const urls: Record<string, string> = {
+      '1:1 문의': 'https://example.com/inquiry',
+      FAQ: 'https://example.com/faq',
+      '약관 및 정책': 'https://example.com/terms',
+    };
+    // URL이 있으면 웹페이지로 이동
+    if (urls[menuType]) {
+      // 여기에 웹뷰 네비게이션 로직 추가
+      console.log(`${menuType} 페이지로 이동: ${urls[menuType]}`);
+    } else {
+      console.log(`${menuType} 페이지로 이동`);
+    }
   };
 
   // 탭 변경 핸들러
@@ -87,6 +98,12 @@ function MyPageScreen({ navigation }: MyPageProps) {
       // AR 체험 페이지로 이동 (구현 필요)
       console.log('AR 체험 페이지로 이동');
     }
+  };
+
+  // 회원 탈퇴 처리
+  const handleUnsubscribe = () => {
+    // 구현 필요: 탈퇴하기 모달 창 표시
+    console.log('탈퇴하기 모달 표시');
   };
 
   return (
@@ -107,6 +124,9 @@ function MyPageScreen({ navigation }: MyPageProps) {
               <Text style={styles.nickname}>{nickname || '네일조아'}</Text>
             </View>
 
+            {/* 구분선 */}
+            <View style={styles.divider} />
+
             {/* 네일 보관함 */}
             <TouchableOpacity
               style={styles.bookmarkContainer}
@@ -117,8 +137,18 @@ function MyPageScreen({ navigation }: MyPageProps) {
                   <Text style={styles.bookmarkTitle}>네일 보관함</Text>
                 </View>
                 <View style={styles.bookmarkCountContainer}>
-                  <Text style={styles.bookmarkCount}>{bookmarkCount}</Text>
-                  <ArrowRightIcon width={16} height={16} color={colors.white} />
+                  <Text
+                    style={styles.bookmarkCount}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {bookmarkCount}
+                  </Text>
+                  <ArrowRightIcon
+                    width={24}
+                    height={24}
+                    color={colors.gray100}
+                  />
                 </View>
               </View>
               <Image source={BookmarkBar} style={styles.bookmarkBar} />
@@ -132,7 +162,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 onPress={() => handleMenuPress('1:1 문의')}
               >
                 <Text style={styles.menuText}>1:1 문의</Text>
-                <ArrowRightIcon width={16} height={16} color={colors.gray500} />
+                <ArrowRightIcon width={24} height={24} color={colors.gray400} />
               </TouchableOpacity>
 
               {/* FAQ */}
@@ -141,7 +171,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 onPress={() => handleMenuPress('FAQ')}
               >
                 <Text style={styles.menuText}>FAQ</Text>
-                <ArrowRightIcon width={16} height={16} color={colors.gray500} />
+                <ArrowRightIcon width={24} height={24} color={colors.gray400} />
               </TouchableOpacity>
 
               {/* 약관 및 정책 */}
@@ -150,14 +180,29 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 onPress={() => handleMenuPress('약관 및 정책')}
               >
                 <Text style={styles.menuText}>약관 및 정책</Text>
-                <ArrowRightIcon width={16} height={16} color={colors.gray500} />
+                <ArrowRightIcon width={24} height={24} color={colors.gray400} />
               </TouchableOpacity>
 
               {/* 로그아웃 */}
               <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
                 <Text style={styles.menuText}>로그아웃</Text>
-                <ArrowRightIcon width={16} height={16} color={colors.gray500} />
+                <ArrowRightIcon width={24} height={24} color={colors.gray400} />
               </TouchableOpacity>
+
+              {/* 탈퇴하기 */}
+              <View style={styles.unsubscribeContainer}>
+                <TouchableOpacity
+                  style={styles.unsubscribeButton}
+                  onPress={handleUnsubscribe}
+                >
+                  <Text style={styles.unsubscribeText}>탈퇴하기</Text>
+                  <UnsubscribeIcon
+                    width={16}
+                    height={16}
+                    color={colors.gray400}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
         </View>
@@ -182,7 +227,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: 72,
     marginHorizontal: 20,
-    marginTop: 24,
+    marginTop: 22,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -191,25 +236,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: '100%',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingLeft: 18,
+    paddingRight: 8,
     position: 'relative',
     zIndex: 2,
   },
   bookmarkCount: {
     ...typography.body2_SB,
     color: colors.white,
-    marginRight: 6,
+    flex: 1,
+    maxWidth: 120,
+    paddingBottom: 2,
+    textAlign: 'right',
+    textAlignVertical: 'center',
   },
   bookmarkCountContainer: {
     alignItems: 'center',
     flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   bookmarkTextContainer: {
     alignItems: 'center',
     flexDirection: 'row',
+    flex: 1,
   },
   bookmarkTitle: {
-    ...typography.title2_SB,
+    ...typography.body1_B,
     color: colors.white,
   },
   container: {
@@ -217,29 +270,37 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
+  divider: {
+    backgroundColor: colors.gray50,
+    height: 8,
+    marginTop: 12,
+    width: '100%',
+  },
   mainContainer: {
     flex: 1,
     position: 'relative',
   },
   menuItem: {
     alignItems: 'center',
-    borderBottomColor: colors.gray100,
-    borderBottomWidth: 1,
+    alignSelf: 'stretch',
+    backgroundColor: colors.white,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingLeft: 22,
+    paddingRight: 20,
+    paddingVertical: 18,
   },
   menuList: {
     marginTop: 24,
   },
   menuText: {
     ...typography.body5_M,
-    color: colors.gray800,
+    color: colors.gray600,
+    textAlign: 'center',
   },
   nickname: {
-    color: colors.gray850,
     ...typography.body1_B,
+    color: colors.gray850,
     marginLeft: 14,
   },
   profileImage: {
@@ -273,6 +334,27 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     borderTopColor: colors.gray100,
     borderTopWidth: 1,
+  },
+  unsubscribeButton: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 3,
+    justifyContent: 'flex-end',
+    paddingBottom: 14,
+    paddingLeft: 0,
+    paddingRight: 2,
+    paddingTop: 13,
+  },
+  unsubscribeContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    marginRight: 20,
+    marginTop: 10,
+  },
+  unsubscribeText: {
+    ...typography.body5_M,
+    color: colors.gray400,
+    textAlign: 'center',
   },
 });
 
