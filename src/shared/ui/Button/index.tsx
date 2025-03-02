@@ -27,7 +27,8 @@ type ButtonVariant =
   | 'secondaryMediumGradient'
   | 'kakaoMedium'
   | 'appleMedium'
-  | 'googleMedium';
+  | 'googleMedium'
+  | 'primary_ar';
 
 interface ButtonStyleProps {
   height: number;
@@ -120,6 +121,14 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     borderRadius: 8,
     borderColor: colors.borderGray,
     borderWidth: 1,
+  },
+  primary_ar: {
+    height: 42,
+    width: 179,
+    enabledColor: colors.purple500,
+    disabledColor: colors.purple200,
+    textStyle: typography.body2_SB,
+    borderRadius: 24,
   },
 };
 
