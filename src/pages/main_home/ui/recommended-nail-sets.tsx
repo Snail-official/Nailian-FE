@@ -32,7 +32,7 @@ interface StyleGroup {
 interface RecommendedNailSetsProps {
   leftMargin: number;
   nailSets: StyleGroup[];
-  onStylePress: (style: { id: number; name: string }) => void;
+  onStylePress: (styleId: number, styleName: string) => void;
   onNailSetPress: (
     nailSet: NailSet,
     style: { id: number; name: string },
@@ -74,7 +74,9 @@ function RecommendedNailSets({
           {/* 스타일 헤더 */}
           <TouchableOpacity
             style={[styles.styleHeader, { paddingHorizontal: leftMargin }]}
-            onPress={() => onStylePress(styleGroup.style)}
+            onPress={() =>
+              onStylePress(styleGroup.style.id, styleGroup.style.name)
+            }
           >
             <Text style={styles.styleTitle}>
               {styleGroup.style.name} 보러가기

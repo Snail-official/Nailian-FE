@@ -8,16 +8,12 @@ import {
   Dimensions,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { CommonActions } from '@react-navigation/native';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { colors, typography } from '~/shared/styles/design';
 import { fetchUserProfile } from '~/entities/user/api';
 import { fetchRecommendedNailSets } from '~/entities/nail-set/api';
 import Logo from '~/shared/assets/icons/logo.svg';
 import { TabBarFooter } from '~/shared/ui/TabBar';
-import NailSetList from '~/features/nail-set/ui/NailSetList';
-import NailSetDetail from '~/features/nail-set/ui/NailSetDetail';
-import Toast from '~/shared/ui/Toast';
 import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
 
@@ -53,22 +49,6 @@ function MainHomeScreen({ navigation }: Props) {
   const [recommendedNailSets, setRecommendedNailSets] = useState<StyleGroup[]>(
     [],
   );
-
-  // NailSetList 상태
-  const [nailSetListVisible, setNailSetListVisible] = useState(false);
-  const [selectedStyle, setSelectedStyle] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
-
-  // NailSetDetail 상태
-  const [nailSetDetailVisible, setNailSetDetailVisible] = useState(false);
-  const [selectedNailSet, setSelectedNailSet] = useState<NailSet | null>(null);
-  const [bookmarkedNailSets, setBookmarkedNailSets] = useState<number[]>([]);
-
-  // 토스트 상태
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
 
   // 탭 변경 핸들러 추가
   const handleTabPress = (tab: 'home' | 'ar_experience' | 'my_page') => {
@@ -112,32 +92,6 @@ function MainHomeScreen({ navigation }: Props) {
     getRecommendedNailSets();
   }, []);
 
-  // MainHomeScreen에서만 토스트 함수 구현
-  const showBookmarkToast = (isAdd: boolean) => {
-    setToastMessage(
-      isAdd ? '보관함에 저장되었습니다' : '보관함에서 삭제되었습니다',
-    );
-    setToastVisible(true);
-
-    // 3초 후에 토스트 닫기
-    setTimeout(() => {
-      setToastVisible(false);
-    }, 3000);
-  };
-
-  // 북마크 토글 핸들러
-  const handleBookmarkToggle = (nailSetId: number) => {
-    const isAlreadyBookmarked = bookmarkedNailSets.includes(nailSetId);
-
-    if (isAlreadyBookmarked) {
-      setBookmarkedNailSets(bookmarkedNailSets.filter(id => id !== nailSetId));
-    } else {
-      setBookmarkedNailSets([...bookmarkedNailSets, nailSetId]);
-    }
-
-    showBookmarkToast(!isAlreadyBookmarked);
-  };
-
   // 배너 클릭 핸들러
   const handleBannerPress = (banner: {
     id: number;
@@ -149,61 +103,30 @@ function MainHomeScreen({ navigation }: Props) {
   };
 
   // 스타일 클릭 핸들러
-  const handleStylePress = (style: { id: number; name: string }) => {
-    console.log('스타일 클릭:', style.name);
-    setSelectedStyle(style);
-    setNailSetListVisible(true);
+  const handleStylePress = (styleId: number, styleName: string) => {
+    console.log('스타일 클릭:', styleName);
+
+    // 스타일 정보 설정 및 네일 세트 리스트 페이지로 이동
+    navigation.navigate('NailSetListPage', {
+      styleId,
+      styleName,
+    });
   };
 
-  // 네일 세트 클릭 핸들러 (RecommendedNailSets용)
+  // 추천 네일 세트 클릭 핸들러
   const handleRecommendedNailSetPress = (
     nailSet: NailSet,
-    style: { id: number; name: string },
+    styleInfo: { id: number; name: string },
   ) => {
     console.log('추천 네일 세트 클릭:', nailSet.id);
-    setSelectedNailSet(nailSet);
-    setSelectedStyle(style);
-    setNailSetDetailVisible(true);
-  };
 
-  // 네일 세트 클릭 핸들러 (NailSetList용)
-  const handleNailSetPress = (nailSet: NailSet) => {
-    console.log('네일 세트 클릭:', nailSet.id);
-    setSelectedNailSet(nailSet);
-    setNailSetDetailVisible(true);
-  };
-
-  // NailSetList 닫기 핸들러
-  const handleNailSetListClose = () => {
-    setNailSetListVisible(false);
-  };
-
-  // NailSetDetail 닫기 핸들러
-  const handleNailSetDetailClose = () => {
-    setNailSetDetailVisible(false);
-  };
-
-  // 네일 세트 변경 핸들러 추가
-  const handleNailSetChange = (newNailSetId: number) => {
-    // 선택된 네일 세트 목록에서 새로운 ID에 해당하는 네일 세트 찾기
-    const allNailSets: NailSet[] = [];
-
-    // 추천 네일 세트 목록에서 검색
-    recommendedNailSets.forEach(group => {
-      group.nailSets.forEach(nailSet => {
-        allNailSets.push(nailSet);
-      });
+    // 네일 세트 상세 페이지로 이동
+    navigation.navigate('NailSetDetailPage', {
+      nailSetId: nailSet.id,
+      styleId: styleInfo.id,
+      styleName: styleInfo.name,
+      isBookmarked: false, // 북마크 상태는 상세 페이지에서 관리
     });
-
-    // NailSetList를 통해 가져온 모든 네일 세트도 검색 대상에 포함
-    // 이 부분은 NailSetList 컴포넌트에서 데이터를 가져오는 형태에 맞게 조정 필요
-    // 예시 코드이므로 실제 구현에 맞게 수정해야 함
-
-    const newNailSet = allNailSets.find(item => item.id === newNailSetId);
-
-    if (newNailSet) {
-      setSelectedNailSet(newNailSet);
-    }
   };
 
   return (
@@ -256,36 +179,6 @@ function MainHomeScreen({ navigation }: Props) {
               </View>
             </View>
           </ScrollView>
-
-          {/* 네일 세트 목록 오버레이 */}
-          {selectedStyle && (
-            <NailSetList
-              visible={nailSetListVisible}
-              style={selectedStyle}
-              onNailSetPress={handleNailSetPress}
-              onClose={handleNailSetListClose}
-            />
-          )}
-
-          {/* 네일 세트 상세 오버레이 */}
-          {selectedNailSet && selectedStyle && (
-            <NailSetDetail
-              visible={nailSetDetailVisible}
-              nailSetId={selectedNailSet.id}
-              style={selectedStyle}
-              onClose={handleNailSetDetailClose}
-              isBookmarked={bookmarkedNailSets.includes(selectedNailSet.id)}
-              onBookmarkPress={handleBookmarkToggle}
-              onNailSetChange={handleNailSetChange}
-            />
-          )}
-
-          {/* 토스트 메시지 */}
-          <Toast
-            message={toastMessage}
-            visible={toastVisible}
-            position="bottom"
-          />
         </View>
 
         <View style={styles.tabBarContainer}>

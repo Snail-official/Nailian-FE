@@ -40,4 +40,18 @@ export type RootStackParamList = {
 
   /** 마이 페이지 */
   MyPage: undefined;
+
+  /** 네일 세트 리스트 페이지 */
+  NailSetListPage: {
+    styleId: number;
+    styleName: string;
+  };
+
+  /** 네일 세트 상세 페이지 */
+  NailSetDetailPage: {
+    nailSetId: number;
+    styleId: number;
+    styleName: string;
+    isBookmarked?: boolean;
+  };
 };

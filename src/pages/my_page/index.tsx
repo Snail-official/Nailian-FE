@@ -86,8 +86,10 @@ function MyPageScreen({ navigation }: MyPageProps) {
 
   // 네일 보관함 페이지로 이동
   const handleNailBookmarkPress = () => {
-    // 구현 필요: 네일 보관함 페이지로 이동
-    console.log('네일 보관함 페이지로 이동');
+    navigation.navigate('NailSetListPage', {
+      styleId: 0, // 0은 북마크 모드를 의미합니다
+      styleName: '내 보관함',
+    });
   };
 
   // 각 메뉴 항목 클릭 핸들러
