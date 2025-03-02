@@ -26,6 +26,19 @@ interface MyPageProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MyPage'>;
 }
 
+/**
+ * 마이페이지 화면 컴포넌트
+ *
+ * 사용자의 프로필 정보와 네일 보관함, 앱 설정 및 계정 관리 기능을 제공하는 화면입니다.
+ * 주요 기능:
+ * - 사용자 닉네임 및 프로필 표시
+ * - 네일 보관함 접근 및 보관된 네일 세트 수 표시
+ * - 1:1 문의, FAQ, 약관 및 정책 등의 메뉴
+ * - 로그아웃 및 회원 탈퇴 기능
+ *
+ * @param {MyPageProps} props 마이페이지 컴포넌트 props
+ * @param {NativeStackNavigationProp} props.navigation 네비게이션 객체
+ */
 function MyPageScreen({ navigation }: MyPageProps) {
   const [nickname, setNickname] = useState<string>('');
   const [bookmarkCount, setBookmarkCount] = useState<number>(0);
@@ -33,7 +46,12 @@ function MyPageScreen({ navigation }: MyPageProps) {
   const [showUnsubscribeModal, setShowUnsubscribeModal] =
     useState<boolean>(false);
 
-  // 모든 데이터 호출을 하나의 useEffect로 통합
+  /**
+   * 사용자 프로필 데이터 및 네일셋 정보 로드
+   *
+   * 컴포넌트 마운트 시 실행되며, 사용자 프로필 정보와
+   * 보관함에 저장된 네일셋 개수를 가져옵니다.
+   */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -61,17 +79,30 @@ function MyPageScreen({ navigation }: MyPageProps) {
     };
   }, []);
 
-  // 로그아웃 모달 표시
+  /**
+   * 로그아웃 모달 표시 함수
+   *
+   * 로그아웃 버튼 클릭 시 확인 모달을 표시합니다.
+   */
   const handleLogoutButtonPress = () => {
     setShowLogoutModal(true);
   };
 
-  // 로그아웃 취소
+  /**
+   * 로그아웃 취소 함수
+   *
+   * 로그아웃 모달에서 취소 버튼 클릭 시 모달을 닫습니다.
+   */
   const handleLogoutCancel = () => {
     setShowLogoutModal(false);
   };
 
-  // 로그아웃 처리
+  /**
+   * 로그아웃 처리 함수
+   *
+   * 로그아웃 API를 호출하고 로컬 토큰을 제거한 후
+   * 로그인 화면으로 이동합니다.
+   */
   const handleLogout = async () => {
     try {
       await logoutFromService();
@@ -84,7 +115,11 @@ function MyPageScreen({ navigation }: MyPageProps) {
     }
   };
 
-  // 네일 보관함 페이지로 이동
+  /**
+   * 네일 보관함 페이지 이동 함수
+   *
+   * 네일 보관함 카드 클릭 시 저장된 네일셋 목록 페이지로 이동합니다.
+   */
   const handleNailBookmarkPress = () => {
     navigation.navigate('NailSetListPage', {
       styleId: 0, // 0은 북마크 모드를 의미합니다
@@ -92,7 +127,14 @@ function MyPageScreen({ navigation }: MyPageProps) {
     });
   };
 
-  // 각 메뉴 항목 클릭 핸들러
+  /**
+   * 메뉴 항목 클릭 핸들러
+   *
+   * 각 메뉴 항목(1:1 문의, FAQ, 약관 및 정책 등) 클릭 시
+   * 해당 페이지로 이동하는 함수입니다.
+   *
+   * @param {string} menuType 선택된 메뉴 유형
+   */
   const handleMenuPress = (menuType: string) => {
     const urls: Record<string, string> = {
       '1:1 문의': 'https://example.com/inquiry',
@@ -108,7 +150,13 @@ function MyPageScreen({ navigation }: MyPageProps) {
     }
   };
 
-  // 탭 변경 핸들러
+  /**
+   * 탭 변경 핸들러
+   *
+   * 하단 탭바에서 탭 선택 시 해당 화면으로 이동하는 함수입니다.
+   *
+   * @param {'home' | 'ar_experience' | 'my_page'} tab 선택된 탭
+   */
   const handleTabPress = (tab: 'home' | 'ar_experience' | 'my_page') => {
     if (tab === 'my_page') return; // 이미 마이 페이지이므로 아무 작업도 하지 않음
 
@@ -120,17 +168,30 @@ function MyPageScreen({ navigation }: MyPageProps) {
     }
   };
 
-  // 회원 탈퇴 모달 표시
+  /**
+   * 회원 탈퇴 모달 표시 함수
+   *
+   * 탈퇴하기 버튼 클릭 시 확인 모달을 표시합니다.
+   */
   const handleUnsubscribeButtonPress = () => {
     setShowUnsubscribeModal(true);
   };
 
-  // 회원 탈퇴 취소
+  /**
+   * 회원 탈퇴 취소 함수
+   *
+   * 회원 탈퇴 모달에서 취소 버튼 클릭 시 모달을 닫습니다.
+   */
   const handleUnsubscribeCancel = () => {
     setShowUnsubscribeModal(false);
   };
 
-  // 회원 탈퇴 처리
+  /**
+   * 회원 탈퇴 처리 함수
+   *
+   * 회원 탈퇴 요청을 처리하는 함수입니다.
+   * 현재는 실제 API 연동 없이 콘솔 로그만 출력합니다.
+   */
   const handleUnsubscribe = () => {
     // 실제 탈퇴 API가 없으므로 콘솔 로그만 출력
     console.log('회원 탈퇴 처리');

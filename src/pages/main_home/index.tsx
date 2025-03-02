@@ -44,13 +44,32 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MainHome'>;
 };
 
+/**
+ * 메인 홈 화면 컴포넌트
+ *
+ * 앱의 메인 화면으로 사용자 맞춤형 네일 세트 추천, 배너 등을 보여줍니다.
+ * 주요 기능:
+ * - 배너 광고 표시
+ * - 사용자별 추천 네일 세트 표시
+ * - 스타일별 네일 세트 그룹화
+ * - 네일 세트 상세 페이지 연결
+ *
+ * @param {Props} props 메인 홈 컴포넌트 props
+ * @param {NativeStackNavigationProp} props.navigation 네비게이션 객체
+ */
 function MainHomeScreen({ navigation }: Props) {
   const [nickname, setNickname] = useState<string>('');
   const [recommendedNailSets, setRecommendedNailSets] = useState<StyleGroup[]>(
     [],
   );
 
-  // 탭 변경 핸들러 추가
+  /**
+   * 탭 변경 핸들러
+   *
+   * 하단 탭바에서 탭 선택 시 해당 화면으로 이동하는 함수입니다.
+   *
+   * @param {'home' | 'ar_experience' | 'my_page'} tab 선택된 탭
+   */
   const handleTabPress = (tab: 'home' | 'ar_experience' | 'my_page') => {
     if (tab === 'home') return; // 이미 홈 화면이므로 아무 작업도 하지 않음
 
@@ -62,7 +81,11 @@ function MainHomeScreen({ navigation }: Props) {
     }
   };
 
-  // 사용자 정보 가져오기
+  /**
+   * 사용자 프로필 정보 가져오기
+   *
+   * 컴포넌트 마운트 시 사용자 프로필 정보를 가져와 닉네임을 설정합니다.
+   */
   useEffect(() => {
     const getUserProfile = async () => {
       try {
@@ -76,7 +99,11 @@ function MainHomeScreen({ navigation }: Props) {
     getUserProfile();
   }, []);
 
-  // 추천 네일 세트 가져오기
+  /**
+   * 추천 네일 세트 가져오기
+   *
+   * 컴포넌트 마운트 시 사용자 맞춤형 추천 네일 세트 목록을 가져옵니다.
+   */
   useEffect(() => {
     const getRecommendedNailSets = async () => {
       try {
@@ -92,7 +119,16 @@ function MainHomeScreen({ navigation }: Props) {
     getRecommendedNailSets();
   }, []);
 
-  // 배너 클릭 핸들러
+  /**
+   * 배너 클릭 핸들러
+   *
+   * 배너 이미지 클릭 시 해당 링크로 이동하는 함수입니다.
+   *
+   * @param {Object} banner 배너 정보
+   * @param {number} banner.id 배너 ID
+   * @param {string} banner.imageUrl 배너 이미지 URL
+   * @param {string} banner.link 배너 링크 URL
+   */
   const handleBannerPress = (banner: {
     id: number;
     imageUrl: string;
@@ -102,7 +138,14 @@ function MainHomeScreen({ navigation }: Props) {
     // 필요시 navigation.navigate 등 추가
   };
 
-  // 스타일 클릭 핸들러
+  /**
+   * 스타일 클릭 핸들러
+   *
+   * 스타일 헤더 클릭 시 해당 스타일의 네일 세트 목록 페이지로 이동하는 함수입니다.
+   *
+   * @param {number} styleId 스타일 ID
+   * @param {string} styleName 스타일 이름
+   */
   const handleStylePress = (styleId: number, styleName: string) => {
     console.log('스타일 클릭:', styleName);
 
@@ -113,7 +156,16 @@ function MainHomeScreen({ navigation }: Props) {
     });
   };
 
-  // 추천 네일 세트 클릭 핸들러
+  /**
+   * 추천 네일 세트 클릭 핸들러
+   *
+   * 추천 네일 세트 클릭 시 해당 네일 세트의 상세 페이지로 이동하는 함수입니다.
+   *
+   * @param {NailSet} nailSet 선택된 네일 세트
+   * @param {Object} styleInfo 스타일 정보
+   * @param {number} styleInfo.id 스타일 ID
+   * @param {string} styleInfo.name 스타일 이름
+   */
   const handleRecommendedNailSetPress = (
     nailSet: NailSet,
     styleInfo: { id: number; name: string },

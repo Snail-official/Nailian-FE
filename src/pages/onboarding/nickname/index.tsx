@@ -12,7 +12,7 @@ import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardi
 import { typography, colors } from '~/shared/styles/design';
 import Button from '~/shared/ui/Button';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
-import Toast from '~/shared/ui/Toast';
+import { useToast } from '~/shared/ui/Toast';
 
 /**
  * 온보딩 닉네임 입력 화면
@@ -26,11 +26,10 @@ import Toast from '~/shared/ui/Toast';
 export default function OnboardingNicknameScreen() {
   const [nickname, setNickname] = useState('네일조아');
   const [loading, setLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const { goToNextOnboardingStep } = useOnboardingNavigation();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const { showToast, ToastComponent } = useToast('top');
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -48,22 +47,41 @@ export default function OnboardingNicknameScreen() {
     };
   }, []);
 
-  // 한글, 영문, 숫자만 허용 (그 외는 특수문자로 간주)
+  /**
+   * 한글, 영문, 숫자만 허용하는 유효성 검사 함수
+   *
+   * @param text 검사할 텍스트
+   * @returns 특수문자가 포함되어 있으면 true, 한글/영문/숫자만 있으면 false
+   */
   const hasSpecialCharacters = (text: string) =>
     !/^[가-힣a-zA-Z0-9\s]+$/.test(text);
 
+  /**
+   * 에러 토스트 메시지를 표시하는 함수
+   *
+   * @param message 표시할 에러 메시지
+   */
   const showErrorToast = (message: string) => {
-    setToastMessage(message);
-    setShowToast(true);
+    showToast(message);
     setIsError(true);
-    setTimeout(() => setShowToast(false), 2000);
   };
 
+  /**
+   * 닉네임 입력값 변경 핸들러
+   *
+   * @param text 새로 입력된 닉네임 텍스트
+   */
   const handleNicknameChange = (text: string) => {
     setNickname(text);
     setIsError(false); // 새로운 입력이 있을 때만 에러 상태 해제
   };
 
+  /**
+   * 닉네임 제출 핸들러
+   *
+   * 입력된 닉네임의 유효성을 검사하고, 유효하다면 서버에 저장합니다.
+   * 특수문자가 포함되어 있거나 중복된 닉네임인 경우 에러 토스트를 표시합니다.
+   */
   const handleNicknameSubmit = async () => {
     if (hasSpecialCharacters(nickname)) {
       showErrorToast('특수기호는 입력할 수 없어요');
@@ -88,7 +106,7 @@ export default function OnboardingNicknameScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <Toast message={toastMessage} visible={showToast} position="top" />
+      <ToastComponent />
       <View style={styles.content}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>반가워요!</Text>

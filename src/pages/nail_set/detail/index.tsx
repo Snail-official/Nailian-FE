@@ -19,7 +19,7 @@ import {
   createUserNailSet,
 } from '~/entities/nail-set/api';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
-import Toast from '~/shared/ui/Toast';
+import { useToast } from '~/shared/ui/Toast';
 import NailSet from '~/features/nail-set/ui/NailSet';
 
 /**
@@ -41,7 +41,13 @@ type NailSetDetailScreenRouteProp = RouteProp<
 type NailSetDetailScreenNavigationProp =
   NativeStackNavigationProp<RootStackParamList>;
 
-// 유사한 네일 세트 목록에서 행 사이의 간격을 제공하는 구분선 컴포넌트
+/**
+ * 행 구분선 컴포넌트
+ *
+ * 유사한 네일 세트 목록에서 각 행 사이의 간격을 제공하는 구분선 컴포넌트입니다.
+ *
+ * @returns {JSX.Element} 구분선 뷰 컴포넌트
+ */
 function RowSeparator() {
   return <View style={styles.rowSeparator} />;
 }
@@ -66,9 +72,8 @@ function NailSetDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(initialBookmarkState);
 
-  // 토스트 상태
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  // 하단 토스트 사용
+  const { showToast, ToastComponent } = useToast('bottom');
 
   // 유사한 네일 세트 목록 상태
   const [similarNailSets, setSimilarNailSets] = useState<INailSet[]>([]);
@@ -147,7 +152,14 @@ function NailSetDetailPage() {
     }
   }, [similarLoading, hasMore, fetchSimilarNailSetList, page]);
 
-  // 유사한 네일 세트 클릭 핸들러
+  /**
+   * 네일 세트 아이템 클릭 핸들러
+   *
+   * 유사한 네일 세트 목록에서 특정 네일 세트를 선택했을 때
+   * 해당 네일 세트의 상세 페이지로 이동하는 함수입니다.
+   *
+   * @param {INailSet} item 선택된 네일 세트 데이터
+   */
   const handleSimilarNailSetPress = useCallback(
     (item: INailSet) => {
       if (!item.id) return;
@@ -163,18 +175,12 @@ function NailSetDetailPage() {
     [navigation, styleId, styleName],
   );
 
-  // 토스트 메시지 표시 함수
-  const showToast = useCallback((message: string) => {
-    setToastMessage(message);
-    setToastVisible(true);
-
-    // 3초 후 토스트 닫기
-    setTimeout(() => {
-      setToastVisible(false);
-    }, 3000);
-  }, []);
-
-  // 보관함 저장 핸들러
+  /**
+   * 보관함 저장 핸들러
+   *
+   * 북마크 버튼을 눌렀을 때 현재 네일 세트를 보관함에 저장하고
+   * 토스트 메시지를 표시하는 함수입니다.
+   */
   const handleBookmarkToggle = useCallback(async () => {
     try {
       // 성공/실패와 상관없이 북마크 상태를 true로 설정 (아이콘 숨김 처리)
@@ -203,7 +209,15 @@ function NailSetDetailPage() {
     }
   }, [showToast, nailSet, nailSetId]);
 
-  // 네일 세트 아이템 렌더링 함수
+  /**
+   * 네일 세트 아이템 렌더링 함수
+   *
+   * FlatList에서 각 네일 세트 아이템을 렌더링하는 컴포넌트입니다.
+   *
+   * @param {Object} props 아이템 렌더링 props
+   * @param {INailSet} props.item 렌더링할 네일 세트 데이터
+   * @returns {JSX.Element} 렌더링된 네일 세트 컴포넌트
+   */
   const renderNailSetItem = useCallback(
     (props: { item: INailSet }) => (
       <TouchableOpacity
@@ -308,8 +322,8 @@ function NailSetDetailPage() {
         </View>
       </View>
 
-      {/* 토스트 메시지 */}
-      <Toast message={toastMessage} visible={toastVisible} position="bottom" />
+      {/* Toast 컴포넌트 교체 */}
+      <ToastComponent />
     </SafeAreaView>
   );
 }
@@ -388,21 +402,6 @@ const styles = StyleSheet.create({
   },
   rowSeparator: {
     height: 12,
-  },
-  savedButton: {
-    alignItems: 'center',
-    backgroundColor: colors.gray900,
-    borderRadius: 4,
-    height: 45,
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    width: 144,
-  },
-  savedButtonText: {
-    ...typography.body2_SB,
-    color: colors.white,
-    textAlign: 'center',
   },
   similarErrorContainer: {
     alignItems: 'center',
