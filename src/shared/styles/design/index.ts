@@ -40,75 +40,64 @@ export const colors = {
 /** 타이포그래피 스타일 */
 export const typography = {
   head1_B: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 22,
-    fontWeight: '700',
     lineHeight: 33, // 150%
   },
   head2_B: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 20,
-    fontWeight: '700',
     lineHeight: 30, // 150%
   },
   head3_SB: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 20,
-    fontWeight: '600',
     lineHeight: 30, // 150%
     letterSpacing: -0.4,
   },
   title1_SB: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 18,
-    fontWeight: '600',
     lineHeight: 27, // 150%
   },
   title2_SB: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
-    fontWeight: '600',
     lineHeight: 24, // 150%
   },
   body1_B: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 14,
-    fontWeight: '700',
     lineHeight: 21, // 150%
     letterSpacing: -0.14,
   },
   body2_SB: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 14,
-    fontWeight: '600',
     lineHeight: 21, // 150%
     letterSpacing: -0.14,
   },
   body3_B: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 12,
-    fontWeight: '700',
     lineHeight: 18, // 150%
     letterSpacing: -0.12,
   },
   body4_M: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 12,
-    fontWeight: '500',
     lineHeight: 18, // 150%
     letterSpacing: -0.12,
   },
   body5_M: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 14,
-    fontWeight: '500',
     lineHeight: 21, // 150%
     letterSpacing: -0.14, // -1%
   },
   caption_M: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 10,
-    fontWeight: '500',
     lineHeight: 15, // 150%
     letterSpacing: -0.1, // -1%
   },
