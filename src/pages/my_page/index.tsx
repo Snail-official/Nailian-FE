@@ -235,7 +235,9 @@ function MyPageScreen({ navigation }: MyPageProps) {
                       numberOfLines={1}
                       ellipsizeMode="tail"
                     >
-                      {bookmarkCount}
+                      {bookmarkCount > 10000000000000000000
+                        ? '10000000000000000000'
+                        : bookmarkCount}
                     </Text>
                     <ArrowRightIcon
                       width={24}
@@ -382,7 +384,7 @@ const styles = StyleSheet.create({
     ...typography.body2_SB,
     color: colors.white,
     flex: 1,
-    maxWidth: 120,
+    maxWidth: 209,
     paddingBottom: 2,
     textAlign: 'right',
     textAlignVertical: 'center',

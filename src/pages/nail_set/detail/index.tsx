@@ -242,9 +242,6 @@ function NailSetDetailPage() {
    */
   const handleBookmarkToggle = useCallback(async () => {
     try {
-      // 성공/실패와 상관없이 북마크 상태를 true로 설정 (아이콘 숨김 처리)
-      setIsBookmarked(true);
-      showToast('보관함에 저장되었습니다');
       // 북마크 API 호출
       if (nailSet) {
         // 네일 세트를 보관함에 저장
@@ -256,6 +253,9 @@ function NailSetDetailPage() {
           ring: { id: nailSet.id as number },
           pinky: { id: nailSet.id as number },
         });
+        // 성공적으로 저장되면 북마크 상태 업데이트 및 토스트 메시지 표시
+        setIsBookmarked(true);
+        showToast('보관함에 저장되었습니다');
         console.log(
           '네일 세트가 보관함에 성공적으로 저장되었습니다:',
           nailSetId,
@@ -263,9 +263,14 @@ function NailSetDetailPage() {
       }
     } catch (err) {
       console.error('Failed to save to bookmark', err);
+      // 이미 저장된 네일인 경우 (HTTP 409 Conflict) 다른 메시지 표시
+      if (err instanceof Error && err.message.includes('500')) {
+        showToast('이미 저장된 네일입니다');
+      } else {
+        showToast('보관함에 저장되었습니다');
+      }
       // API 오류 발생해도 북마크 상태는 true로 설정 (아이콘 숨김 처리)
       setIsBookmarked(true);
-      showToast('보관함에 저장되었습니다');
     }
   }, [showToast, nailSet, nailSetId]);
 
@@ -391,11 +396,11 @@ function NailSetDetailPage() {
 
         {/* 버튼 영역 */}
         <View style={styles.buttonsContainer}>
-          {/* AR 버튼 */}
-          <ArButton onPress={handleArButtonPress} />
+          {/* AR 버튼 (북마크 모드일 때만만 표시) */}
+          {isBookmarkMode && <ArButton onPress={handleArButtonPress} />}
 
-          {/* 북마크 버튼 (북마크 모드가 아니고 북마크되지 않았을 때만 표시) */}
-          {!isBookmarkMode && !isBookmarked && (
+          {/* 북마크 버튼 (북마크 모드가 아닐때만 표시) */}
+          {!isBookmarkMode && (
             <TouchableOpacity
               style={styles.bookmarkButton}
               onPress={handleBookmarkToggle}
