@@ -226,17 +226,11 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 onPress={handleNailBookmarkPress}
               >
                 <View style={styles.bookmarkContent}>
-                  <View style={styles.bookmarkTextContainer}>
-                    <Text style={styles.bookmarkTitle}>네일 보관함</Text>
-                  </View>
+                  <Text style={styles.bookmarkTitle}>네일 보관함</Text>
                   <View style={styles.bookmarkCountContainer}>
-                    <Text
-                      style={styles.bookmarkCount}
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
+                    <Text style={styles.bookmarkCount}>
                       {bookmarkCount > 10000000000000000000
-                        ? '10000000000000000000'
+                        ? '10000000000000000000000000...'
                         : bookmarkCount}
                     </Text>
                     <ArrowRightIcon
@@ -374,7 +368,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     height: '100%',
-    justifyContent: 'space-between',
     paddingLeft: 18,
     paddingRight: 8,
     position: 'relative',
@@ -383,26 +376,19 @@ const styles = StyleSheet.create({
   bookmarkCount: {
     ...typography.body2_SB,
     color: colors.white,
-    flex: 1,
-    maxWidth: 209,
-    paddingBottom: 2,
     textAlign: 'right',
-    textAlignVertical: 'center',
   },
   bookmarkCountContainer: {
     alignItems: 'center',
-    flexDirection: 'row',
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'flex-end',
-  },
-  bookmarkTextContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    flex: 1,
   },
   bookmarkTitle: {
     ...typography.body1_B,
     color: colors.white,
+    marginRight: 8,
+    width: 80,
   },
   container: {
     backgroundColor: colors.white,
