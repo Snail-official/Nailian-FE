@@ -224,7 +224,7 @@ function NailSetDetailPage() {
       if (!item.id) return;
 
       // 새 네일 세트로 페이지 이동
-      navigation.push('NailSetDetailPage', {
+      navigation.replace('NailSetDetailPage', {
         nailSetId: item.id,
         styleId,
         styleName,
