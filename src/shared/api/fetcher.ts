@@ -1,5 +1,7 @@
 import { API_BASE_URL } from '@env';
 import { buildQueryString } from '../lib/query';
+import { RequestOptions, ExtendedResponse } from './types';
+import { requestInterceptors, responseInterceptors } from './interceptors';
 
 /**
  * API 요청을 수행하는 공통 fetch 함수
@@ -22,41 +24,73 @@ const fetcher = async <T>({
   query,
   body,
   timeout = 10000,
-}: {
-  endpoint: string;
-  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-  headers?: Record<string, string>;
-  query?: Record<string, string | number>;
-  body?: Record<string, unknown>;
-  timeout?: number;
-}): Promise<T> => {
+}: Partial<RequestOptions> & { endpoint: string }): Promise<T> => {
+  let options: RequestOptions = {
+    method,
+    headers,
+    timeout,
+    endpoint,
+    query,
+    body,
+  };
+
+  // 요청 인터셉터 순차적으로 실행
+  options = await requestInterceptors.reduce(
+    async (optionsPromise, interceptor) => {
+      const resolvedOptions = await optionsPromise;
+      return interceptor(resolvedOptions);
+    },
+    Promise.resolve(options),
+  );
+
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  const timeoutId = setTimeout(() => controller.abort(), options.timeout);
 
   try {
-    // API URL 생성 (기본 BASE_URL 사용)
-    let url = endpoint.startsWith('http')
-      ? endpoint
-      : `${API_BASE_URL}${endpoint}`;
+    // API URL 생성 (BASE_URL 사용)
+    let url = options.endpoint.startsWith('http')
+      ? options.endpoint
+      : `${API_BASE_URL}${options.endpoint}`;
 
     // 쿼리 문자열 추가
-    if (query) {
-      const queryString = buildQueryString(query);
+    if (options.query) {
+      const queryString = buildQueryString(options.query);
       url += `?${queryString}`;
     }
 
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json', ...headers },
-      body: body ? JSON.stringify(body) : undefined,
+    // 요청 옵션 생성
+    const fetchOptions = {
+      method: options.method,
+      headers: { 'Content-Type': 'application/json', ...options.headers },
+      body: options.body ? JSON.stringify(options.body) : undefined,
       signal: controller.signal,
-    });
+    };
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+    const response = (await fetch(url, fetchOptions)) as ExtendedResponse;
+
+    // 응답 객체에 요청 정보 추가
+    response.requestInfo = {
+      url,
+      method: options.method,
+      headers: fetchOptions.headers,
+      body: fetchOptions.body,
+      endpoint: options.endpoint,
+    };
+
+    // 응답 인터셉터 순차적으로 실행
+    const processedResponse = await responseInterceptors.reduce(
+      async (responsePromise, interceptor) => {
+        const resolvedResponse = await responsePromise;
+        return interceptor(resolvedResponse);
+      },
+      Promise.resolve(response),
+    );
+
+    if (!processedResponse.ok) {
+      throw new Error(`HTTP error! Status: ${processedResponse.status}`);
     }
 
-    return (await response.json()) as T;
+    return (await processedResponse.json()) as T;
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : 'API 요청 실패');
   } finally {
