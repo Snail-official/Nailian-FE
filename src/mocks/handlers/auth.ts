@@ -8,6 +8,7 @@ import {
   TokenReissueRequest,
   TokenReissueResponse,
 } from '../../shared/api/types';
+import { generateToken } from '../utils/auth';
 
 /**
  * 사용자 찾기 함수
@@ -40,10 +41,17 @@ const authHandlers = [
         return createErrorResponse('사용자를 찾을 수 없습니다.', 404);
       }
 
-      // 서비스 전용 액세스 토큰 & 리프레시 토큰 발급
-      const serviceAccessToken = `mocked-access-token-${Date.now()}`;
-      const serviceRefreshToken = `mocked-refresh-token-${Date.now()}`;
+      const { token: serviceAccessToken, expiresAt } = generateToken(
+        'mocked-access-token',
+      );
+      const { token: serviceRefreshToken } = generateToken(
+        'mocked-refresh-token',
+      );
 
+      // 액세스 토큰 저장
+      user.accessToken = serviceAccessToken;
+      // 토큰 만료 시간 저장
+      user.tokenExpiresAt = expiresAt;
       // 리프레시 토큰 저장
       user.refreshToken = serviceRefreshToken;
 
@@ -83,13 +91,17 @@ const authHandlers = [
         return createErrorResponse('유효하지 않은 리프레시 토큰입니다.', 401);
       }
 
-      const newAccessToken = `mocked-access-token-${Date.now()}`;
+      const { token: serviceAccessToken, expiresAt } = generateToken(
+        'mocked-access-token',
+      );
+      user.accessToken = serviceAccessToken;
+      user.tokenExpiresAt = expiresAt;
 
       const response: TokenReissueResponse = {
         code: 200,
         message: '리이슈 성공',
         data: {
-          accessToken: newAccessToken,
+          accessToken: serviceAccessToken,
         },
       };
 
