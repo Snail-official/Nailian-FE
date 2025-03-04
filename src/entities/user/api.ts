@@ -11,6 +11,7 @@ import {
   UpdateNicknameResponse,
   UserMeResponse,
 } from '../../shared/api/types';
+import { useAuthStore } from '../../shared/store/authStore';
 
 /**
  * 카카오 로그인 API 호출
@@ -48,11 +49,14 @@ export const reissueAccessToken = ({
  * @header {Authorization: Bearer {accessToken}}
  * @returns {Promise<LogoutResponse>} 로그아웃 성공 여부 반환
  */
-export const logoutFromService = (): Promise<LogoutResponse> =>
-  fetcher({
+export const logoutFromService = (): Promise<LogoutResponse> => {
+  const { accessToken } = useAuthStore.getState();
+  return fetcher({
     endpoint: '/auth/logout',
     method: 'POST',
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
   });
+};
 
 /**
  * 현재 로그인한 사용자의 프로필 정보를 조회하는 함수

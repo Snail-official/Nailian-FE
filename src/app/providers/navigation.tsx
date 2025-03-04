@@ -8,6 +8,9 @@ import OnboardingEntryScreen from '~/pages/onboarding/entry';
 import OnboardingNicknameScreen from '~/pages/onboarding/nickname';
 import SocialLoginScreen from '~/pages/SocialLoginScreen';
 import MainHomeScreen from '~/pages/main_home';
+import MyPageScreen from '~/pages/my_page';
+import NailSetListPage from '~/pages/nail_set/list';
+import NailSetDetailPage from '~/pages/nail_set/detail';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,6 +39,9 @@ export default function AppNavigation() {
           component={NailSelectScreen}
         />
         <Stack.Screen name="MainHome" component={MainHomeScreen} />
+        <Stack.Screen name="MyPage" component={MyPageScreen} />
+        <Stack.Screen name="NailSetListPage" component={NailSetListPage} />
+        <Stack.Screen name="NailSetDetailPage" component={NailSetDetailPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );

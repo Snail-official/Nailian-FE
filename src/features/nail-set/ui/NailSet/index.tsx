@@ -9,18 +9,7 @@ import {
   StyleProp,
 } from 'react-native';
 import { colors } from '~/shared/styles/design';
-
-/**
- * 손가락별 네일 이미지 인터페이스
- */
-export interface INailSet {
-  id?: number;
-  thumb: { imageUrl: string };
-  index: { imageUrl: string };
-  middle: { imageUrl: string };
-  ring: { imageUrl: string };
-  pinky: { imageUrl: string };
-}
+import { INailSet } from '~/shared/types/nail-set';
 
 /**
  * 네일 세트 컴포넌트 Props
@@ -52,19 +41,28 @@ const DEFAULT_IMAGES = {
 };
 
 /**
- * 다섯 손가락의 네일 세트를 보여주는 컴포넌트
+ * 네일 세트 컴포넌트
  *
- * 각 손가락별 네일 이미지를 표시하며, 모든 네일 팁이 잘 보이도록 배치됩니다.
+ * 5개 손가락(엄지, 검지, 중지, 약지, 소지)에 대한 네일 이미지를 표시하는 컴포넌트입니다.
+ * 썸네일 형태(small)와 상세 화면용 큰 형태(large)를 지원합니다.
+ * 네일 이미지가 연결되어 하나의 세트로 표시되며, 클릭 이벤트를 처리할 수 있습니다.
+ *
+ * @param {NailSetProps} props - 네일 세트 컴포넌트 속성
+ * @param {INailSet} props.nailImages - 손가락별 네일 이미지 정보
+ * @param {() => void} [props.onPress] - 클릭 이벤트 핸들러
+ * @param {StyleProp<ViewStyle>} [props.style] - 컨테이너에 적용할 추가 스타일
+ * @param {'small' | 'large'} [props.size='small'] - 네일 세트 크기 ('small': 기본, 'large': 상세 화면용)
+ * @returns {JSX.Element} 렌더링된 네일 세트 컴포넌트
  *
  * @example
- * // 기본 사용법
- * <NailSet nailImages={nailSetData} />
+ * // 기본 사용법 (썸네일 형태)
+ * <NailSet nailImages={nailSet} onPress={() => handlePress(nailSet)} />
  *
- * // 클릭 이벤트와 커스텀 스타일
+ * @example
+ * // 상세 화면용 큰 형태
  * <NailSet
- *   nailImages={nailSetData}
- *   onPress={() => navigation.navigate('NailSetDetail', { id: 1 })}
- *   style={{ width: '90%', backgroundColor: colors.white }}
+ *  nailImages={nailSet}
+ *  size="large"
  * />
  */
 function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {

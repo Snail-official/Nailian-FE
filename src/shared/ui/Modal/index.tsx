@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Modal as RNModal } from 'react-native';
 import { colors, typography, spacing } from '~/shared/styles/design';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
 import Button from '../Button';
@@ -44,33 +44,42 @@ export default function Modal({
   onConfirm,
 }: ModalProps) {
   return (
-    <View style={styles.overlay}>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <ErrorIcon width={24} height={24} />
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.description}>{description}</Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <Button
-            variant="secondarySmall"
-            onPress={onConfirm}
-            disabled={true}
-            loading={false}
-          >
-            <Text style={styles.confirmText}>{confirmText}</Text>
-          </Button>
-          <Button
-            variant="secondarySmall"
-            onPress={onCancel}
-            disabled={false}
-            loading={false}
-          >
-            <Text style={styles.cancelText}>{cancelText}</Text>
-          </Button>
+    <RNModal
+      transparent={true}
+      visible={true}
+      animationType="fade"
+      onRequestClose={onCancel}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <View style={styles.content}>
+            <ErrorIcon width={20} height={20} color={colors.gray650} />
+            <Text style={styles.title}>{title}</Text>
+            {description && description.length > 0 ? (
+              <Text style={styles.description}>{description}</Text>
+            ) : null}
+          </View>
+          <View style={styles.buttonContainer}>
+            <Button
+              variant="secondarySmall"
+              onPress={onConfirm}
+              disabled={true}
+              loading={false}
+            >
+              <Text style={styles.cancelText}>{confirmText}</Text>
+            </Button>
+            <Button
+              variant="secondarySmall"
+              onPress={onCancel}
+              disabled={false}
+              loading={false}
+            >
+              <Text style={styles.confirmText}>{cancelText}</Text>
+            </Button>
+          </View>
         </View>
       </View>
-    </View>
+    </RNModal>
   );
 }
 
@@ -79,19 +88,21 @@ const MODAL_OVERLAY_BACKGROUND = 'rgba(0, 0, 0, 0.5)' as const;
 const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
-    gap: spacing.small,
+    gap: 8,
     justifyContent: 'center',
-    marginTop: spacing.large,
+    marginTop: 29,
+    paddingBottom: 15,
+    paddingHorizontal: 18,
   },
   cancelText: {
     ...typography.body2_SB,
-    color: colors.white,
+    color: colors.gray900,
     letterSpacing: -0.14,
     textAlign: 'center',
   },
   confirmText: {
     ...typography.body2_SB,
-    color: colors.gray900,
+    color: colors.white,
     letterSpacing: -0.14,
     textAlign: 'center',
   },
@@ -99,18 +110,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 12,
     flexShrink: 0,
-    height: 199,
     width: 331,
   },
   content: {
     alignItems: 'center',
-    gap: spacing.small,
     paddingHorizontal: spacing.large,
-    paddingTop: spacing.large,
+    paddingTop: 32,
   },
   description: {
     ...typography.body4_M,
     color: colors.gray500,
+    marginTop: 2,
     textAlign: 'center',
   },
   overlay: {
@@ -122,6 +132,7 @@ const styles = StyleSheet.create({
   title: {
     ...typography.title2_SB,
     color: colors.gray850,
+    marginTop: 14,
     textAlign: 'center',
   },
 });
