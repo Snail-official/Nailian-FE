@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '~/shared/types/navigation';
+import { setNavigationRef } from '~/shared/api/interceptors';
 
 import NailSelectScreen from '~/pages/onboarding/nail-select';
 import OnboardingEntryScreen from '~/pages/onboarding/entry';
@@ -23,7 +24,13 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
  */
 export default function AppNavigation() {
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navigatorRef => {
+        if (navigatorRef) {
+          setNavigationRef(navigatorRef);
+        }
+      }}
+    >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="SocialLogin" component={SocialLoginScreen} />
         <Stack.Screen

@@ -1,4 +1,4 @@
-import { http } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { API_BASE_URL } from '@env';
 import nails from '../data/nails';
 import styles from '../data/nailPreferences';
@@ -23,6 +23,7 @@ import {
 } from '../../shared/api/types';
 import { createSuccessResponse, createErrorResponse } from '../utils/response';
 import { ONBOARDING_FLAGS } from '../constants/onboarding';
+import { validateToken } from '../utils/auth';
 
 /* ─────────────────── 네일 API 핸들러 (Nail API Handlers) ─────────────────── */
 
@@ -35,6 +36,14 @@ const nailHandlers = [
    * @returns 성공 시 네일 목록, 실패 시 오류 응답
    */
   http.get(`${API_BASE_URL}/nails`, async ({ request }) => {
+    // 토큰 검증
+    const authResult = await validateToken(request);
+
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
+    }
+
     try {
       const url = new URL(request.url);
       const query: GetNailsRequest = {
@@ -97,6 +106,14 @@ const nailHandlers = [
    * @returns 성공 시 네일 취향 목록, 실패 시 오류 응답
    */
   http.get(`${API_BASE_URL}/nails/preferences`, async ({ request }) => {
+    // 토큰 검증
+    const authResult = await validateToken(request);
+
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
+    }
+
     const url = new URL(request.url);
 
     const query: GetNailPreferencesRequest = {
@@ -169,7 +186,15 @@ const nailHandlers = [
    * @response {NailSetCollectionResponse} 추천 네일 세트 목록 반환
    * @returns 성공 시 추천 네일 세트 목록, 실패 시 오류 응답
    */
-  http.get(`${API_BASE_URL}/nail-sets/recommendations`, async () => {
+  http.get(`${API_BASE_URL}/nail-sets/recommendations`, async ({ request }) => {
+    // 토큰 검증
+    const authResult = await validateToken(request);
+
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
+    }
+
     const recommendNailStyle = ['SIMPLE', 'TREND', 'WEDDING'];
 
     if (!nailSets || nailSets.length === 0) {
@@ -288,13 +313,25 @@ const nailHandlers = [
    * @returns 성공 시 사용자 네일 세트 목록, 실패 시 오류 응답
    */
   http.get(`${API_BASE_URL}/users/me/nail-sets`, async ({ request }) => {
+    // 토큰 검증
+    const authResult = await validateToken(request);
+
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
+    }
+
+    // 인증된 사용자 정보 사용
+    const user = authResult;
+
     const url = new URL(request.url);
     const query: GetUserNailSetsRequest = {
       page: Number(url.searchParams.get('page')) || 1,
       size: Number(url.searchParams.get('size')) || 10,
     };
 
-    const userId = users[0].id;
+    // 사용자 ID 사용 (인증된 사용자의 ID)
+    const userId = user.id;
 
     const userNailSets = nailSets.filter(set => set.user?.id === userId);
 
@@ -330,6 +367,17 @@ const nailHandlers = [
    * @returns 성공 시 생성된 네일 세트 정보, 실패 시 오류 응답
    */
   http.post(`${API_BASE_URL}/users/me/nail-sets`, async ({ request }) => {
+    // 토큰 검증
+    const authResult = await validateToken(request);
+
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
+    }
+
+    // 인증된 사용자 정보 사용
+    const user = authResult;
+
     const body = (await request.json()) as CreateNailSetRequest;
 
     if (
@@ -360,7 +408,7 @@ const nailHandlers = [
 
     const newNailSet = {
       id: nailSets.length + 1,
-      user: users[0],
+      user, // 인증된 사용자 정보 사용
       thumb,
       index,
       middle,
@@ -395,6 +443,14 @@ const nailHandlers = [
    * @returns 성공 시 네일 세트 피드, 실패 시 오류 응답
    */
   http.get(`${API_BASE_URL}/nail-sets/feed`, async ({ request }) => {
+    // 토큰 검증
+    const authResult = await validateToken(request);
+
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
+    }
+
     const url = new URL(request.url);
     const styleId = Number(url.searchParams.get('style'));
     const page = Number(url.searchParams.get('page')) || 1;
@@ -459,29 +515,40 @@ const nailHandlers = [
    * @response {NailSetDetailResponse} 네일 세트 상세 정보 반환
    * @returns 성공 시 네일 세트 상세 정보, 실패 시 오류 응답
    */
-  http.get(`${API_BASE_URL}/nail-sets/:nailSetId`, async ({ params }) => {
-    const { nailSetId } = params;
-    const nailSet = nailSets.find(set => set.id.toString() === nailSetId);
+  http.get(
+    `${API_BASE_URL}/nail-sets/:nailSetId`,
+    async ({ params, request }) => {
+      // 토큰 검증
+      const authResult = await validateToken(request);
 
-    if (!nailSet) {
-      return createErrorResponse('해당 네일 세트를 찾을 수 없습니다.', 404);
-    }
+      // 인증 실패 시 401 응답 반환
+      if (authResult instanceof HttpResponse) {
+        return authResult;
+      }
 
-    const response: NailSetDetailResponse = {
-      code: 200,
-      message: '네일 세트 조회 성공',
-      data: {
-        id: nailSet.id,
-        thumb: { imageUrl: nailSet.thumb.imageUrl },
-        index: { imageUrl: nailSet.index.imageUrl },
-        middle: { imageUrl: nailSet.middle.imageUrl },
-        ring: { imageUrl: nailSet.ring.imageUrl },
-        pinky: { imageUrl: nailSet.pinky.imageUrl },
-      },
-    };
+      const { nailSetId } = params;
+      const nailSet = nailSets.find(set => set.id.toString() === nailSetId);
 
-    return createSuccessResponse(response.data, response.message);
-  }),
+      if (!nailSet) {
+        return createErrorResponse('해당 네일 세트를 찾을 수 없습니다.', 404);
+      }
+
+      const response: NailSetDetailResponse = {
+        code: 200,
+        message: '네일 세트 조회 성공',
+        data: {
+          id: nailSet.id,
+          thumb: { imageUrl: nailSet.thumb.imageUrl },
+          index: { imageUrl: nailSet.index.imageUrl },
+          middle: { imageUrl: nailSet.middle.imageUrl },
+          ring: { imageUrl: nailSet.ring.imageUrl },
+          pinky: { imageUrl: nailSet.pinky.imageUrl },
+        },
+      };
+
+      return createSuccessResponse(response.data, response.message);
+    },
+  ),
 
   /**
    * 유사한 네일 세트 조회 API
@@ -493,6 +560,14 @@ const nailHandlers = [
   http.get(
     `${API_BASE_URL}/nail-sets/:nailSetId/similar`,
     async ({ params, request }) => {
+      // 토큰 검증
+      const authResult = await validateToken(request);
+
+      // 인증 실패 시 401 응답 반환
+      if (authResult instanceof HttpResponse) {
+        return authResult;
+      }
+
       const { nailSetId } = params;
       const url = new URL(request.url);
       const styleId = Number(url.searchParams.get('style'));

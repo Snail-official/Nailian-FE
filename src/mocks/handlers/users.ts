@@ -1,4 +1,4 @@
-import { http } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { API_BASE_URL } from '@env';
 import users from '../data/users';
 import { createSuccessResponse, createErrorResponse } from '../utils/response';
@@ -8,6 +8,7 @@ import {
   UserMeResponse,
 } from '../../shared/api/types';
 import { ONBOARDING_FLAGS } from '../constants/onboarding';
+import { validateToken } from '../utils/auth';
 
 /* ─────────────────── 사용자 API 핸들러 (User API Handlers) ─────────────────── */
 
@@ -19,14 +20,17 @@ const userHandlers = [
    * @response {UserMeResponse} 사용자 정보 반환
    * @returns 성공 시 사용자 정보, 실패 시 오류 응답
    */
-  http.get(`${API_BASE_URL}/users/me`, async () => {
-    const userId = 1; // 임시 사용자 ID (인증 기능 미구현)
+  http.get(`${API_BASE_URL}/users/me`, async ({ request }) => {
+    // 토큰 검증
+    const authResult = await validateToken(request);
 
-    // 사용자 데이터 조회
-    const user = users.find(u => u.id === userId);
-    if (!user) {
-      return createErrorResponse('사용자를 찾을 수 없습니다.', 404);
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
     }
+
+    // 인증된 사용자 정보 사용
+    const user = authResult;
 
     // 사용자 정보 응답 생성
     const response: UserMeResponse = {
@@ -47,8 +51,18 @@ const userHandlers = [
    * @endpoint PATCH /users/me/nickname
    */
   http.patch(`${API_BASE_URL}/users/me/nickname`, async ({ request }) => {
+    // 토큰 검증
+    const authResult = await validateToken(request);
+
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
+    }
+
+    // 인증된 사용자 정보 사용
+    const user = authResult;
+
     const { nickname } = (await request.json()) as UpdateNicknameRequest;
-    const user = users[0];
 
     if (!nickname || nickname.trim() === '') {
       return createErrorResponse('닉네임을 입력해주세요.', 400);

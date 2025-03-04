@@ -1,8 +1,9 @@
-import { http } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { API_BASE_URL } from '@env';
 import { GetOnboardingStatusResponse } from '~/shared/api/types';
 import users from '../data/users';
 import { createSuccessResponse } from '../utils/response';
+import { validateToken } from '../utils/auth';
 import {
   LATEST_VERSION,
   ONBOARDING_FLAGS,
@@ -42,7 +43,16 @@ const onboardingHandlers = [
    * @endpoint GET /onboarding-status?maxSupportedVersion=2
    */
   http.get(`${API_BASE_URL}/onboarding-status`, async ({ request }) => {
-    const user = users[0];
+    // 토큰 검증
+    const authResult = await validateToken(request);
+
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
+    }
+
+    // 인증된 사용자 정보 사용
+    const user = authResult;
     const url = new URL(request.url);
     const maxSupportedVersion =
       Number(url.searchParams.get('maxSupportedVersion')) || LATEST_VERSION;
@@ -52,13 +62,13 @@ const onboardingHandlers = [
       user.onboardingProgress,
       maxSupportedVersion,
     );
-    const response: GetOnboardingStatusResponse = {
-      code: 200,
-      message: '온보딩 상태 조회 성공',
-      data: { nextOnboardingStep },
-    };
 
-    return createSuccessResponse(response.data, response.message);
+    // createSuccessResponse 함수를 사용하여 응답 생성
+    return createSuccessResponse(
+      { nextOnboardingStep },
+      '온보딩 상태 조회 성공',
+      200,
+    );
   }),
 ];
 
