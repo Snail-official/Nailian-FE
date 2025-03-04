@@ -20,7 +20,9 @@ export interface INailPreference {
 
 export interface IUser {
   onboardingProgress: number;
+  accessToken?: string;
   refreshToken?: string;
+  tokenExpiresAt?: number;
   id: number;
   nickname?: string;
   profileImage?: string;
