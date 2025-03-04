@@ -325,3 +325,33 @@ export type BannerResponse = ApiResponse<
     link: string;
   }[]
 >;
+
+// API 관련 타입 정의
+export type RequestOptions = {
+  endpoint: string;
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+  headers: Record<string, string>;
+  query?: Record<string, string | number>;
+  body?: Record<string, unknown>;
+  timeout: number;
+};
+
+export type RequestInterceptor = (
+  options: RequestOptions,
+) => Promise<RequestOptions> | RequestOptions;
+
+// 기존 Response 타입을 확장
+export interface ExtendedResponse extends Response {
+  requestInfo?: {
+    url: string;
+    method: string;
+    headers: Headers | Record<string, string>;
+    body?: BodyInit_ | null;
+    endpoint?: string;
+  };
+}
+
+// 기존 ResponseInterceptor 타입도 업데이트
+export type ResponseInterceptor = (
+  response: ExtendedResponse,
+) => Promise<ExtendedResponse>;
