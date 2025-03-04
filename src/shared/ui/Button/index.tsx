@@ -27,7 +27,8 @@ type ButtonVariant =
   | 'secondaryMediumGradient'
   | 'kakaoMedium'
   | 'appleMedium'
-  | 'googleMedium';
+  | 'googleMedium'
+  | 'primary_ar';
 
 interface ButtonStyleProps {
   height: number;
@@ -72,12 +73,12 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     textStyle: typography.title2_SB,
   },
   secondarySmall: {
-    height: 33,
-    width: 128,
+    height: 44,
+    width: 144,
     enabledColor: colors.gray900,
     disabledColor: colors.gray100,
     textStyle: typography.body2_SB,
-    borderRadius: 4,
+    borderRadius: 8,
   },
   primaryMediumGradient: {
     height: 48,
@@ -121,6 +122,14 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
     borderColor: colors.borderGray,
     borderWidth: 1,
   },
+  primary_ar: {
+    height: 42,
+    width: 179,
+    enabledColor: colors.purple500,
+    disabledColor: colors.purple200,
+    textStyle: typography.body2_SB,
+    borderRadius: 24,
+  },
 };
 
 interface ButtonProps {
@@ -145,6 +154,7 @@ function Button({
 }: ButtonProps) {
   const variantStyle = BUTTON_STYLES[variant];
   const isGradientVariant = variant.includes('Gradient');
+  const isSecondarySmall = variant === 'secondarySmall';
 
   const buttonContent = (
     <TouchableOpacity
@@ -160,9 +170,10 @@ function Button({
           borderRadius: variantStyle.borderRadius ?? 0,
           borderColor: variantStyle.borderColor,
           borderWidth: variantStyle.borderWidth,
+          ...(isSecondarySmall ? { padding: 12 } : {}),
         },
       ]}
-      disabled={disabled || loading}
+      disabled={false}
       onPress={onPress}
     >
       {loading ? (

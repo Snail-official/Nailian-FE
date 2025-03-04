@@ -15,12 +15,6 @@
  * const route = useRoute<RouteProp<RootStackParamList, 'SomeScreen'>>();
  * const { param1, param2 } = route.params;
  *
- * @note 향후 확장 예정:
- * OnboardingDefault: {
- *   preSelectedNailIds?: string[];  // 이전에 선택했던 네일 ID들 (마이페이지/홈 연동)
- *   maxSelection?: number;          // 최대 선택 가능 개수
- * }
- *
  * @see https://reactnavigation.org/docs/params/
  * @see https://reactnavigation.org/docs/typescript/#type-checking-the-navigator
  */
@@ -37,4 +31,21 @@ export type RootStackParamList = {
 
   /** 홈 화면 */
   MainHome: undefined;
+
+  /** 마이 페이지 */
+  MyPage: undefined;
+
+  /** 네일 세트 리스트 페이지 */
+  NailSetListPage: {
+    styleId: number;
+    styleName: string;
+  };
+
+  /** 네일 세트 상세 페이지 */
+  NailSetDetailPage: {
+    nailSetId: number;
+    styleId: number;
+    styleName: string;
+    isBookmarked?: boolean;
+  };
 };

@@ -2,13 +2,16 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '~/shared/types/navigation';
+import { setNavigationRef } from '~/shared/api/interceptors';
 
 import NailSelectScreen from '~/pages/onboarding/nail-select';
 import OnboardingEntryScreen from '~/pages/onboarding/entry';
 import OnboardingNicknameScreen from '~/pages/onboarding/nickname';
 import SocialLoginScreen from '~/pages/SocialLoginScreen';
 import MainHomeScreen from '~/pages/main_home';
-import { setNavigationRef } from '~/shared/api/interceptors';
+import MyPageScreen from '~/pages/my_page';
+import NailSetListPage from '~/pages/nail_set/list';
+import NailSetDetailPage from '~/pages/nail_set/detail';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -43,6 +46,9 @@ export default function AppNavigation() {
           component={NailSelectScreen}
         />
         <Stack.Screen name="MainHome" component={MainHomeScreen} />
+        <Stack.Screen name="MyPage" component={MyPageScreen} />
+        <Stack.Screen name="NailSetListPage" component={NailSetListPage} />
+        <Stack.Screen name="NailSetDetailPage" component={NailSetDetailPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );

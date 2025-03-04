@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import {
   colors,
@@ -7,7 +7,6 @@ import {
   commonStyles,
 } from '~/shared/styles/design';
 import NailItem from '~/features/nail-selection/ui/NailItem';
-import Toast from '~/shared/ui/Toast';
 import { NailPreferencesResponse } from '~/shared/api/types';
 import {
   fetchNailPreferences,
@@ -15,6 +14,7 @@ import {
 } from '~/entities/nail-preference/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 import Button from '~/shared/ui/Button';
+import { useToast } from '~/shared/ui/Toast';
 
 /**
  * 온보딩 네일 선택 화면
@@ -23,6 +23,14 @@ import Button from '~/shared/ui/Button';
  * - 최소 3개 이상 선택해야 다음 단계로 진행할 수 있습니다.
  * - 최대 10개까지 선택할 수 있습니다.
  * - 스크롤 시 추가 이미지가 로드됩니다.
+ */
+
+/**
+ * 아이템 구분선 컴포넌트
+ *
+ * FlatList에서 각 네일 아이템 사이의 간격을 제공하는 구분선입니다.
+ *
+ * @returns {JSX.Element} 구분선 뷰 컴포넌트
  */
 function ItemSeparator() {
   return <View style={styles.separator} />;
@@ -39,8 +47,9 @@ export default function NailSelectScreen() {
   const [isEnabled, setIsEnabled] = useState(false); // 완료 버튼 활성화 상태
   const [isLoading, setIsLoading] = useState(false); // 추가 이미지 로딩 상태
   const [hasMore, setHasMore] = useState(true);
-  const [showToast, setShowToast] = useState(false); // 토스트 표시 상태
-  const toastTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  // 상단 토스트 사용
+  const { showToast, ToastComponent } = useToast('top');
 
   /**
    * 추가 네일 이미지 로드 함수
@@ -92,16 +101,7 @@ export default function NailSelectScreen() {
         return newSelected;
       } else if (prev.length >= 10) {
         // 10개 초과 선택 시 토스트 표시
-        if (toastTimerRef.current) {
-          clearTimeout(toastTimerRef.current);
-        }
-
-        setShowToast(true);
-        toastTimerRef.current = setTimeout(() => {
-          setShowToast(false);
-          toastTimerRef.current = undefined;
-        }, 2000); // 2초 후 토스트 숨김
-
+        handleSelectionLimit();
         return prev;
       } else {
         // 선택 추가
@@ -167,6 +167,16 @@ export default function NailSelectScreen() {
     }
   };
 
+  /**
+   * 최대 선택 개수 초과 시 토스트 메시지 표시 함수
+   *
+   * 사용자가 10개 이상의 네일을 선택하려고 할 때 호출됩니다.
+   * 상단에 안내 토스트 메시지를 표시합니다.
+   */
+  const handleSelectionLimit = () => {
+    showToast('최대 10개까지 선택할 수 있어요');
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -184,9 +194,6 @@ export default function NailSelectScreen() {
 
     return () => {
       isMounted = false;
-      if (toastTimerRef.current) {
-        clearTimeout(toastTimerRef.current);
-      }
     };
   }, [loadNailPreferences]);
 
@@ -225,8 +232,8 @@ export default function NailSelectScreen() {
         <Text style={[styles.buttonText, typography.title2_SB]}>시작하기</Text>
       </Button>
 
-      {/* Toast 컴포넌트 */}
-      <Toast message="최대 10개까지 선택할 수 있어요" visible={showToast} />
+      {/* Toast 컴포넌트 교체 */}
+      <ToastComponent />
     </View>
   );
 }
