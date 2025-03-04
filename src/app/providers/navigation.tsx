@@ -8,6 +8,7 @@ import OnboardingEntryScreen from '~/pages/onboarding/entry';
 import OnboardingNicknameScreen from '~/pages/onboarding/nickname';
 import SocialLoginScreen from '~/pages/SocialLoginScreen';
 import MainHomeScreen from '~/pages/main_home';
+import { setNavigationRef } from '~/shared/api/interceptors';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -20,7 +21,13 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
  */
 export default function AppNavigation() {
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navigatorRef => {
+        if (navigatorRef) {
+          setNavigationRef(navigatorRef);
+        }
+      }}
+    >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="SocialLogin" component={SocialLoginScreen} />
         <Stack.Screen
