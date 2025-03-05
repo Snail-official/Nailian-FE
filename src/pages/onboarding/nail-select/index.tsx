@@ -14,7 +14,7 @@ import {
 } from '~/entities/nail-preference/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 import Button from '~/shared/ui/Button';
-import { useToast } from '~/shared/ui/Toast';
+import { toast } from '~/shared/lib/toast';
 
 /**
  * 온보딩 네일 선택 화면
@@ -47,9 +47,6 @@ export default function NailSelectScreen() {
   const [isEnabled, setIsEnabled] = useState(false); // 완료 버튼 활성화 상태
   const [isLoading, setIsLoading] = useState(false); // 추가 이미지 로딩 상태
   const [hasMore, setHasMore] = useState(true);
-
-  // 상단 토스트 사용
-  const { showToast, ToastComponent } = useToast('top');
 
   /**
    * 추가 네일 이미지 로드 함수
@@ -174,7 +171,7 @@ export default function NailSelectScreen() {
    * 상단에 안내 토스트 메시지를 표시합니다.
    */
   const handleSelectionLimit = () => {
-    showToast('최대 10개까지 선택할 수 있어요');
+    toast.showToast('최대 10개까지 선택할 수 있어요');
   };
 
   useEffect(() => {
@@ -231,9 +228,6 @@ export default function NailSelectScreen() {
       >
         <Text style={[styles.buttonText, typography.title2_SB]}>시작하기</Text>
       </Button>
-
-      {/* Toast 컴포넌트 교체 */}
-      <ToastComponent />
     </View>
   );
 }
