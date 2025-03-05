@@ -82,3 +82,7 @@ src/mocks/data/*
 # Environment variables
 .env
 .env.* 
+
+# iOS 보안 파일
+ios/nailian/Secrets.plist
+ios/Config.xcconfig 

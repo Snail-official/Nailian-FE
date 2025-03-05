@@ -44,20 +44,21 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
+	</array>@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>UIAppFonts</key>
+	<key>KAKAO_APP_KEY</key>
+	<string>$(KAKAO_APP_KEY)</string>
+
+	<key>LSApplicationQueriesSchemes</key>
 	<array>
-		<string>Pretendard-Black.ttf</string>
-		<string>Pretendard-Bold.ttf</string>
-		<string>Pretendard-ExtraBold.ttf</string>
-		<string>Pretendard-ExtraLight.ttf</string>
-		<string>Pretendard-Light.ttf</string>
-		<string>Pretendard-Medium.ttf</string>
-		<string>Pretendard-Regular.ttf</string>
-		<string>Pretendard-SemiBold.ttf</string>
-		<string>Pretendard-Thin.ttf</string>
+		<string>kakao$(KAKAO_APP_KEY)</string>
+		<string>kakaolink</string>
+		<string>kakaokompassauth</string>
+	</array>
+	<key>KeychainAccessGroups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.nailian.app</string>
 	</array>
 </dict>
 </plist>
