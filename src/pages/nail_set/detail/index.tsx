@@ -22,10 +22,10 @@ import {
 } from '~/entities/nail-set/api';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import TrashIcon from '~/shared/assets/icons/ic_trash.svg';
-import { useToast } from '~/shared/ui/Toast';
 import NailSet from '~/features/nail-set/ui/NailSet';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import Modal from '~/shared/ui/Modal';
+import { toast } from '~/shared/lib/toast';
 
 type NailSetDetailScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -93,9 +93,6 @@ function NailSetDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(initialBookmarkState);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  // 하단 토스트 사용
-  const { showToast, ToastComponent } = useToast('bottom');
 
   // 유사한 네일 세트 목록 상태
   const [similarNailSets, setSimilarNailSets] = useState<INailSet[]>([]);
@@ -255,7 +252,7 @@ function NailSetDetailPage() {
         });
         // 성공적으로 저장되면 북마크 상태 업데이트 및 토스트 메시지 표시
         setIsBookmarked(true);
-        showToast('보관함에 저장되었습니다');
+        toast.showToast('보관함에 저장되었습니다');
         console.log(
           '네일 세트가 보관함에 성공적으로 저장되었습니다:',
           nailSetId,
@@ -265,14 +262,14 @@ function NailSetDetailPage() {
       console.error('Failed to save to bookmark', err);
       // 이미 저장된 네일인 경우 (HTTP 409 Conflict) 다른 메시지 표시
       if (err instanceof Error && err.message.includes('500')) {
-        showToast('이미 저장된 네일입니다');
+        toast.showToast('이미 저장된 네일입니다');
       } else {
-        showToast('보관함에 저장되었습니다');
+        toast.showToast('보관함에 저장되었습니다');
       }
       // API 오류 발생해도 북마크 상태는 true로 설정 (아이콘 숨김 처리)
       setIsBookmarked(true);
     }
-  }, [showToast, nailSet, nailSetId]);
+  }, [nailSet, nailSetId]);
 
   /**
    * 북마크 삭제 모달 표시 함수
@@ -299,17 +296,17 @@ function NailSetDetailPage() {
       if (!nailSetId) return;
       // 백엔드 API 구현 전까지는 콘솔 로그만 출력
       console.log('네일 세트 삭제:', nailSetId);
-      showToast('보관함에서 삭제되었습니다');
+      toast.showToast('보관함에서 삭제되었습니다');
       // 모달 닫기
       setShowDeleteModal(false);
       // 목록 화면으로 이동
       navigation.goBack();
     } catch (err) {
       console.error('보관함에서 삭제 실패:', err);
-      showToast('삭제 중 오류가 발생했습니다');
+      toast.showToast('삭제 중 오류가 발생했습니다');
       setShowDeleteModal(false);
     }
-  }, [nailSetId, navigation, showToast]);
+  }, [nailSetId, navigation]);
 
   /**
    * AR 기능 핸들러
@@ -472,9 +469,6 @@ function NailSetDetailPage() {
           onCancel={handleDeleteBookmark}
         />
       )}
-
-      {/* Toast 컴포넌트 */}
-      <ToastComponent />
     </SafeAreaView>
   );
 }

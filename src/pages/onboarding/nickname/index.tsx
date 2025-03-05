@@ -12,7 +12,7 @@ import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardi
 import { typography, colors } from '~/shared/styles/design';
 import Button from '~/shared/ui/Button';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
-import { useToast } from '~/shared/ui/Toast';
+import { toast } from '~/shared/lib/toast';
 
 /**
  * 온보딩 닉네임 입력 화면
@@ -29,7 +29,6 @@ export default function OnboardingNicknameScreen() {
   const [isError, setIsError] = useState(false);
   const { goToNextOnboardingStep } = useOnboardingNavigation();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const { showToast, ToastComponent } = useToast('top');
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -62,7 +61,7 @@ export default function OnboardingNicknameScreen() {
    * @param message 표시할 에러 메시지
    */
   const showErrorToast = (message: string) => {
-    showToast(message);
+    toast.showToast(message);
     setIsError(true);
   };
 
@@ -106,7 +105,6 @@ export default function OnboardingNicknameScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <ToastComponent />
       <View style={styles.content}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>반가워요!</Text>
