@@ -1,3 +1,4 @@
+import { toast } from '~/shared/lib/toast';
 import { RequestInterceptor, ResponseInterceptor } from '../types';
 import { reissueAccessToken } from '../../../entities/user/api';
 import { useAuthStore } from '../../store/authStore';
@@ -46,7 +47,7 @@ export const authRequestInterceptor: RequestInterceptor = async options => {
         // 리프레시 토큰도 만료된 경우 로그인 페이지로 이동
         await clearTokens();
         navigate('SocialLogin');
-        throw new Error('인증이 필요합니다.');
+        toast.showToast('로그인이 만료되었습니다. 다시 로그인해 주세요.');
       }
     }
   }
@@ -114,6 +115,7 @@ export const authResponseInterceptor: ResponseInterceptor = async response => {
       } catch (error) {
         onRefreshFailed();
         await clearTokens();
+        toast.showToast('로그인이 만료되었습니다. 다시 로그인해 주세요.');
         navigate('SocialLogin');
         return response;
       } finally {
