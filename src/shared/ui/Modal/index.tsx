@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal as RNModal } from 'react-native';
 import { colors, typography, spacing } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
 import Button from '../Button';
 
@@ -53,7 +54,11 @@ export default function Modal({
       <View style={styles.overlay}>
         <View style={styles.container}>
           <View style={styles.content}>
-            <ErrorIcon width={20} height={20} color={colors.gray650} />
+            <ErrorIcon
+              width={scale(20)}
+              height={scale(20)}
+              color={colors.gray650}
+            />
             <Text style={styles.title}>{title}</Text>
             {description && description.length > 0 ? (
               <Text style={styles.description}>{description}</Text>
@@ -88,11 +93,11 @@ const MODAL_OVERLAY_BACKGROUND = 'rgba(0, 0, 0, 0.5)' as const;
 const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: scale(8),
     justifyContent: 'center',
-    marginTop: 29,
-    paddingBottom: 15,
-    paddingHorizontal: 18,
+    marginTop: vs(29),
+    paddingBottom: vs(15),
+    paddingHorizontal: scale(18),
   },
   cancelText: {
     ...typography.body2_SB,
@@ -108,19 +113,19 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: colors.white,
-    borderRadius: 12,
+    borderRadius: scale(12),
     flexShrink: 0,
-    width: 331,
+    width: scale(331),
   },
   content: {
     alignItems: 'center',
     paddingHorizontal: spacing.large,
-    paddingTop: 32,
+    paddingTop: vs(32),
   },
   description: {
     ...typography.body4_M,
     color: colors.gray500,
-    marginTop: 2,
+    marginTop: vs(2),
     textAlign: 'center',
   },
   overlay: {
@@ -132,7 +137,7 @@ const styles = StyleSheet.create({
   title: {
     ...typography.title2_SB,
     color: colors.gray850,
-    marginTop: 14,
+    marginTop: vs(14),
     textAlign: 'center',
   },
 });

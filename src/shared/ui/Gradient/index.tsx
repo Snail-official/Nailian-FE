@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { scale, vs } from '~/shared/lib/responsive';
 import LinearGradient from 'react-native-linear-gradient';
 
 /**
@@ -41,15 +42,15 @@ const styles = StyleSheet.create({
   container: {
     bottom: 0,
     flexShrink: 0,
-    height: 154,
+    height: vs(154),
     position: 'absolute',
-    width: 375,
+    width: scale(375),
   },
   contentContainer: {
     alignItems: 'center',
     height: '100%',
     justifyContent: 'flex-end',
-    paddingBottom: 16,
+    paddingBottom: vs(16),
     width: '100%',
   },
   gradient: {

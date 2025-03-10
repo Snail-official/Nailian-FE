@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, typography, spacing } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import HomeIcon from '~/shared/assets/icons/ic_home.svg';
 import BackIcon from '~/shared/assets/icons/ic_arrow_left.svg';
 import ArIcon from '~/shared/assets/icons/ic_ar.svg';
@@ -68,7 +69,7 @@ export function TabBarHeader({
     <View style={styles.header}>
       {onBack && (
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <BackIcon width={48} height={48} />
+          <BackIcon width={scale(48)} height={scale(48)} />
         </TouchableOpacity>
       )}
       <Text style={styles.headerTitle}>{title}</Text>
@@ -87,8 +88,8 @@ export function TabBarFooter({ activeTab, onTabPress }: TabBarFooterProps) {
           onPress={() => onTabPress(id as TabType)}
         >
           <Icon
-            width={24}
-            height={24}
+            width={scale(24)}
+            height={scale(24)}
             color={activeTab === id ? colors.gray900 : colors.gray400}
           />
           <Text
@@ -108,8 +109,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flexShrink: 0,
-    left: 5,
-    padding: 8,
+    left: scale(5),
+    padding: scale(8),
     position: 'absolute',
   },
   footer: {
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     bottom: 0,
     flexDirection: 'row',
-    height: 74,
+    height: vs(74),
     justifyContent: 'center',
     left: 0,
     position: 'absolute',
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.white,
     flexDirection: 'row',
-    height: 48,
+    height: vs(48),
     justifyContent: 'center',
     width: '100%',
   },
@@ -149,19 +150,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     position: 'absolute',
-    right: 16,
+    right: scale(16),
     top: 0,
   },
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.small,
-    width: 120,
+    width: scale(120),
   },
   tabLabel: {
     ...typography.caption_M,
     color: colors.gray400,
-    marginTop: 2,
+    marginTop: scale(2),
     textAlign: 'center',
   },
 });

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Text, StyleSheet, Animated } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
 import { toast } from '~/shared/lib/toast';
 
@@ -65,7 +66,7 @@ export function ToastContainer() {
     if (visible) {
       // 초기 상태로 리셋
       fadeAnim.setValue(0);
-      translateY.setValue(position === 'top' ? -20 : 20);
+      translateY.setValue(position === 'top' ? vs(-20) : vs(20));
 
       // 토스트 표시 애니메이션
       Animated.parallel([
@@ -89,7 +90,7 @@ export function ToastContainer() {
           useNativeDriver: true,
         }),
         Animated.timing(translateY, {
-          toValue: position === 'top' ? -20 : 20,
+          toValue: position === 'top' ? vs(-20) : vs(20),
           duration: 300,
           useNativeDriver: true,
         }),
@@ -111,7 +112,11 @@ export function ToastContainer() {
       ]}
     >
       {position === 'top' && (
-        <ErrorIcon width={20} height={20} color={colors.gray650} />
+        <ErrorIcon
+          width={scale(20)}
+          height={scale(20)}
+          color={colors.gray650}
+        />
       )}
       <Text
         style={position === 'top' ? styles.topMessage : styles.bottomMessage}
@@ -131,12 +136,12 @@ const styles = StyleSheet.create({
   bottomToast: {
     alignSelf: 'center',
     backgroundColor: colors.toast_black,
-    borderRadius: 8,
-    bottom: 32,
-    height: 49,
+    borderRadius: scale(8),
+    bottom: vs(32),
+    height: vs(49),
     justifyContent: 'center',
-    padding: 10,
-    width: 331,
+    padding: scale(10),
+    width: scale(331),
   },
   container: {
     alignItems: 'center',
@@ -151,14 +156,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     backgroundColor: colors.white,
-    borderRadius: 32,
+    borderRadius: scale(32),
     elevation: 8,
     flexDirection: 'row',
-    gap: 8,
+    gap: scale(8),
     justifyContent: 'center',
-    padding: 14,
-    paddingLeft: 20,
-    paddingRight: 24,
+    padding: scale(14),
+    paddingLeft: scale(20),
+    paddingRight: scale(24),
     position: 'absolute',
     shadowColor: colors.black,
     shadowOffset: {
@@ -167,7 +172,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 33,
-    top: 32,
+    top: vs(32),
     zIndex: 999,
   },
 });
