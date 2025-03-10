@@ -13,6 +13,7 @@ import { RootStackParamList } from '~/shared/types/navigation';
 import { INailSet } from '~/shared/types/nail-set';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import { fetchNailSetFeed, fetchUserNailSets } from '~/entities/nail-set/api';
 import NailSet from '~/features/nail-set/ui/NailSet';
@@ -21,9 +22,9 @@ import NailSet from '~/features/nail-set/ui/NailSet';
  * 네일 세트 UI 레이아웃 상수
  */
 /** 네일 세트 컴포넌트의 고정 너비 (px) */
-const NAIL_SET_WIDTH = 160;
+const NAIL_SET_WIDTH = scale(160);
 /** 네일 세트 사이의 수평 간격 (px) */
-const HORIZONTAL_SPACING = 12;
+const HORIZONTAL_SPACING = scale(12);
 /** 두 네일 세트의 총 너비 (두 컴포넌트 + 간격) */
 const TOTAL_NAIL_SETS_WIDTH = NAIL_SET_WIDTH * 2 + HORIZONTAL_SPACING;
 
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: scale(20),
   },
   /** 에러 텍스트 */
   errorText: {
@@ -301,12 +302,12 @@ const styles = StyleSheet.create({
   },
   /** 리스트 콘텐츠 스타일 */
   listContent: {
-    paddingVertical: 12,
+    paddingVertical: vs(12),
   },
   /** 로딩 인디케이터 컨테이너 스타일 */
   loaderContainer: {
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: vs(16),
   },
   /** 로딩 컨테이너 */
   loadingContainer: {
@@ -316,7 +317,7 @@ const styles = StyleSheet.create({
   },
   /** 개별 네일 세트 아이템 스타일 */
   nailSetItem: {
-    marginBottom: 11, // 수직 간격 11px
+    marginBottom: vs(11), // 수직 간격 11px
     width: NAIL_SET_WIDTH,
   },
   /** 네일 세트 행 스타일 - 간격 설정 */

@@ -11,6 +11,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { colors, typography } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import { fetchUserProfile, logoutFromService } from '~/entities/user/api';
 import { fetchUserNailSets } from '~/entities/nail-set/api';
 import { TabBarFooter } from '~/shared/ui/TabBar';
@@ -234,8 +235,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
                         : bookmarkCount}
                     </Text>
                     <ArrowRightIcon
-                      width={24}
-                      height={24}
+                      width={scale(24)}
+                      height={scale(24)}
                       color={colors.gray100}
                     />
                   </View>
@@ -252,8 +253,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 >
                   <Text style={styles.menuText}>1:1 문의</Text>
                   <ArrowRightIcon
-                    width={24}
-                    height={24}
+                    width={scale(24)}
+                    height={scale(24)}
                     color={colors.gray400}
                   />
                 </TouchableOpacity>
@@ -265,8 +266,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 >
                   <Text style={styles.menuText}>FAQ</Text>
                   <ArrowRightIcon
-                    width={24}
-                    height={24}
+                    width={scale(24)}
+                    height={scale(24)}
                     color={colors.gray400}
                   />
                 </TouchableOpacity>
@@ -278,8 +279,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 >
                   <Text style={styles.menuText}>약관 및 정책</Text>
                   <ArrowRightIcon
-                    width={24}
-                    height={24}
+                    width={scale(24)}
+                    height={scale(24)}
                     color={colors.gray400}
                   />
                 </TouchableOpacity>
@@ -291,8 +292,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 >
                   <Text style={styles.menuText}>로그아웃</Text>
                   <ArrowRightIcon
-                    width={24}
-                    height={24}
+                    width={scale(24)}
+                    height={scale(24)}
                     color={colors.gray400}
                   />
                 </TouchableOpacity>
@@ -305,8 +306,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
                   >
                     <Text style={styles.unsubscribeText}>탈퇴하기</Text>
                     <UnsubscribeIcon
-                      width={16}
-                      height={16}
+                      width={scale(16)}
+                      height={scale(16)}
                       color={colors.gray400}
                     />
                   </TouchableOpacity>
@@ -357,10 +358,10 @@ const styles = StyleSheet.create({
   },
   bookmarkContainer: {
     backgroundColor: colors.purple500,
-    borderRadius: 12,
-    height: 72,
-    marginHorizontal: 20,
-    marginTop: 22,
+    borderRadius: scale(12),
+    height: vs(72),
+    marginHorizontal: scale(20),
+    marginTop: vs(22),
     overflow: 'hidden',
     position: 'relative',
   },
@@ -368,8 +369,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     height: '100%',
-    paddingLeft: 18,
-    paddingRight: 8,
+    paddingLeft: scale(18),
+    paddingRight: scale(8),
     position: 'relative',
     zIndex: 2,
   },
@@ -387,8 +388,8 @@ const styles = StyleSheet.create({
   bookmarkTitle: {
     ...typography.body1_B,
     color: colors.white,
-    marginRight: 8,
-    width: 80,
+    marginRight: scale(8),
+    width: scale(80),
   },
   container: {
     backgroundColor: colors.white,
@@ -397,8 +398,8 @@ const styles = StyleSheet.create({
   },
   divider: {
     backgroundColor: colors.gray50,
-    height: 8,
-    marginTop: 12,
+    height: vs(8),
+    marginTop: vs(12),
     width: '100%',
   },
   mainContainer: {
@@ -411,12 +412,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingLeft: 22,
-    paddingRight: 20,
-    paddingVertical: 18,
+    paddingLeft: scale(22),
+    paddingRight: scale(20),
+    paddingVertical: scale(18),
   },
   menuList: {
-    marginTop: 24,
+    marginTop: vs(24),
   },
   menuText: {
     ...typography.body5_M,
@@ -424,27 +425,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   nickname: {
-    ...typography.body1_B,
+    ...typography.title1_SB,
     color: colors.gray850,
-    marginLeft: 14,
+    textAlign: 'center',
   },
   profileImage: {
-    height: 54,
-    width: 54,
+    height: scale(54),
+    width: scale(54),
   },
   profileImageContainer: {
     alignItems: 'center',
-    borderRadius: 27,
-    height: 54,
+    borderRadius: scale(27),
+    height: scale(54),
     justifyContent: 'center',
+    marginRight: scale(14),
     overflow: 'hidden',
-    width: 54,
+    width: scale(54),
   },
   profileSection: {
     alignItems: 'center',
     flexDirection: 'row',
-    marginLeft: 22,
-    marginTop: 18,
+    marginTop: vs(22),
+    paddingHorizontal: scale(18),
   },
   safeArea: {
     backgroundColor: colors.white,
@@ -454,7 +456,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 74, // 탭바 높이만큼 패딩 추가
+    paddingBottom: vs(74), // 탭바 높이만큼 패딩 추가
   },
   tabBarContainer: {
     borderTopColor: colors.gray100,
@@ -463,18 +465,18 @@ const styles = StyleSheet.create({
   unsubscribeButton: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 3,
+    gap: scale(3),
     justifyContent: 'flex-end',
-    paddingBottom: 14,
+    paddingBottom: vs(14),
     paddingLeft: 0,
-    paddingRight: 2,
-    paddingTop: 13,
+    paddingRight: scale(2),
+    paddingTop: vs(13),
   },
   unsubscribeContainer: {
     alignItems: 'flex-end',
     justifyContent: 'center',
-    marginRight: 20,
-    marginTop: 10,
+    marginRight: scale(20),
+    marginTop: vs(10),
   },
   unsubscribeText: {
     ...typography.body5_M,

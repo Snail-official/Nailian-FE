@@ -26,6 +26,7 @@ import NailSet from '~/features/nail-set/ui/NailSet';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import Modal from '~/shared/ui/Modal';
 import { toast } from '~/shared/lib/toast';
+import { scale, vs } from '~/shared/lib/responsive';
 
 type NailSetDetailScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -368,10 +369,14 @@ function NailSetDetailPage() {
           isBookmarkMode ? (
             // 북마크 모드일 때는 휴지통 아이콘 표시
             <TouchableOpacity
-              style={styles.bookmarkIconButton}
+              style={styles.deleteButton}
               onPress={handleDeleteBookmarkPress}
             >
-              <TrashIcon width={24} height={24} color={colors.gray600} />
+              <TrashIcon
+                width={scale(24)}
+                height={scale(24)}
+                color={colors.gray600}
+              />
             </TouchableOpacity>
           ) : !isBookmarked ? (
             // 일반 모드이고 북마크되지 않았을 때만 북마크 아이콘 표시
@@ -379,7 +384,11 @@ function NailSetDetailPage() {
               style={styles.bookmarkIconButton}
               onPress={handleBookmarkToggle}
             >
-              <BookmarkIcon width={19} height={18.5} color={colors.gray600} />
+              <BookmarkIcon
+                width={scale(19)}
+                height={scale(18.5)}
+                color={colors.gray600}
+              />
             </TouchableOpacity>
           ) : null
         }
@@ -403,7 +412,11 @@ function NailSetDetailPage() {
               onPress={handleBookmarkToggle}
             >
               <View style={styles.buttonContent}>
-                <BookmarkIcon width={16} height={16} color={colors.white} />
+                <BookmarkIcon
+                  width={scale(16)}
+                  height={scale(16)}
+                  color={colors.white}
+                />
                 <Text style={styles.bookmarkButtonText}>보관함에 저장</Text>
               </View>
             </TouchableOpacity>
@@ -476,20 +489,20 @@ function NailSetDetailPage() {
 const styles = StyleSheet.create({
   bookmarkButton: {
     backgroundColor: colors.gray900,
-    borderRadius: 4,
-    height: 45,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    width: 144,
+    borderRadius: scale(4),
+    height: scale(45),
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(6),
+    width: scale(144),
   },
   bookmarkButtonText: {
     ...typography.body2_SB,
     color: colors.white,
-    marginLeft: 6,
+    marginLeft: scale(6),
   },
   bookmarkIconButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(8),
   },
   buttonContent: {
     alignItems: 'center',
@@ -501,9 +514,9 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 12,
+    gap: scale(12),
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: vs(24),
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -516,7 +529,11 @@ const styles = StyleSheet.create({
   contentContainer: {
     alignItems: 'center',
     flex: 1,
-    paddingTop: 12,
+    paddingTop: vs(12),
+  },
+  deleteButton: {
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(8),
   },
   errorContainer: {
     alignItems: 'center',
@@ -529,9 +546,9 @@ const styles = StyleSheet.create({
   },
   footerLoading: {
     alignItems: 'center',
-    height: 108,
+    height: vs(108),
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: scale(20),
   },
   loadingContainer: {
     alignItems: 'center',
@@ -541,47 +558,47 @@ const styles = StyleSheet.create({
   nailSetContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: vs(24),
     width: '100%',
   },
   nailSetItem: {
-    marginBottom: 12,
+    marginBottom: vs(12),
     width: '48%', // 약간의 간격을 두기 위해 48%로 설정
   },
   nailSetList: {
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingBottom: vs(20),
+    paddingHorizontal: scale(20),
   },
   noDataText: {
     ...typography.body2_SB,
     color: colors.gray400,
   },
   rowSeparator: {
-    height: 12,
+    height: vs(12),
   },
   similarErrorContainer: {
     alignItems: 'center',
-    height: 108,
+    height: vs(108),
     justifyContent: 'center',
-    marginTop: 12,
+    marginTop: vs(12),
     width: '100%',
   },
   similarLoadingContainer: {
     alignItems: 'center',
-    height: 108,
+    height: vs(108),
     justifyContent: 'center',
-    marginTop: 12,
+    marginTop: vs(12),
     width: '100%',
   },
   similarSectionContainer: {
-    marginTop: 55,
+    marginTop: vs(55),
     width: '100%',
   },
   similarSectionTitle: {
     ...typography.head2_B,
     color: colors.gray850,
-    marginBottom: 12,
-    marginLeft: 20,
+    marginBottom: vs(12),
+    marginLeft: scale(20),
   },
 });
 

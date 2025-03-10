@@ -10,6 +10,7 @@ import {
 import { updateNickname } from '~/entities/user/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 import { typography, colors } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import Button from '~/shared/ui/Button';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
 import { toast } from '~/shared/lib/toast';
@@ -121,13 +122,17 @@ export default function OnboardingNicknameScreen() {
           autoFocus
         />
         <View style={styles.conditionContainer}>
-          <ErrorIcon width={12} height={12} color={colors.gray400} />
+          <ErrorIcon
+            width={scale(12)}
+            height={scale(12)}
+            color={colors.gray400}
+          />
           <Text style={styles.conditionText}>
             한글 최대 4자 / 공백, 영문, 숫자, 특수기호 불가
           </Text>
         </View>
       </View>
-      <View style={styles.buttonContainer}>
+      <View style={styles.bottomButtonContainer}>
         <Button
           variant={isKeyboardVisible ? 'primaryLarge' : 'primaryMedium'}
           onPress={handleNicknameSubmit}
@@ -144,9 +149,9 @@ export default function OnboardingNicknameScreen() {
 }
 
 const styles = StyleSheet.create({
-  buttonContainer: {
+  bottomButtonContainer: {
     alignItems: 'center',
-    paddingBottom: 16,
+    paddingBottom: vs(16),
     width: '100%',
   },
   buttonText: {
@@ -155,8 +160,8 @@ const styles = StyleSheet.create({
   conditionContainer: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 4,
-    marginTop: 8,
+    gap: scale(4),
+    marginTop: vs(8),
   },
   conditionText: {
     ...typography.body4_M,
@@ -169,7 +174,7 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'flex-start',
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     width: '100%',
   },
   input: {
@@ -177,7 +182,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: colors.gray300,
     color: colors.gray700,
-    padding: 10,
+    padding: scale(10),
     width: '100%',
   },
   inputError: {
@@ -187,10 +192,10 @@ const styles = StyleSheet.create({
   title: {
     ...typography.head1_B,
     color: colors.gray850,
-    marginBottom: 8,
+    marginBottom: vs(8),
   },
   titleContainer: {
-    marginBottom: 38,
-    marginTop: 48,
+    marginBottom: vs(38),
+    marginTop: vs(48),
   },
 });
