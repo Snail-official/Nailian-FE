@@ -6,6 +6,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import LogoIcon from '~/shared/assets/icons/logo_sig.svg';
 import KakaoIcon from '~/shared/assets/icons/kakao.svg';
 import GoogleIcon from '~/shared/assets/icons/google.svg';
@@ -16,6 +17,7 @@ import {
   spacing,
   commonStyles,
 } from '~/shared/styles/design';
+import { scale, vs, ms } from '~/shared/lib/responsive';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { login } from '@react-native-seoul/kakao-login';
@@ -86,64 +88,66 @@ export default function SocialLoginScreen({ navigation }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        <View style={styles.logoContainer}>
-          <LogoIcon width={171.11} height={56} />
-          <Text style={styles.logoText}>
-            AR 네일 체험과 네일샵 예약을 한 번에
-          </Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.contentContainer}>
+          <View style={styles.logoContainer}>
+            <LogoIcon width={scale(171.11)} height={vs(56)} />
+            <Text style={styles.logoText}>
+              AR 네일 체험과 네일샵 예약을 한 번에
+            </Text>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.buttonContainer}>
-        {/* 플랫폼별 로그인 버튼 */}
-        {Platform.OS === 'ios' ? (
+        <View style={styles.buttonContainer}>
+          {/* 플랫폼별 로그인 버튼 */}
+          {Platform.OS === 'ios' ? (
+            <Button
+              variant="appleMedium"
+              onPress={() => {}}
+              disabled={false}
+              loading={false}
+            >
+              <View style={styles.socialButtonContent}>
+                <AppleIcon width={scale(24)} height={scale(24)} />
+                <Text style={[styles.buttonText, typography.title2_SB]}>
+                  Apple로 계속하기
+                </Text>
+              </View>
+            </Button>
+          ) : (
+            <Button
+              variant="kakaoMedium"
+              onPress={handleKakaoLogin}
+              disabled={false}
+              loading={false}
+            >
+              <View style={styles.socialButtonContent}>
+                <KakaoIcon width={scale(24)} height={scale(24)} />
+                <Text style={[styles.buttonText, typography.title2_SB]}>
+                  Kakao로 계속하기
+                </Text>
+              </View>
+            </Button>
+          )}
+
+          {/* 구글 로그인 버튼 (공통) */}
           <Button
-            variant="appleMedium"
+            variant="googleMedium"
             onPress={() => {}}
             disabled={false}
             loading={false}
           >
             <View style={styles.socialButtonContent}>
-              <AppleIcon width={24} height={24} />
+              <GoogleIcon width={scale(24)} height={scale(24)} />
               <Text style={[styles.buttonText, typography.title2_SB]}>
-                Apple로 계속하기
+                Google로 계속하기
               </Text>
             </View>
           </Button>
-        ) : (
-          <Button
-            variant="kakaoMedium"
-            onPress={handleKakaoLogin}
-            disabled={false}
-            loading={false}
-          >
-            <View style={styles.socialButtonContent}>
-              <KakaoIcon width={24} height={24} />
-              <Text style={[styles.buttonText, typography.title2_SB]}>
-                Kakao로 계속하기
-              </Text>
-            </View>
-          </Button>
-        )}
-
-        {/* 구글 로그인 버튼 (공통) */}
-        <Button
-          variant="googleMedium"
-          onPress={() => {}}
-          disabled={false}
-          loading={false}
-        >
-          <View style={styles.socialButtonContent}>
-            <GoogleIcon width={24} height={24} />
-            <Text style={[styles.buttonText, typography.title2_SB]}>
-              Google로 계속하기
-            </Text>
-          </View>
-        </Button>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -160,14 +164,17 @@ const styles = StyleSheet.create({
   },
   container: {
     ...commonStyles.screen,
+    alignItems: 'center',
     alignSelf: 'center',
-    height: 800,
-    width: 360,
+    flex: 1,
+    width: '100%',
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'center',
+    maxWidth: scale(360),
     paddingHorizontal: spacing.large,
+    width: '100%',
   },
   loadingContainer: {
     alignItems: 'center',
@@ -177,8 +184,8 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: colors.gray850,
-    fontSize: 16,
-    marginTop: 10,
+    fontSize: ms(16),
+    marginTop: vs(10),
   },
   logoContainer: {
     alignItems: 'center',
@@ -188,6 +195,10 @@ const styles = StyleSheet.create({
     color: colors.gray650,
     letterSpacing: -0.12,
     marginTop: spacing.small,
+  },
+  safeArea: {
+    backgroundColor: colors.white,
+    flex: 1,
   },
   socialButtonContent: {
     alignItems: 'center',

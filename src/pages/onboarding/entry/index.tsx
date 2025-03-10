@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 import { colors } from '~/shared/styles/design';
+import { vs, ms } from '~/shared/lib/responsive';
 
 /**
  * 온보딩 엔트리 스크린
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: colors.purple500,
-    fontSize: 16,
-    marginTop: 10,
+    fontSize: ms(16),
+    marginTop: vs(10),
   },
 });

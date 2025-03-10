@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, typography, spacing } from '~/shared/styles/design';
+import { scale } from '~/shared/lib/responsive';
 import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 
 interface ListItemProps {
@@ -43,8 +44,8 @@ export default function ListItem({ text, selected, onPress }: ListItemProps) {
       </Text>
       {selected && (
         <CheckIcon
-          width={18}
-          height={18}
+          width={scale(18)}
+          height={scale(18)}
           fill={colors.purple500}
           stroke={colors.white}
           strokeWidth={1.6}
@@ -61,8 +62,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: spacing.medium,
-    paddingHorizontal: 22,
-    width: 375,
+    paddingHorizontal: scale(22),
+    width: scale(375),
   },
   normalText: {
     ...typography.body2_SB,

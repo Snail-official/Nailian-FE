@@ -6,6 +6,7 @@ import {
   ImageSourcePropType,
 } from 'react-native';
 import { componentStyles } from '~/shared/styles/design';
+import { scale } from '~/shared/lib/responsive';
 import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 
 /**
@@ -44,7 +45,7 @@ export default function NailItem({
       {isSelected && (
         <View style={componentStyles.nailItem.selectedOverlay}>
           <View style={componentStyles.nailItem.checkIconContainer}>
-            <CheckIcon width={18} height={18} />
+            <CheckIcon width={scale(18)} height={scale(18)} />
           </View>
         </View>
       )}

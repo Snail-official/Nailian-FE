@@ -9,7 +9,13 @@ import {
   StyleProp,
 } from 'react-native';
 import { colors } from '~/shared/styles/design';
+import { scale } from '~/shared/lib/responsive';
 import { INailSet } from '~/shared/types/nail-set';
+
+// 기본 이미지 상수
+const DEFAULT_IMAGES = {
+  nail: require('../../../../shared/assets/images/nail_default.png'),
+};
 
 /**
  * 네일 세트 컴포넌트 Props
@@ -35,10 +41,6 @@ export interface NailSetProps {
    */
   size?: 'small' | 'large';
 }
-
-const DEFAULT_IMAGES = {
-  nail: require('../../../../shared/assets/images/nail_default.png'),
-};
 
 /**
  * 네일 세트 컴포넌트
@@ -71,11 +73,41 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
 
   // 고정된 네일 크기 설정 - 손가락 비율과 마진 설정
   const defaultNails = [
-    { id: 1, name: 'thumb', width: 70, height: 68, margin: 0 },
-    { id: 2, name: 'index', width: 50, height: 60, margin: -28 },
-    { id: 3, name: 'middle', width: 55, height: 64, margin: -24 },
-    { id: 4, name: 'ring', width: 50, height: 60, margin: -24 },
-    { id: 5, name: 'pinky', width: 45, height: 54, margin: -22 },
+    {
+      id: 1,
+      name: 'thumb',
+      width: scale(70),
+      height: scale(68),
+      margin: 0,
+    },
+    {
+      id: 2,
+      name: 'index',
+      width: scale(50),
+      height: scale(60),
+      margin: scale(-28),
+    },
+    {
+      id: 3,
+      name: 'middle',
+      width: scale(55),
+      height: scale(64),
+      margin: scale(-24),
+    },
+    {
+      id: 4,
+      name: 'ring',
+      width: scale(50),
+      height: scale(60),
+      margin: scale(-24),
+    },
+    {
+      id: 5,
+      name: 'pinky',
+      width: scale(45),
+      height: scale(54),
+      margin: scale(-22),
+    },
   ];
 
   // 크기에 따라 조정된 네일 설정 계산
@@ -142,11 +174,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray50,
     borderRadius: 4,
     justifyContent: 'center',
-    padding: 2,
+    padding: scale(2),
   },
   largeContainer: {
-    height: 204,
-    width: 331,
+    height: scale(204),
+    width: scale(331),
   },
   nailContainer: {
     alignItems: 'center',
@@ -159,8 +191,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   smallContainer: {
-    height: 108,
-    width: 160,
+    height: scale(108),
+    width: scale(160),
   },
 });
 
