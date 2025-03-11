@@ -6,6 +6,7 @@ import {
   spacing,
   commonStyles,
 } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import NailItem from '~/features/nail-selection/ui/NailItem';
 import { NailPreferencesResponse } from '~/shared/api/types';
 import {
@@ -242,27 +243,27 @@ const styles = StyleSheet.create({
   container: {
     ...commonStyles.screen,
     alignSelf: 'center',
-    height: 812,
-    width: 375,
+    height: vs(812),
+    width: scale(375),
   },
   gridContainer: {
     paddingHorizontal: spacing.large,
   },
   header: {
-    marginBottom: 28,
+    marginBottom: vs(28),
     paddingHorizontal: spacing.large,
     paddingTop: spacing.xlarge,
   },
   nailItem: {
-    height: 103,
-    width: 103,
+    height: scale(103),
+    width: scale(103),
   },
   row: {
-    gap: 11,
+    gap: scale(11),
     justifyContent: 'flex-start',
   },
   separator: {
-    height: 11,
+    height: vs(11),
   },
   title: {
     ...typography.head1_B,

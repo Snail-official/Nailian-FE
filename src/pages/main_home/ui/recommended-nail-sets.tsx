@@ -7,6 +7,7 @@ import {
   FlatList,
 } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
 import NailSet from '~/features/nail-set/ui/NailSet';
 
@@ -81,7 +82,7 @@ function RecommendedNailSets({
             <Text style={styles.styleTitle}>
               {styleGroup.style.name} 보러가기
             </Text>
-            <ArrowRightIcon width={24} height={24} />
+            <ArrowRightIcon width={scale(24)} height={scale(24)} />
           </TouchableOpacity>
 
           {/* 네일 세트 목록 */}
@@ -106,28 +107,28 @@ function RecommendedNailSets({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 28,
-    marginTop: 26,
+    marginBottom: vs(28),
+    marginTop: vs(26),
   },
   nailSetItem: {
     marginRight: 0,
   },
   nailSetList: {
     alignItems: 'center',
-    paddingRight: 8,
+    paddingRight: scale(8),
   },
   nailSetSeparator: {
-    width: 8,
+    width: scale(8),
   },
   styleHeader: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: vs(16),
     width: '100%',
   },
   styleSection: {
-    marginBottom: 28,
+    marginBottom: vs(28),
   },
   styleTitle: {
     ...typography.title2_SB,

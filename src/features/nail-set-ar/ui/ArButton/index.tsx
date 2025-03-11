@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import ArIcon from '~/shared/assets/icons/ic_ar.svg';
+import { scale } from '~/shared/lib/responsive';
 
 /**
  * AR 버튼 컴포넌트 Props
@@ -44,13 +45,12 @@ export default function ArButton({
 }: ArButtonProps) {
   return (
     <TouchableOpacity
-      style={[styles.button, disabled && styles.buttonDisabled, style]}
+      style={[styles.container, style]}
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.8}
     >
       <View style={styles.content}>
-        <ArIcon width={26} height={26} color={colors.white} />
+        <ArIcon width={scale(26)} height={scale(26)} color={colors.white} />
         <Text style={styles.text}>내 손에 올려보기</Text>
       </View>
     </TouchableOpacity>
@@ -58,29 +58,24 @@ export default function ArButton({
 }
 
 const styles = StyleSheet.create({
-  button: {
+  container: {
     alignItems: 'center',
     backgroundColor: colors.purple500,
-    borderRadius: 24,
-    height: 42,
+    borderRadius: scale(24),
+    height: scale(42),
     justifyContent: 'center',
-    padding: 5,
-    paddingHorizontal: 10,
-    width: 179,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
+    padding: scale(5),
+    paddingHorizontal: scale(10),
+    width: scale(179),
   },
   content: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 8,
+    gap: scale(8),
     justifyContent: 'center',
   },
   text: {
     ...typography.body2_SB,
     color: colors.white,
-    letterSpacing: -0.14,
-    lineHeight: 21,
   },
 });

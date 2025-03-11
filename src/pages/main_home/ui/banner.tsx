@@ -9,11 +9,12 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import { colors } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import { fetchHomeBanners } from '~/entities/banner/api';
 import { BannerResponse } from '~/shared/api/types';
 
-const BANNER_WIDTH = 331;
-const BANNER_SPACING = 8;
+const BANNER_WIDTH = scale(331);
+const BANNER_SPACING = scale(8);
 
 interface BannerProps {
   /**
@@ -127,14 +128,14 @@ export function Banner({ onBannerPress }: BannerProps) {
 
 const styles = StyleSheet.create({
   bannerContainer: {
-    height: 158,
+    height: vs(158),
     overflow: 'hidden',
     width: BANNER_WIDTH,
   },
   bannerImage: {
-    borderRadius: 4,
+    borderRadius: scale(4),
     flexShrink: 0,
-    height: 158,
+    height: vs(158),
     width: BANNER_WIDTH,
   },
   bannerItem: {
@@ -148,14 +149,14 @@ const styles = StyleSheet.create({
   paginationContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 12,
+    marginTop: vs(12),
   },
   paginationDot: {
     backgroundColor: colors.gray200,
-    borderRadius: 2,
-    height: 4,
-    marginHorizontal: 3,
-    width: 4,
+    borderRadius: scale(2),
+    height: vs(4),
+    marginHorizontal: scale(3),
+    width: scale(4),
   },
   paginationDotActive: {
     backgroundColor: colors.gray600,

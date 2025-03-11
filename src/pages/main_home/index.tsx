@@ -10,6 +10,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { colors, typography } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import { fetchUserProfile } from '~/entities/user/api';
 import { fetchRecommendedNailSets } from '~/entities/nail-set/api';
 import Logo from '~/shared/assets/icons/logo.svg';
@@ -18,7 +19,7 @@ import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
 
 const { width } = Dimensions.get('window');
-const BANNER_WIDTH = 331;
+const BANNER_WIDTH = scale(331);
 const LEFT_MARGIN = (width - BANNER_WIDTH) / 2;
 
 // 네일 세트 인터페이스 정의
@@ -193,7 +194,7 @@ function MainHomeScreen({ navigation }: Props) {
           >
             {/* 로고 */}
             <View style={styles.logoContainer}>
-              <Logo width={78} height={25} />
+              <Logo width={scale(78)} height={vs(25)} />
             </View>
 
             {/* 배너 */}
@@ -250,14 +251,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.gray50,
     flexDirection: 'row',
-    paddingBottom: 41,
-    paddingLeft: 26,
-    paddingRight: 167,
-    paddingTop: 25,
+    paddingBottom: vs(41),
+    paddingLeft: scale(26),
+    paddingRight: scale(167),
+    paddingTop: vs(25),
     width: '100%',
   },
   footerNotice: {
-    marginTop: 8,
+    marginTop: vs(8),
   },
   footerText: {
     ...typography.caption_M,
@@ -267,8 +268,8 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 15,
-    marginTop: 14,
+    marginBottom: vs(15),
+    marginTop: vs(14),
     width: '100%',
   },
   mainContainer: {
@@ -279,20 +280,20 @@ const styles = StyleSheet.create({
     color: colors.purple500, // #CD19FF
   },
   recommendationContainer: {
-    marginTop: 28,
+    marginTop: vs(28),
     paddingHorizontal: LEFT_MARGIN,
   },
   recommendationText: {
     ...typography.head2_B,
     color: colors.gray850, // #131313
-    lineHeight: 30,
+    lineHeight: vs(30),
   },
   safeArea: {
     backgroundColor: colors.white,
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 74, // 탭바 높이만큼 패딩 추가
+    paddingBottom: vs(74), // 탭바 높이만큼 패딩 추가
   },
   scrollView: {
     flex: 1,

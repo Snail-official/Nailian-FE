@@ -1,4 +1,5 @@
 import { ViewStyle } from 'react-native';
+import { scale, vs, ms } from '~/shared/lib/responsive';
 
 /**
  * 공통 스타일 정의
@@ -41,74 +42,74 @@ export const colors = {
 export const typography = {
   head1_B: {
     fontFamily: 'Pretendard-Bold',
-    fontSize: 22,
-    lineHeight: 33, // 150%
+    fontSize: ms(22),
+    lineHeight: ms(33), // 150%
   },
   head2_B: {
     fontFamily: 'Pretendard-Bold',
-    fontSize: 20,
-    lineHeight: 30, // 150%
+    fontSize: ms(20),
+    lineHeight: ms(30), // 150%
   },
   head3_SB: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 20,
-    lineHeight: 30, // 150%
+    fontSize: ms(20),
+    lineHeight: ms(30), // 150%
     letterSpacing: -0.4,
   },
   title1_SB: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 18,
-    lineHeight: 27, // 150%
+    fontSize: ms(18),
+    lineHeight: ms(27), // 150%
   },
   title2_SB: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 16,
-    lineHeight: 24, // 150%
+    fontSize: ms(16),
+    lineHeight: ms(24), // 150%
   },
   body1_B: {
     fontFamily: 'Pretendard-Bold',
-    fontSize: 14,
-    lineHeight: 21, // 150%
+    fontSize: ms(14),
+    lineHeight: ms(21), // 150%
     letterSpacing: -0.14,
   },
   body2_SB: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 14,
-    lineHeight: 21, // 150%
+    fontSize: ms(14),
+    lineHeight: ms(21), // 150%
     letterSpacing: -0.14,
   },
   body3_B: {
     fontFamily: 'Pretendard-Bold',
-    fontSize: 12,
-    lineHeight: 18, // 150%
+    fontSize: ms(12),
+    lineHeight: ms(18), // 150%
     letterSpacing: -0.12,
   },
   body4_M: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
-    lineHeight: 18, // 150%
+    fontSize: ms(12),
+    lineHeight: ms(18), // 150%
     letterSpacing: -0.12,
   },
   body5_M: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 14,
-    lineHeight: 21, // 150%
+    fontSize: ms(14),
+    lineHeight: ms(21), // 150%
     letterSpacing: -0.14, // -1%
   },
   caption_M: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 10,
-    lineHeight: 15, // 150%
+    fontSize: ms(10),
+    lineHeight: ms(15), // 150%
     letterSpacing: -0.1, // -1%
   },
 } as const;
 
 /** 여백 및 간격 */
 export const spacing = {
-  small: 8, // 작은 여백
-  medium: 16, // 중간 여백
-  large: 24, // 큰 여백
-  xlarge: 32, // 매우 큰 여백
+  small: scale(8), // 작은 여백
+  medium: scale(16), // 중간 여백
+  large: scale(24), // 큰 여백
+  xlarge: scale(32), // 매우 큰 여백
 } as const;
 
 // 공통 스타일
@@ -122,9 +123,9 @@ export const commonStyles: {
   },
   socialButton: {
     // Layout
-    width: 316,
-    height: 52,
-    padding: 14,
+    width: scale(316),
+    height: vs(52),
+    padding: scale(14),
     flexShrink: 0,
 
     // Flexbox
@@ -134,21 +135,21 @@ export const commonStyles: {
     gap: spacing.small,
 
     // Visual
-    borderRadius: 8,
+    borderRadius: scale(8),
   },
 };
 
 export const componentStyles = {
   nailItem: {
     container: {
-      width: 103,
-      height: 103,
+      width: scale(103),
+      height: scale(103),
       position: 'relative',
     },
     image: {
       width: '100%',
       height: '100%',
-      borderRadius: 4,
+      borderRadius: scale(4),
       backgroundColor: colors.gray200,
     },
     selectedOverlay: {
@@ -157,14 +158,14 @@ export const componentStyles = {
       left: 0,
       right: 0,
       bottom: 0,
-      borderWidth: 2,
+      borderWidth: scale(2),
       borderColor: colors.gray850,
-      borderRadius: 4,
+      borderRadius: scale(4),
     },
     checkIconContainer: {
       position: 'absolute',
-      top: 8,
-      right: 8,
+      top: scale(8),
+      right: scale(8),
     },
   },
 } as const;
