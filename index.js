@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import { AppRegistry } from 'react-native';
 import { ENV } from '@env';
 import App from './App';
