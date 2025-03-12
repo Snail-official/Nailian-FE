@@ -1,0 +1,142 @@
+import React, { useRef, useCallback, ReactNode } from 'react';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { colors } from '~/shared/styles/design';
+import BottomSheetComponent, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { useSharedValue } from 'react-native-reanimated';
+
+/**
+ * 바텀시트의 스냅 포인트 높이 설정 유형
+ * 숫자(픽셀 단위) 또는 퍼센트 문자열로 지정 가능
+ * @example
+ * ['25%', '50%', '90%'] // 화면 높이의 25%, 50%, 90%
+ * [100, 300, 500] // 100px, 300px, 500px
+ */
+export type BottomSheetSnapPoints = (string | number)[];
+
+/**
+ * 바텀시트 핸들 컴포넌트 표시 방식
+ * - 'default': 기본 핸들 컴포넌트 표시
+ * - 'none': 핸들 컴포넌트 표시 안함
+ * - 'custom': 커스텀 핸들 컴포넌트 사용
+ */
+export type HandleType = 'default' | 'none' | 'custom';
+
+/**
+ * 바텀시트 컴포넌트 Props
+ * @property {BottomSheetSnapPoints} snapPoints - 바텀시트의 스냅 포인트 높이 설정
+ * @property {number} initialIndex - 초기 바텀시트 인덱스 (snapPoints 배열의 인덱스)
+ * @property {ReactNode} children - 바텀시트 내부 콘텐츠
+ * @property {HandleType} handleType - 핸들 컴포넌트 표시 방식
+ * @property {ReactNode} customHandle - 커스텀 핸들 컴포넌트 (handleType이 'custom'일 때 사용)
+ * @property {(index: number) => void} onChange - 바텀시트 인덱스 변경 시 콜백
+ * @property {StyleProp<ViewStyle>} contentContainerStyle - 내용 컨테이너 스타일
+ * @property {StyleProp<ViewStyle>} backgroundStyle - 바텀시트 배경 스타일
+ * @property {boolean} enablePanDownToClose - 아래로 스와이프하여 닫기 가능 여부
+ */
+export interface BottomSheetProps {
+  snapPoints: BottomSheetSnapPoints;
+  initialIndex?: number;
+  children: ReactNode;
+  handleType?: HandleType;
+  customHandle?: ReactNode;
+  onChange?: (index: number) => void;
+  contentContainerStyle?: StyleProp<ViewStyle>;
+  backgroundStyle?: StyleProp<ViewStyle>;
+  enablePanDownToClose?: boolean;
+}
+
+/**
+ * 바텀시트 컴포넌트
+ *
+ * 앱 전반에서 사용되는 바텀시트 컴포넌트입니다.
+ * 다양한 높이 설정과 핸들 유형을 지원합니다.
+ *
+ * @example
+ * // 기본 바텀시트 (25%, 75% 높이)
+ * <BottomSheet snapPoints={['25%', '75%']}>
+ *   <Text>바텀시트 내용</Text>
+ * </BottomSheet>
+ *
+ * // 커스텀 핸들이 있는 바텀시트
+ * <BottomSheet
+ *   snapPoints={['25%', '75%']}
+ *   handleType="custom"
+ *   customHandle={<View><Text>커스텀 핸들</Text></View>}
+ * >
+ *   <Text>바텀시트 내용</Text>
+ * </BottomSheet>
+ *
+ * // 핸들이 없는 바텀시트
+ * <BottomSheet
+ *   snapPoints={['25%', '75%']}
+ *   handleType="none"
+ * >
+ *   <Text>바텀시트 내용</Text>
+ * </BottomSheet>
+ */
+export function BottomSheet({
+  snapPoints,
+  initialIndex = 0,
+  children,
+  handleType = 'default',
+  customHandle,
+  onChange,
+  contentContainerStyle,
+  backgroundStyle,
+  enablePanDownToClose = false,
+}: BottomSheetProps) {
+  const bottomSheetRef = useRef<BottomSheetComponent>(null);
+  const animatedIndex = useSharedValue(initialIndex);
+
+  // 핸들 컴포넌트 렌더링
+  const renderHandleComponent = useCallback(() => {
+    if (handleType === 'none') return null;
+    if (handleType === 'custom' && customHandle) return customHandle;
+
+    // 기본 핸들 컴포넌트
+    return (
+      <View style={styles.header}>
+        <View style={styles.indicator} />
+      </View>
+    );
+  }, [handleType, customHandle]);
+
+  return (
+    <BottomSheetComponent
+      ref={bottomSheetRef}
+      index={initialIndex}
+      snapPoints={snapPoints}
+      onChange={onChange}
+      animatedIndex={animatedIndex}
+      handleComponent={renderHandleComponent}
+      enablePanDownToClose={enablePanDownToClose}
+      backgroundStyle={[styles.bottomSheetBackground, backgroundStyle]}
+    >
+      <BottomSheetView style={[styles.contentContainer, contentContainerStyle]}>
+        {children}
+      </BottomSheetView>
+    </BottomSheetComponent>
+  );
+}
+
+const styles = StyleSheet.create({
+  bottomSheetBackground: {
+    backgroundColor: colors.white,
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  header: {
+    alignItems: 'center',
+    paddingVertical: 15,
+  },
+  indicator: {
+    backgroundColor: colors.gray700,
+    borderRadius: 3,
+    height: 4,
+    width: 40,
+  },
+});
+
+export default BottomSheet;
