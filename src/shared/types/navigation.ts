@@ -48,4 +48,7 @@ export type RootStackParamList = {
     styleName: string;
     isBookmarked?: boolean;
   };
+
+  /** AR 체험 페이지 */
+  ARExperiencePage: undefined;
 };
