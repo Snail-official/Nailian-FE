@@ -89,7 +89,7 @@ export default function ARExperiencePage() {
 
       {/* 바텀시트 */}
       <BottomSheet
-        snapPoints={['30%', '94%']}
+        snapPoints={['25%', '93%']}
         initialIndex={0}
         handleType="custom"
         customHandle={renderCustomHandle}
@@ -97,7 +97,7 @@ export default function ARExperiencePage() {
         enableContentPanningGesture={true}
         enableHandlePanningGesture={true}
         enableOverDrag={false}
-        maxDynamicContentSize={700}
+        maxDynamicContentSize={780}
         backgroundStyle={styles.bottomSheetBackground}
         contentContainerStyle={styles.contentContainer}
         enableBackdrop={true}
