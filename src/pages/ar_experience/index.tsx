@@ -1,144 +1,173 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   StatusBar,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
-import { BottomSheet } from '~/pages/ar_experience/ui/BottomSheet';
-
+import BottomSheet from '~/pages/ar_experience/ui/BottomSheet';
+import NailGrid from '~/pages/ar_experience/ui/NailGrid';
+import { TabBarHeader } from '~/shared/ui/TabBar';
+import ArButton from '~/features/nail-set-ar/ui/ArButton';
+import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
+import { useNavigation } from '@react-navigation/native';
 /**
  * AR 체험 페이지
  * @returns {JSX.Element} AR 체험 페이지 컴포넌트
  */
 export default function ARExperiencePage() {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const navigation = useNavigation();
 
-  // 바텀시트 상태 변경 시 호출되는 콜백
-  const handleSheetChanges = useCallback((index: number) => {
-    setIsExpanded(index === 1);
+  // 네일 선택 핸들러
+  const handleNailSelect = useCallback((id: string) => {
+    console.log('선택한 네일 ID:', id);
+    // 여기에 네일 선택 시 필요한 로직 추가
   }, []);
 
-  // 위치 전환 핸들러
-  const toggleBottomSheet = useCallback(() => {
-    // 핸들 컴포넌트에서 사용자가 직접 누를 때 호출
-    // 실제 이동은 바텀시트 자체에서 처리됨
+  // 북마크 핸들러
+  const handleBookmark = useCallback(() => {
+    console.log('북마크 버튼이 클릭되었습니다.');
   }, []);
 
-  // 바텀시트 핸들 컴포넌트
+  // AR 버튼 핸들러
+  const handleArButtonPress = useCallback(() => {
+    console.log('AR 버튼이 클릭되었습니다.');
+  }, []);
+
+  // 뒤로가기 핸들러
+  const handleGoBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  // 바텀시트 커스텀 핸들 컴포넌트
   const renderCustomHandle = (
     <View style={styles.header}>
       <View style={styles.indicator} />
-      <TouchableOpacity onPress={toggleBottomSheet}>
-        <Text style={styles.headerText}>
-          {isExpanded ? '25% 위치로 내리기' : '75% 위치로 올리기'}
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
 
-      {/* 배경 영역 */}
-      <View style={styles.backgroundArea} />
+      {/* 상단 탭바 */}
+      <TabBarHeader
+        title=""
+        onBack={handleGoBack}
+        rightContent={
+          <TouchableOpacity onPress={handleBookmark}>
+            <BookmarkIcon width={24} height={24} color={colors.gray600} />
+          </TouchableOpacity>
+        }
+      />
+
+      {/* 메인 콘텐츠 영역 */}
+      <View style={styles.contentArea}>
+        {/* 상단 타이틀 */}
+        <View style={styles.titleContainer}>
+          <Text style={styles.mainTitle}>먼저, 나만의 아트를 만들어보세요</Text>
+          <Text style={styles.subTitle}>
+            원하는 시안들을 골라 조합할 수 있어요
+          </Text>
+        </View>
+
+        {/* 손 이미지 */}
+        <Image
+          source={require('~/shared/assets/images/hand.png')}
+          style={styles.handImage}
+          resizeMode="contain"
+        />
+
+        {/* AR 버튼 */}
+        <View style={styles.arButtonContainer}>
+          <ArButton onPress={handleArButtonPress} />
+        </View>
+      </View>
 
       {/* 바텀시트 */}
       <BottomSheet
-        snapPoints={['25%', '75%']}
+        snapPoints={['30%', '94%']}
         initialIndex={0}
-        onChange={handleSheetChanges}
         handleType="custom"
         customHandle={renderCustomHandle}
         enablePanDownToClose={false}
+        enableContentPanningGesture={true}
+        enableHandlePanningGesture={true}
+        enableOverDrag={false}
+        maxDynamicContentSize={700}
         backgroundStyle={styles.bottomSheetBackground}
         contentContainerStyle={styles.contentContainer}
+        enableBackdrop={true}
+        backdropPressBehavior="collapse"
       >
-        <Text style={styles.title}>바텀 시트 내용</Text>
-        <Text style={styles.subtitle}>
-          {isExpanded
-            ? '바텀시트가 화면의 75% 위치에 표시됩니다.'
-            : '바텀시트가 화면의 25% 위치에 표시됩니다.'}
-        </Text>
-
-        {isExpanded && (
-          <View style={styles.expandedContent}>
-            <Text style={styles.contentText}>
-              확장된 상태에서만 보이는 추가 콘텐츠입니다.
-            </Text>
-            <Text style={styles.contentText}>
-              @gorhom/bottom-sheet 라이브러리를 사용하여 부드럽고 안정적인
-              바텀시트를 구현했습니다.
-            </Text>
-            <Text style={styles.contentText}>
-              사용자 드래그 후 자동으로 25% 또는 75% 위치에 안착합니다.
-            </Text>
-          </View>
-        )}
+        <NailGrid onSelectNail={handleNailSelect} />
       </BottomSheet>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  backgroundArea: {
-    backgroundColor: colors.black,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    zIndex: 0,
+  arButtonContainer: {
+    alignItems: 'center',
+    marginTop: 18,
   },
   bottomSheetBackground: {
-    backgroundColor: colors.kakaoYellow,
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    elevation: 8,
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: -3,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
   container: {
+    backgroundColor: colors.white,
     flex: 1,
   },
+  contentArea: {
+    flex: 1,
+    paddingTop: 8,
+  },
   contentContainer: {
-    alignItems: 'center',
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
-  contentText: {
-    ...typography.body2_SB,
-    color: colors.gray700,
-    marginBottom: 10,
-  },
-  expandedContent: {
-    alignItems: 'center',
-    marginTop: 30,
-    padding: 10,
+  handImage: {
+    alignSelf: 'center',
+    height: 370,
+    marginTop: 24,
+    width: 237,
   },
   header: {
     alignItems: 'center',
-    backgroundColor: colors.kakaoYellow,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingVertical: 15,
   },
-  headerText: {
-    ...typography.body2_SB,
-    color: colors.gray700,
-    marginTop: 10,
-  },
   indicator: {
-    backgroundColor: colors.gray700,
-    borderRadius: 3,
+    backgroundColor: colors.gray200,
+    borderRadius: 100,
     height: 4,
-    width: 40,
+    width: 44,
   },
-  subtitle: {
-    ...typography.body2_SB,
-    color: colors.gray700,
-    marginTop: 10,
-    textAlign: 'center',
+  mainTitle: {
+    ...typography.head2_B,
+    color: colors.gray850,
   },
-  title: {
-    ...typography.head1_B,
-    color: colors.gray800,
-    marginTop: 20,
+  subTitle: {
+    ...typography.body4_M,
+    color: colors.gray500,
+  },
+  titleContainer: {
+    marginLeft: 22,
   },
 });

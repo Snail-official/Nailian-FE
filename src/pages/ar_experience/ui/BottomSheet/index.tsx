@@ -1,7 +1,11 @@
 import React, { useRef, useCallback, ReactNode } from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { colors } from '~/shared/styles/design';
-import BottomSheetComponent, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheetComponent, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+  BottomSheetBackdropProps,
+} from '@gorhom/bottom-sheet';
 import { useSharedValue } from 'react-native-reanimated';
 
 /**
@@ -32,6 +36,12 @@ export type HandleType = 'default' | 'none' | 'custom';
  * @property {StyleProp<ViewStyle>} contentContainerStyle - 내용 컨테이너 스타일
  * @property {StyleProp<ViewStyle>} backgroundStyle - 바텀시트 배경 스타일
  * @property {boolean} enablePanDownToClose - 아래로 스와이프하여 닫기 가능 여부
+ * @property {boolean} enableBackdrop - 백드롭(배경 딤) 표시 여부
+ * @property {boolean} backdropPressBehavior - 백드롭 클릭 시 동작 ('collapse', 'close', 'none')
+ * @property {boolean} enableContentPanningGesture - 컨텐츠 패닝 제스처 활성화 여부
+ * @property {boolean} enableHandlePanningGesture - 핸들 패닝 제스처 활성화 여부
+ * @property {boolean} enableOverDrag - 오버드래그 활성화 여부
+ * @property {number} maxDynamicContentSize - 최대 동적 컨텐츠 크기 설정 (스냅포인트 유지에 도움)
  */
 export interface BottomSheetProps {
   snapPoints: BottomSheetSnapPoints;
@@ -43,6 +53,12 @@ export interface BottomSheetProps {
   contentContainerStyle?: StyleProp<ViewStyle>;
   backgroundStyle?: StyleProp<ViewStyle>;
   enablePanDownToClose?: boolean;
+  enableBackdrop?: boolean;
+  backdropPressBehavior?: 'collapse' | 'close' | 'none';
+  enableContentPanningGesture?: boolean;
+  enableHandlePanningGesture?: boolean;
+  enableOverDrag?: boolean;
+  maxDynamicContentSize?: number;
 }
 
 /**
@@ -52,24 +68,25 @@ export interface BottomSheetProps {
  * 다양한 높이 설정과 핸들 유형을 지원합니다.
  *
  * @example
- * // 기본 바텀시트 (25%, 75% 높이)
- * <BottomSheet snapPoints={['25%', '75%']}>
+ * // 기본 바텀시트 (30%, 90% 높이)
+ * <BottomSheet snapPoints={['30%', '90%']}>
  *   <Text>바텀시트 내용</Text>
  * </BottomSheet>
  *
  * // 커스텀 핸들이 있는 바텀시트
  * <BottomSheet
- *   snapPoints={['25%', '75%']}
+ *   snapPoints={['30%', '90%']}
  *   handleType="custom"
  *   customHandle={<View><Text>커스텀 핸들</Text></View>}
  * >
  *   <Text>바텀시트 내용</Text>
  * </BottomSheet>
  *
- * // 핸들이 없는 바텀시트
+ * // 백드롭이 있는 바텀시트
  * <BottomSheet
- *   snapPoints={['25%', '75%']}
- *   handleType="none"
+ *   snapPoints={['30%', '90%']}
+ *   enableBackdrop={true}
+ *   backdropPressBehavior="collapse"
  * >
  *   <Text>바텀시트 내용</Text>
  * </BottomSheet>
@@ -84,6 +101,12 @@ export function BottomSheet({
   contentContainerStyle,
   backgroundStyle,
   enablePanDownToClose = false,
+  enableBackdrop = false,
+  backdropPressBehavior = 'collapse',
+  enableContentPanningGesture = true,
+  enableHandlePanningGesture = true,
+  enableOverDrag = false,
+  maxDynamicContentSize,
 }: BottomSheetProps) {
   const bottomSheetRef = useRef<BottomSheetComponent>(null);
   const animatedIndex = useSharedValue(initialIndex);
@@ -101,6 +124,21 @@ export function BottomSheet({
     );
   }, [handleType, customHandle]);
 
+  // 백드롭 컴포넌트 렌더링
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        animatedIndex={props.animatedIndex}
+        animatedPosition={props.animatedPosition}
+        disappearsOnIndex={0}
+        appearsOnIndex={1}
+        opacity={0.7}
+        pressBehavior={backdropPressBehavior}
+      />
+    ),
+    [backdropPressBehavior],
+  );
+
   return (
     <BottomSheetComponent
       ref={bottomSheetRef}
@@ -110,7 +148,15 @@ export function BottomSheet({
       animatedIndex={animatedIndex}
       handleComponent={renderHandleComponent}
       enablePanDownToClose={enablePanDownToClose}
+      enableContentPanningGesture={enableContentPanningGesture}
+      enableHandlePanningGesture={enableHandlePanningGesture}
+      enableOverDrag={enableOverDrag}
+      maxDynamicContentSize={maxDynamicContentSize}
+      keyboardBehavior="fillParent"
+      android_keyboardInputMode="adjustResize"
+      keyboardBlurBehavior="restore"
       backgroundStyle={[styles.bottomSheetBackground, backgroundStyle]}
+      backdropComponent={enableBackdrop ? renderBackdrop : undefined}
     >
       <BottomSheetView style={[styles.contentContainer, contentContainerStyle]}>
         {children}
