@@ -1,5 +1,8 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  NavigationContainerRef,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '~/shared/types/navigation';
 import { setNavigationRef } from '~/shared/api/interceptors';
@@ -28,7 +31,9 @@ export default function AppNavigation() {
     <NavigationContainer
       ref={navigatorRef => {
         if (navigatorRef) {
-          setNavigationRef(navigatorRef);
+          setNavigationRef(
+            navigatorRef as NavigationContainerRef<RootStackParamList>,
+          );
         }
       }}
     >
