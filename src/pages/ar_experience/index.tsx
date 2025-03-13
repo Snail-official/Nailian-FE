@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,10 @@ import {
   Dimensions,
 } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
-import BottomSheet from '~/pages/ar_experience/ui/BottomSheet';
+import BottomSheet, {
+  BottomSheetRefProps,
+} from '~/pages/ar_experience/ui/BottomSheet';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import NailGrid from '~/pages/ar_experience/ui/NailGrid';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
@@ -26,6 +29,8 @@ const { height } = Dimensions.get('window');
  */
 export default function ARExperiencePage() {
   const navigation = useNavigation();
+  // 바텀시트 참조 생성
+  const bottomSheetRef = useRef<BottomSheetRefProps>(null);
 
   // 네일 선택 핸들러
   const handleNailSelect = useCallback((id: string) => {
@@ -56,62 +61,71 @@ export default function ARExperiencePage() {
   );
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <BottomSheetModalProvider>
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" />
 
-      {/* 상단 탭바 */}
-      <TabBarHeader
-        title=""
-        onBack={handleGoBack}
-        rightContent={
-          <TouchableOpacity onPress={handleBookmark}>
-            <BookmarkIcon width={24} height={24} color={colors.gray600} />
-          </TouchableOpacity>
-        }
-      />
-
-      {/* 메인 콘텐츠 영역 */}
-      <View style={styles.contentArea}>
-        {/* 상단 타이틀 */}
-        <View style={styles.titleContainer}>
-          <Text style={styles.mainTitle}>먼저, 나만의 아트를 만들어보세요</Text>
-          <Text style={styles.subTitle}>
-            원하는 시안들을 골라 조합할 수 있어요
-          </Text>
-        </View>
-
-        {/* 손 이미지 */}
-        <Image
-          source={require('~/shared/assets/images/hand.png')}
-          style={styles.handImage}
-          resizeMode="contain"
+        {/* 상단 탭바 */}
+        <TabBarHeader
+          title=""
+          onBack={handleGoBack}
+          rightContent={
+            <TouchableOpacity onPress={handleBookmark}>
+              <BookmarkIcon
+                width={scale(19)}
+                height={scale(18.5)}
+                color={colors.gray600}
+              />
+            </TouchableOpacity>
+          }
         />
 
-        {/* AR 버튼 */}
-        <View style={styles.arButtonContainer}>
-          <ArButton onPress={handleArButtonPress} />
-        </View>
-      </View>
+        {/* 메인 콘텐츠 영역 */}
+        <View style={styles.contentArea}>
+          {/* 상단 타이틀 */}
+          <View style={styles.titleContainer}>
+            <Text style={styles.mainTitle}>
+              먼저, 나만의 아트를 만들어보세요
+            </Text>
+            <Text style={styles.subTitle}>
+              원하는 시안들을 골라 조합할 수 있어요
+            </Text>
+          </View>
 
-      {/* 바텀시트 */}
-      <BottomSheet
-        snapPoints={['27%', '93%']}
-        initialIndex={0}
-        handleType="custom"
-        customHandle={renderCustomHandle}
-        enablePanDownToClose={false}
-        enableContentPanningGesture={true}
-        enableHandlePanningGesture={true}
-        enableOverDrag={false}
-        maxDynamicContentSize={Math.min(780, height * 0.9)}
-        backgroundStyle={styles.bottomSheetBackground}
-        contentContainerStyle={styles.contentContainer}
-        enableBackdrop={true}
-        backdropPressBehavior="collapse"
-      >
-        <NailGrid onSelectNail={handleNailSelect} />
-      </BottomSheet>
-    </View>
+          {/* 손 이미지 */}
+          <Image
+            source={require('~/shared/assets/images/hand.png')}
+            style={styles.handImage}
+            resizeMode="contain"
+          />
+
+          {/* AR 버튼 */}
+          <View style={styles.arButtonContainer}>
+            <ArButton onPress={handleArButtonPress} />
+          </View>
+        </View>
+
+        {/* 바텀시트 */}
+        <BottomSheet
+          ref={bottomSheetRef}
+          snapPoints={['27%', '93%']}
+          initialIndex={0}
+          handleType="custom"
+          customHandle={renderCustomHandle}
+          enablePanDownToClose={false}
+          enableContentPanningGesture={true}
+          enableHandlePanningGesture={true}
+          enableOverDrag={false}
+          maxDynamicContentSize={Math.min(780, height * 0.9)}
+          backgroundStyle={styles.bottomSheetBackground}
+          contentContainerStyle={styles.contentContainer}
+          enableBackdrop={true}
+          backdropPressBehavior="collapse"
+        >
+          <NailGrid onSelectNail={handleNailSelect} />
+        </BottomSheet>
+      </View>
+    </BottomSheetModalProvider>
   );
 }
 

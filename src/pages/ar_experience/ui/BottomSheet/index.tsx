@@ -1,4 +1,10 @@
-import React, { useRef, useCallback, ReactNode } from 'react';
+import React, {
+  useRef,
+  useCallback,
+  ReactNode,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { colors } from '~/shared/styles/design';
 import BottomSheetComponent, {
@@ -63,6 +69,30 @@ export interface BottomSheetProps {
 }
 
 /**
+ * 바텀시트 참조 Props
+ */
+export interface BottomSheetRefProps {
+  /**
+   * 특정 인덱스로 바텀시트 위치 변경
+   * @param index 인덱스
+   * @param animated 애니메이션 적용 여부
+   */
+  snapToIndex: (index: number, animated?: boolean) => void;
+  /**
+   * 바텀시트 확장 (마지막 인덱스로 이동)
+   */
+  expand: () => void;
+  /**
+   * 바텀시트 접기 (첫 번째 인덱스로 이동)
+   */
+  collapse: () => void;
+  /**
+   * 바텀시트 닫기 (인덱스 -1로 이동)
+   */
+  close: () => void;
+}
+
+/**
  * 바텀시트 컴포넌트
  *
  * 앱 전반에서 사용되는 바텀시트 컴포넌트입니다.
@@ -92,79 +122,108 @@ export interface BottomSheetProps {
  *   <Text>바텀시트 내용</Text>
  * </BottomSheet>
  */
-export function BottomSheet({
-  snapPoints,
-  initialIndex = 0,
-  children,
-  handleType = 'default',
-  customHandle,
-  onChange,
-  contentContainerStyle,
-  backgroundStyle,
-  enablePanDownToClose = false,
-  enableBackdrop = false,
-  backdropPressBehavior = 'collapse',
-  enableContentPanningGesture = true,
-  enableHandlePanningGesture = true,
-  enableOverDrag = false,
-  maxDynamicContentSize,
-}: BottomSheetProps) {
-  const bottomSheetRef = useRef<BottomSheetComponent>(null);
-  const animatedIndex = useSharedValue(initialIndex);
+const BottomSheet = forwardRef<BottomSheetRefProps, BottomSheetProps>(
+  (
+    {
+      snapPoints,
+      initialIndex = 0,
+      children,
+      handleType = 'default',
+      customHandle,
+      onChange,
+      contentContainerStyle,
+      backgroundStyle,
+      enablePanDownToClose = false,
+      enableBackdrop = false,
+      backdropPressBehavior = 'collapse',
+      enableContentPanningGesture = true,
+      enableHandlePanningGesture = true,
+      enableOverDrag = false,
+      maxDynamicContentSize,
+    },
+    ref,
+  ) => {
+    const bottomSheetRef = useRef<BottomSheetComponent>(null);
+    const animatedIndex = useSharedValue(initialIndex);
 
-  // 핸들 컴포넌트 렌더링
-  const renderHandleComponent = useCallback(() => {
-    if (handleType === 'none') return null;
-    if (handleType === 'custom' && customHandle) return customHandle;
+    // 외부에서 사용할 수 있는 메서드를 노출
+    useImperativeHandle(ref, () => ({
+      snapToIndex: (index: number, animated = true) => {
+        if (animated) {
+          bottomSheetRef.current?.snapToIndex(index);
+        } else {
+          bottomSheetRef.current?.snapToIndex(index, { duration: 0 });
+        }
+      },
+      expand: () => {
+        if (snapPoints.length > 1) {
+          bottomSheetRef.current?.snapToIndex(snapPoints.length - 1);
+        }
+      },
+      collapse: () => {
+        bottomSheetRef.current?.snapToIndex(0);
+      },
+      close: () => {
+        bottomSheetRef.current?.close();
+      },
+    }));
 
-    // 기본 핸들 컴포넌트
-    return (
-      <View style={styles.header}>
-        <View style={styles.indicator} />
-      </View>
+    // 핸들 컴포넌트 렌더링
+    const renderHandleComponent = useCallback(() => {
+      if (handleType === 'none') return null;
+      if (handleType === 'custom' && customHandle) return customHandle;
+
+      // 기본 핸들 컴포넌트
+      return (
+        <View style={styles.header}>
+          <View style={styles.indicator} />
+        </View>
+      );
+    }, [handleType, customHandle]);
+
+    // 백드롭 컴포넌트 렌더링
+    const renderBackdrop = useCallback(
+      (props: BottomSheetBackdropProps) => (
+        <BottomSheetBackdrop
+          animatedIndex={props.animatedIndex}
+          animatedPosition={props.animatedPosition}
+          disappearsOnIndex={0}
+          appearsOnIndex={1}
+          opacity={0.7}
+          pressBehavior={backdropPressBehavior}
+        />
+      ),
+      [backdropPressBehavior],
     );
-  }, [handleType, customHandle]);
 
-  // 백드롭 컴포넌트 렌더링
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        animatedIndex={props.animatedIndex}
-        animatedPosition={props.animatedPosition}
-        disappearsOnIndex={0}
-        appearsOnIndex={1}
-        opacity={0.7}
-        pressBehavior={backdropPressBehavior}
-      />
-    ),
-    [backdropPressBehavior],
-  );
-
-  return (
-    <BottomSheetComponent
-      ref={bottomSheetRef}
-      index={initialIndex}
-      snapPoints={snapPoints}
-      onChange={onChange}
-      animatedIndex={animatedIndex}
-      handleComponent={renderHandleComponent}
-      enablePanDownToClose={enablePanDownToClose}
-      enableContentPanningGesture={enableContentPanningGesture}
-      enableHandlePanningGesture={enableHandlePanningGesture}
-      enableOverDrag={enableOverDrag}
-      maxDynamicContentSize={maxDynamicContentSize}
-      keyboardBehavior="fillParent"
-      android_keyboardInputMode="adjustResize"
-      keyboardBlurBehavior="restore"
-      backgroundStyle={[styles.bottomSheetBackground, backgroundStyle]}
-      backdropComponent={enableBackdrop ? renderBackdrop : undefined}
-    >
-      <BottomSheetView style={[styles.contentContainer, contentContainerStyle]}>
-        {children}
-      </BottomSheetView>
-    </BottomSheetComponent>
-  );
-}
+    return (
+      <BottomSheetComponent
+        ref={bottomSheetRef}
+        index={initialIndex}
+        snapPoints={snapPoints}
+        onChange={onChange}
+        animatedIndex={animatedIndex}
+        handleComponent={renderHandleComponent}
+        enablePanDownToClose={enablePanDownToClose}
+        enableContentPanningGesture={enableContentPanningGesture}
+        enableHandlePanningGesture={enableHandlePanningGesture}
+        enableOverDrag={enableOverDrag}
+        maxDynamicContentSize={maxDynamicContentSize}
+        keyboardBehavior="fillParent"
+        android_keyboardInputMode="adjustResize"
+        keyboardBlurBehavior="restore"
+        backgroundStyle={[styles.bottomSheetBackground, backgroundStyle]}
+        backdropComponent={enableBackdrop ? renderBackdrop : undefined}
+      >
+        <BottomSheetView
+          style={[styles.contentContainer, contentContainerStyle]}
+        >
+          {children}
+        </BottomSheetView>
+      </BottomSheetComponent>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   bottomSheetBackground: {
