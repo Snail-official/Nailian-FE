@@ -20,7 +20,7 @@ export interface PaginatedResponse<T> {
     totalElements: number;
     totalPages: number;
   };
-  data: T[];
+  content: T[];
 }
 
 /* ─────────────────── 사용자 (Users) ─────────────────── */
