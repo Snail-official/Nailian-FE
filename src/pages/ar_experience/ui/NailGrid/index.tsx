@@ -201,7 +201,7 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
 
         if (response.data) {
           const newData =
-            response.data?.data.map(nail => ({
+            response.data?.content.map(nail => ({
               ...nail,
               id: String(nail.id),
             })) ?? [];
