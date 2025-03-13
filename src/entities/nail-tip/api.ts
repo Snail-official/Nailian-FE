@@ -19,7 +19,7 @@ export const fetchNails = async (
   };
 
   return fetcher({
-    endpoint: '/nails', // 네일 목록 조회 API 엔드포인트
+    endpoint: '/nails/', // 네일 목록 조회 API 엔드포인트
     query,
   });
 };

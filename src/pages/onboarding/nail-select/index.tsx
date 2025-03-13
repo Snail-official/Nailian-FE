@@ -65,7 +65,7 @@ export default function NailSelectScreen() {
         });
         if (response.data) {
           const newData =
-            response.data?.data.map(nail => ({
+            response.data?.content.map(nail => ({
               ...nail,
               id: String(nail.id), // id를 String으로 변환
             })) ?? [];

@@ -11,7 +11,7 @@
  *     totalPages: number;
  *     totalElements: number;
  *   };
- *   data: T[];
+ *   content: T[];
  * }} 페이지네이션이 적용된 데이터
  */
 const createPaginatedResponse = <T>(items: T[], page: number, size: number) => {
@@ -32,7 +32,7 @@ const createPaginatedResponse = <T>(items: T[], page: number, size: number) => {
       totalPages,
       totalElements,
     },
-    data: paginatedItems,
+    content: paginatedItems,
   };
 };
 

@@ -97,7 +97,7 @@ function NailSetListPage() {
 
         if (response.data) {
           // 페이지네이션 응답에서 데이터 배열 추출
-          const newNailSets = response.data.data || [];
+          const newNailSets = response.data.content || [];
 
           // 데이터 설정 (초기화 또는 추가)
           if (reset) {
@@ -138,8 +138,8 @@ function NailSetListPage() {
 
     try {
       const response = await fetchUserNailSets({ page: 1, size: 100 });
-      if (response.data?.data) {
-        setBookmarkedNailIds(response.data.data.map(item => item.id));
+      if (response.data?.content) {
+        setBookmarkedNailIds(response.data.content.map(item => item.id));
       }
     } catch (err) {
       console.error('북마크 상태 불러오기 실패:', err);

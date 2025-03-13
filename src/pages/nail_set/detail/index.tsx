@@ -154,13 +154,13 @@ function NailSetDetailPage() {
           let data, pageInfo;
           if (isBookmarkMode) {
             // 북마크 모드일 때 응답 처리
-            data = response.data.data || [];
+            data = response.data.content || [];
             pageInfo = response.data.pageInfo;
             // 현재 보고 있는 네일 세트는 제외
             data = data.filter((item: INailSet) => item.id !== nailSetId);
           } else {
             // 일반 모드일 때 응답 처리
-            data = response.data.data || [];
+            data = response.data.content || [];
             pageInfo = response.data.pageInfo;
           }
 
