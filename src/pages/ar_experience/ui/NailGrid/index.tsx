@@ -16,7 +16,7 @@ import { fetchNails } from '~/entities/nail-tip/api';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import FilterIcon from '~/shared/assets/icons/ic_filter.svg';
 import Button from '~/shared/ui/Button';
-
+import { scale, vs } from '~/shared/lib/responsive';
 // 손가락 타입 정의
 export type FingerType = 'pinky' | 'ring' | 'middle' | 'index' | 'thumb';
 
@@ -341,7 +341,7 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
             onPress={handleFilterClick}
             activeOpacity={0.7}
           >
-            <FilterIcon width={24} height={24} />
+            <FilterIcon width={scale(24)} height={scale(24)} />
             <Text style={styles.filterText}>필터</Text>
           </TouchableOpacity>
         </View>
@@ -371,7 +371,7 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
 
 const styles = StyleSheet.create({
   columnWrapper: {
-    gap: 10,
+    gap: scale(10),
     justifyContent: 'center',
   },
   container: {
@@ -381,58 +381,59 @@ const styles = StyleSheet.create({
   filterButton: {
     alignItems: 'center',
     flexDirection: 'row',
-    padding: 10,
+    padding: scale(10),
   },
   filterContainer: {
     alignItems: 'flex-end',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    marginBottom: vs(15),
+    paddingHorizontal: scale(10),
   },
   filterText: {
     ...typography.body2_SB,
     color: colors.gray700,
-    marginLeft: 4,
+    marginLeft: scale(4),
   },
   flatListContent: {
-    paddingBottom: 20,
+    alignItems: 'center',
+    paddingBottom: vs(20),
   },
   loaderContainer: {
     alignItems: 'center',
-    marginVertical: 20,
-    paddingBottom: 20,
+    marginVertical: vs(20),
+    paddingBottom: vs(20),
   },
   nailButtonsContainer: {
     flexDirection: 'row',
-    gap: 10,
+    gap: scale(10),
     justifyContent: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 10,
+    marginBottom: vs(20),
+    paddingHorizontal: scale(10),
   },
   nailImage: {
-    borderRadius: 4,
+    borderRadius: scale(4),
     height: '100%',
     width: '100%',
   },
   nailItem: {
     backgroundColor: colors.gray50,
-    borderRadius: 4,
-    height: 103,
+    borderRadius: scale(4),
+    height: scale(103),
     overflow: 'hidden',
-    width: 103,
+    width: scale(103),
   },
   screenContainer: {
     flex: 1,
     width: '100%',
   },
   scrollViewContent: {
-    paddingBottom: 40,
-    paddingHorizontal: 10,
-    paddingTop: 10,
+    paddingBottom: vs(40),
+    paddingHorizontal: scale(10),
+    paddingTop: vs(10),
   },
   separator: {
-    height: 10,
+    height: vs(10),
   },
 });
 

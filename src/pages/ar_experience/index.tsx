@@ -6,6 +6,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Image,
+  Dimensions,
 } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import BottomSheet from '~/pages/ar_experience/ui/BottomSheet';
@@ -14,6 +15,11 @@ import { TabBarHeader } from '~/shared/ui/TabBar';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import { useNavigation } from '@react-navigation/native';
+import { scale, vs } from '~/shared/lib/responsive';
+
+// 화면 크기 가져오기
+const { height } = Dimensions.get('window');
+
 /**
  * AR 체험 페이지
  * @returns {JSX.Element} AR 체험 페이지 컴포넌트
@@ -89,7 +95,7 @@ export default function ARExperiencePage() {
 
       {/* 바텀시트 */}
       <BottomSheet
-        snapPoints={['25%', '93%']}
+        snapPoints={['27%', '93%']}
         initialIndex={0}
         handleType="custom"
         customHandle={renderCustomHandle}
@@ -97,7 +103,7 @@ export default function ARExperiencePage() {
         enableContentPanningGesture={true}
         enableHandlePanningGesture={true}
         enableOverDrag={false}
-        maxDynamicContentSize={780}
+        maxDynamicContentSize={Math.min(780, height * 0.9)}
         backgroundStyle={styles.bottomSheetBackground}
         contentContainerStyle={styles.contentContainer}
         enableBackdrop={true}
@@ -112,7 +118,7 @@ export default function ARExperiencePage() {
 const styles = StyleSheet.create({
   arButtonContainer: {
     alignItems: 'center',
-    marginTop: 18,
+    marginTop: vs(18),
   },
   bottomSheetBackground: {
     backgroundColor: colors.white,
@@ -133,31 +139,31 @@ const styles = StyleSheet.create({
   },
   contentArea: {
     flex: 1,
-    paddingTop: 8,
+    paddingTop: vs(8),
   },
   contentContainer: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingHorizontal: scale(20),
+    paddingTop: vs(10),
   },
   handImage: {
     alignSelf: 'center',
-    height: 370,
-    marginTop: 24,
-    width: 237,
+    height: vs(370),
+    marginTop: vs(24),
+    width: scale(237),
   },
   header: {
     alignItems: 'center',
     backgroundColor: colors.white,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingVertical: 15,
+    paddingVertical: vs(15),
   },
   indicator: {
     backgroundColor: colors.gray200,
     borderRadius: 100,
-    height: 4,
-    width: 44,
+    height: vs(4),
+    width: scale(44),
   },
   mainTitle: {
     ...typography.head2_B,
@@ -168,6 +174,6 @@ const styles = StyleSheet.create({
     color: colors.gray500,
   },
   titleContainer: {
-    marginLeft: 22,
+    marginLeft: scale(22),
   },
 });

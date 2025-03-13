@@ -7,6 +7,7 @@ import BottomSheetComponent, {
   BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
 import { useSharedValue } from 'react-native-reanimated';
+import { scale, vs } from '~/shared/lib/responsive';
 
 /**
  * 바텀시트의 스냅 포인트 높이 설정 유형
@@ -171,17 +172,17 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    padding: 20,
+    padding: scale(20),
   },
   header: {
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: vs(15),
   },
   indicator: {
     backgroundColor: colors.gray700,
-    borderRadius: 3,
-    height: 4,
-    width: 40,
+    borderRadius: scale(3),
+    height: vs(4),
+    width: scale(40),
   },
 });
 
