@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  BackHandler,
+  Platform,
 } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import BottomSheet, {
@@ -31,6 +33,8 @@ export default function ARExperiencePage() {
   const navigation = useNavigation();
   // 바텀시트 참조 생성
   const bottomSheetRef = useRef<BottomSheetRefProps>(null);
+  // 현재 바텀시트 인덱스 상태 (0: 27%, 1: 93%)
+  const [bottomSheetIndex, setBottomSheetIndex] = useState(0);
 
   // 네일 선택 핸들러
   const handleNailSelect = useCallback((id: string) => {
@@ -52,6 +56,31 @@ export default function ARExperiencePage() {
   const handleGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
+  // 바텀시트 인덱스 변경 핸들러
+  const handleSheetChange = useCallback((index: number) => {
+    setBottomSheetIndex(index);
+  }, []);
+
+  // 뒤로가기 버튼 핸들러 (Android)
+  useEffect(() => {
+    // Android에서만 적용
+    if (Platform.OS !== 'android') return;
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (bottomSheetIndex !== 0) {
+          bottomSheetRef.current?.snapToIndex(0);
+          return true; // 이벤트 처리 완료
+        }
+        return false; // 기본 뒤로가기 동작 수행 (뒤로 가기)
+      },
+    );
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => backHandler.remove();
+  }, [bottomSheetIndex]);
 
   // 바텀시트 커스텀 핸들 컴포넌트
   const renderCustomHandle = (
@@ -121,6 +150,7 @@ export default function ARExperiencePage() {
           contentContainerStyle={styles.contentContainer}
           enableBackdrop={true}
           backdropPressBehavior="collapse"
+          onChange={handleSheetChange}
         >
           <NailGrid onSelectNail={handleNailSelect} />
         </BottomSheet>

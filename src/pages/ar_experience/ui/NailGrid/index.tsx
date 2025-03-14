@@ -9,6 +9,8 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   Text,
+  BackHandler,
+  Platform,
 } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import { NailListResponse } from '~/shared/api/types';
@@ -181,17 +183,20 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
   // 필터 적용 핸들러
   const handleApplyFilter = useCallback(
     (filterValues: FilterValues) => {
-      // 필터를 activeFilters에 적용
-      setActiveFilters(filterValues);
-      setNails([]);
-      setCurrentPage(1);
-      setHasMore(true);
-
       // 모달 닫기
       setIsFilterModalVisible(false);
 
-      // 필터 적용 후 데이터 로드
-      loadNailImages(1, filterValues);
+      // 모달 닫기 애니메이션이 완료된 후 필터 적용
+      setTimeout(() => {
+        // 필터를 activeFilters에 적용
+        setActiveFilters(filterValues);
+        setNails([]);
+        setCurrentPage(1);
+        setHasMore(true);
+
+        // 필터 적용 후 데이터 로드
+        loadNailImages(1, filterValues);
+      }, 300); // 300ms 지연
     },
     [loadNailImages],
   );
@@ -199,29 +204,17 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
   // 네일 버튼 클릭 핸들러
   const handleNailButtonClick = useCallback(
     (index: number) => {
-      const fingerType = getFingerTypeByIndex(index);
-      const hasImage = !!currentNailSet[fingerType];
-
-      if (hasImage) {
-        // 이미지가 있는 경우: 이미지 추가 상태 ↔ 이미지 선택 상태
-        setSelectedNailButton(prevIndex =>
-          prevIndex === index ? null : index,
-        );
+      if (selectedNailButton === index) {
+        // 같은 버튼 다시 클릭: 선택 취소
+        setSelectedNailButton(null);
         setIsSelectingImage(false);
       } else {
-        // 이미지가 없는 경우: 기본 상태 ↔ 선택 상태
-        if (selectedNailButton === index) {
-          // 같은 버튼 다시 클릭: 선택 취소
-          setSelectedNailButton(null);
-          setIsSelectingImage(false);
-        } else {
-          // 다른 버튼 클릭: 선택 + 이미지 선택 모드 활성화
-          setSelectedNailButton(index);
-          setIsSelectingImage(true);
-        }
+        // 다른 버튼 클릭 또는 이미 이미지가 있는 버튼 클릭: 선택 + 이미지 선택 모드 활성화
+        setSelectedNailButton(index);
+        setIsSelectingImage(true); // 이미지 선택 모드 활성화
       }
     },
-    [currentNailSet, selectedNailButton, getFingerTypeByIndex],
+    [selectedNailButton],
   );
 
   // 네일 이미지 삭제 핸들러
@@ -350,6 +343,27 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
   useEffect(() => {
     loadNailImages();
   }, [loadNailImages]);
+
+  // 뒤로가기 버튼 핸들러 (Android)
+  useEffect(() => {
+    // Android에서만 적용
+    if (Platform.OS !== 'android') return;
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        // 필터 모달이 열려있을 때 뒤로가기 버튼을 누르면 모달만 닫기
+        // 실제 로직은 FilterModal 컴포넌트에서 처리됨
+        if (isFilterModalVisible) {
+          return true; // 이벤트 처리 완료 (FilterModal에서 처리)
+        }
+        return false; // 기본 뒤로가기 동작 수행
+      },
+    );
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => backHandler.remove();
+  }, [isFilterModalVisible]);
 
   return (
     <>
@@ -488,9 +502,9 @@ const styles = StyleSheet.create({
   nailItem: {
     backgroundColor: colors.gray50,
     borderRadius: scale(4),
-    height: scale(103),
+    height: scale(98),
     overflow: 'hidden',
-    width: scale(103),
+    width: scale(98),
   },
   screenContainer: {
     flex: 1,

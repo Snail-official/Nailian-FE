@@ -1,5 +1,13 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Platform,
+  BackHandler,
+} from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import Button from '~/shared/ui/Button';
@@ -97,14 +105,56 @@ function FilterModal({
     }
   }, [visible, initialValues]);
 
+  // 뒤로가기 버튼 핸들러 (Android)
+  useEffect(() => {
+    // Android에서만 적용, 모달이 열려있을 때만 작동
+    if (Platform.OS !== 'android' || !visible) return;
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        // 모달이 열려있을 때 뒤로가기 버튼을 누르면 모달 닫기
+        bottomSheetModalRef.current?.dismiss();
+        return true; // 이벤트 처리 완료
+      },
+    );
+
+    // 컴포넌트 언마운트 또는 상태 변경 시 이벤트 리스너 제거
+    return () => backHandler.remove();
+  }, [visible]);
+
   // 필터 항목 데이터 - API 타입에 맞춤
   const filterItems = useCallback(
     () => ({
       category: [
-        { id: 'ONE_COLOR', name: '원컬러' },
-        { id: 'FRENCH', name: '프렌치' },
-        { id: 'GRADIENT', name: '그라데이션' },
-        { id: 'ART', name: '아트' },
+        {
+          id: 'ONE_COLOR',
+          name: '원컬러',
+          image: Image.resolveAssetSource(
+            require('~/shared/assets/images/onecolor_nukki.png'),
+          ).uri,
+        },
+        {
+          id: 'FRENCH',
+          name: '프렌치',
+          image: Image.resolveAssetSource(
+            require('~/shared/assets/images/french_nukki.png'),
+          ).uri,
+        },
+        {
+          id: 'GRADIENT',
+          name: '그라데이션',
+          image: Image.resolveAssetSource(
+            require('~/shared/assets/images/gradient_nukki.png'),
+          ).uri,
+        },
+        {
+          id: 'ART',
+          name: '아트',
+          image: Image.resolveAssetSource(
+            require('~/shared/assets/images/art_nukki.png'),
+          ).uri,
+        },
       ],
       color: [
         { id: 'WHITE', name: '화이트', color: colors.white },
@@ -117,11 +167,41 @@ function FilterModal({
         { id: 'SILVER', name: '실버', color: '#EAEAEA' },
       ],
       shape: [
-        { id: 'SQUARE', name: '스퀘어' },
-        { id: 'ROUND', name: '라운드' },
-        { id: 'ALMOND', name: '아몬드' },
-        { id: 'BALLERINA', name: '발레리나' },
-        { id: 'STILETTO', name: '스틸레토' },
+        {
+          id: 'SQUARE',
+          name: '스퀘어',
+          image: Image.resolveAssetSource(
+            require('~/shared/assets/images/img_square.png'),
+          ).uri,
+        },
+        {
+          id: 'ROUND',
+          name: '라운드',
+          image: Image.resolveAssetSource(
+            require('~/shared/assets/images/img_round.png'),
+          ).uri,
+        },
+        {
+          id: 'ALMOND',
+          name: '아몬드',
+          image: Image.resolveAssetSource(
+            require('~/shared/assets/images/img_almond.png'),
+          ).uri,
+        },
+        {
+          id: 'BALLERINA',
+          name: '발레리나',
+          image: Image.resolveAssetSource(
+            require('~/shared/assets/images/img_ballet.png'),
+          ).uri,
+        },
+        {
+          id: 'STILETTO',
+          name: '스틸레토',
+          image: Image.resolveAssetSource(
+            require('~/shared/assets/images/img_still.png'),
+          ).uri,
+        },
       ],
     }),
     [],
@@ -151,14 +231,18 @@ function FilterModal({
 
   // 필터 적용 핸들러
   const handleApply = useCallback(() => {
+    // 필터 값 전달
     onApply(selectedValues);
-    onClose();
-  }, [onApply, onClose, selectedValues]);
+
+    // 모달 닫기 - 애니메이션을 위해 onClose는 콜백으로 처리
+    bottomSheetModalRef.current?.dismiss();
+  }, [onApply, selectedValues]);
 
   // 닫기 핸들러 - 적용하지 않고 닫기
   const handleClose = useCallback(() => {
-    onClose();
-  }, [onClose]);
+    // 모달 닫기
+    bottomSheetModalRef.current?.dismiss();
+  }, []);
 
   // 바텀시트 닫기 콜백
   const handleSheetChanges = useCallback(
@@ -185,7 +269,18 @@ function FilterModal({
   );
 
   // 필터 적용 버튼 활성화 여부 체크
-  const isApplyButtonEnabled = Object.keys(selectedValues).length > 0;
+  const isApplyButtonEnabled = useCallback(() => {
+    // 필터 값이 변경되었는지 확인
+    const initialKeys = Object.keys(initialValues) as (keyof FilterValues)[];
+    const currentKeys = Object.keys(selectedValues) as (keyof FilterValues)[];
+
+    // 키 개수가 다르거나, 키별로 값이 다르거나, 추가된 키가 있으면 변경된 것
+    return (
+      initialKeys.length !== currentKeys.length ||
+      initialKeys.some(key => initialValues[key] !== selectedValues[key]) ||
+      currentKeys.some(key => !initialKeys.includes(key))
+    );
+  }, [initialValues, selectedValues]);
 
   // 선택된 필터 항목 렌더링
   const renderFilterItems = useCallback(() => {
@@ -225,24 +320,18 @@ function FilterModal({
       );
     }
 
+    // 카테고리와 쉐입 필터는 FilterContentButton 사용
     return (
-      <View style={styles.filterItemsContainer}>
+      <View style={styles.filterContentContainer}>
         {items.map(item => (
-          <ListItem
+          <Button
             key={item.id}
-            content={
-              <Text
-                style={[
-                  styles.itemText,
-                  selectedValues[activeTab] === item.id &&
-                    styles.itemTextSelected,
-                ]}
-              >
-                {item.name}
-              </Text>
-            }
-            selected={selectedValues[activeTab] === item.id}
+            variant="filter_content"
             onPress={() => handleItemSelect(activeTab, item.id)}
+            isSelected={selectedValues[activeTab] === item.id}
+            // @ts-expect-error image 속성은 카테고리와 쉐입 항목에만 존재
+            imageSource={{ uri: item.image }}
+            label={item.name}
           />
         ))}
       </View>
@@ -308,7 +397,7 @@ function FilterModal({
           <Button
             variant="secondaryMedium"
             onPress={handleApply}
-            disabled={!isApplyButtonEnabled}
+            disabled={!isApplyButtonEnabled()}
           >
             <Text style={[typography.title2_SB, { color: colors.white }]}>
               적용하기
@@ -363,19 +452,17 @@ const styles = StyleSheet.create({
     height: 1,
     width: '100%',
   },
+  filterContentContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: scale(12),
+    marginTop: vs(8),
+    width: '100%',
+  },
   filterItemsContainer: {
     alignItems: 'flex-start',
     width: '100%',
-  },
-  itemText: {
-    ...typography.body2_SB,
-    color: colors.gray700,
-    textAlign: 'center',
-  },
-  itemTextSelected: {
-    ...typography.body2_SB,
-    color: colors.purple500,
-    textAlign: 'center',
   },
   modalBackground: {
     backgroundColor: colors.white,
