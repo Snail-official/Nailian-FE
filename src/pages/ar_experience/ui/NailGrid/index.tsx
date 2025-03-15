@@ -10,12 +10,13 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import { colors } from '~/shared/styles/design';
+import { INail, INailSet } from '~/shared/types/nail-set';
 import { NailListResponse } from '~/shared/api/types';
 import { fetchNails } from '~/entities/nail-tip/api';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { scale, vs } from '~/shared/lib/responsive';
 import { FilterValues } from '../FilterModal';
-import { FingerType, NailSet } from '../NailSelection';
+import { FingerType } from '../NailSelection';
 
 interface NailGridProps {
   /**
@@ -25,7 +26,7 @@ interface NailGridProps {
   /**
    * 현재 네일 세트가 변경될 때 호출되는 콜백 함수
    */
-  onNailSetChange?: (nailSet: NailSet) => void;
+  onNailSetChange?: (nailSet: Partial<INailSet>) => void;
   /**
    * 활성화된 필터 값
    */
@@ -84,7 +85,7 @@ export function NailGrid({
   }, [isLoading, hasMore, currentPage, activeFilters]);
 
   // 네일 세트 상태 관리 (API 형식에 맞춤)
-  const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
+  const [currentNailSet, setCurrentNailSet] = useState<Partial<INailSet>>({});
 
   // 인덱스로 손가락 타입 찾기
   const getFingerTypeByIndex = useCallback(
@@ -162,9 +163,8 @@ export function NailGrid({
       setCurrentNailSet(prev => ({
         ...prev,
         [fingerType]: {
-          id: nailItem.id,
           imageUrl: nailItem.imageUrl,
-        },
+        } as INail,
       }));
     },
     [getFingerTypeByIndex],
@@ -234,7 +234,7 @@ export function NailGrid({
     );
   }, [isLoading]);
 
-  // 아이템 사이 구분선
+  // 아이템 구분선 컴포넌트
   const ItemSeparator = useCallback(
     () => <View style={styles.separator} />,
     [],
