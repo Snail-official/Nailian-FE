@@ -14,7 +14,7 @@ import { INailSet } from '~/shared/types/nail-set';
 
 // 기본 이미지 상수
 const DEFAULT_IMAGES = {
-  nail: require('../../../../shared/assets/images/nail_default.png'),
+  nail: require('../../../../shared/assets/images/nail_round.png'),
 };
 
 /**
