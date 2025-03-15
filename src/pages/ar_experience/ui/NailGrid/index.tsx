@@ -16,6 +16,7 @@ import { colors, typography } from '~/shared/styles/design';
 import { NailListResponse } from '~/shared/api/types';
 import { fetchNails } from '~/entities/nail-tip/api';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { INail, INailSet } from '~/shared/types/nail-set';
 import FilterIcon from '~/shared/assets/icons/ic_filter.svg';
 import Button from '~/shared/ui/Button';
 import { scale, vs } from '~/shared/lib/responsive';
@@ -33,25 +34,6 @@ const FINGER_MAP = [
   { index: 4, type: 'thumb' }, // 엄지
 ];
 
-/**
- * 네일 이미지 인터페이스
- */
-interface NailImage {
-  id: string;
-  imageUrl: string;
-}
-
-/**
- * 네일 세트 인터페이스 (API 요청 형식에 맞춤)
- */
-interface NailSet {
-  thumb?: NailImage;
-  index?: NailImage;
-  middle?: NailImage;
-  ring?: NailImage;
-  pinky?: NailImage;
-}
-
 interface NailGridProps {
   /**
    * 네일 아이템 선택 시 호출되는 콜백 함수
@@ -60,7 +42,7 @@ interface NailGridProps {
   /**
    * 현재 네일 세트가 변경될 때 호출되는 콜백 함수
    */
-  onNailSetChange?: (nailSet: NailSet) => void;
+  onNailSetChange?: (nailSet: Partial<INailSet>) => void;
 }
 
 /**
@@ -89,7 +71,7 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
   );
 
   // 네일 세트 상태 관리 (API 형식에 맞춤)
-  const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
+  const [currentNailSet, setCurrentNailSet] = useState<Partial<INailSet>>({});
 
   // 이미지 선택 모드 상태
   const [isSelectingImage, setIsSelectingImage] = useState(false);
@@ -157,9 +139,8 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
       setCurrentNailSet(prev => ({
         ...prev,
         [fingerType]: {
-          id: nailItem.id,
           imageUrl: nailItem.imageUrl,
-        },
+        } as INail,
       }));
 
       // 선택 상태 해제
@@ -301,15 +282,21 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
     () =>
       FINGER_MAP.map(fingerMap => {
         const { index, type } = fingerMap;
-        const nailImage = currentNailSet[type as keyof NailSet];
+        const nailImage = currentNailSet[type as keyof Partial<INailSet>];
         const isSelected = selectedNailButton === index;
+
+        // INail 타입인지 확인하고 imageUrl에 접근
+        const imageSource =
+          nailImage && typeof nailImage === 'object' && 'imageUrl' in nailImage
+            ? { uri: nailImage.imageUrl }
+            : undefined;
 
         return (
           <Button
             key={`nail-button-${type}`}
             variant="add_nail"
             isSelected={isSelected}
-            imageSource={nailImage ? { uri: nailImage.imageUrl } : undefined}
+            imageSource={imageSource}
             onPress={() => handleNailButtonClick(index)}
             onImageDelete={() => handleNailImageDelete(index)}
           />
@@ -367,22 +354,12 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
 
   return (
     <>
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={handleScreenTouch}
-        style={styles.screenContainer}
-      >
-        <BottomSheetScrollView
-          ref={scrollViewRef}
-          style={styles.container}
-          contentContainerStyle={styles.scrollViewContent}
-          bounces={false}
-          showsVerticalScrollIndicator={true}
-          onScroll={handleScroll}
-          overScrollMode="never"
-          directionalLockEnabled={true}
-          disableScrollViewPanResponder={false}
-        >
+      <View style={styles.screenContainer}>
+        {/* 고정 영역: 네일 추가 버튼 */}
+        <View style={styles.fixedSection}>
+          {/* 네일 추가 버튼 영역 */}
+          <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
+
           {/* 필터 버튼 */}
           <View style={styles.filterContainer}>
             <TouchableOpacity
@@ -403,27 +380,43 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
               </View>
             </TouchableOpacity>
           </View>
+        </View>
 
-          {/* 네일 추가 버튼 영역 */}
-          <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
-
-          {/* 네일 그리드 */}
-          <FlatList
-            data={nails}
-            renderItem={renderNailItem}
-            keyExtractor={(item, index) => `nail-${item.id}-${index}`}
-            numColumns={3}
-            columnWrapperStyle={styles.columnWrapper}
-            contentContainerStyle={styles.flatListContent}
-            scrollEnabled={false}
-            ListFooterComponent={renderFooter}
-            ItemSeparatorComponent={ItemSeparator}
-            initialNumToRender={12}
-            removeClippedSubviews={false}
-          />
-          {renderFooter()}
-        </BottomSheetScrollView>
-      </TouchableOpacity>
+        {/* 스크롤 영역: 네일 그리드 */}
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={handleScreenTouch}
+          style={styles.scrollContainer}
+        >
+          <BottomSheetScrollView
+            ref={scrollViewRef}
+            style={styles.container}
+            contentContainerStyle={styles.scrollViewContent}
+            bounces={false}
+            showsVerticalScrollIndicator={true}
+            onScroll={handleScroll}
+            overScrollMode="never"
+            directionalLockEnabled={true}
+            disableScrollViewPanResponder={false}
+          >
+            {/* 네일 그리드 */}
+            <FlatList
+              data={nails}
+              renderItem={renderNailItem}
+              keyExtractor={(item, index) => `nail-${item.id}-${index}`}
+              numColumns={3}
+              columnWrapperStyle={styles.columnWrapper}
+              contentContainerStyle={styles.flatListContent}
+              scrollEnabled={false}
+              ListFooterComponent={renderFooter}
+              ItemSeparatorComponent={ItemSeparator}
+              initialNumToRender={12}
+              removeClippedSubviews={false}
+            />
+            {renderFooter()}
+          </BottomSheetScrollView>
+        </TouchableOpacity>
+      </View>
 
       {/* 필터 모달 */}
       <FilterModal
@@ -478,6 +471,10 @@ const styles = StyleSheet.create({
     ...typography.body2_SB,
     color: colors.gray700,
   },
+  fixedSection: {
+    backgroundColor: colors.white,
+    zIndex: 10,
+  },
   flatListContent: {
     alignItems: 'flex-start',
     paddingBottom: vs(20),
@@ -507,6 +504,10 @@ const styles = StyleSheet.create({
     width: scale(98),
   },
   screenContainer: {
+    flex: 1,
+    width: '100%',
+  },
+  scrollContainer: {
     flex: 1,
     width: '100%',
   },
