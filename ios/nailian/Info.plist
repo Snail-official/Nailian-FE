@@ -47,12 +47,20 @@
 	<false/>
 	<key>KAKAO_APP_KEY</key>
 	<string>$(KAKAO_APP_KEY)</string>
-
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>kakao$(KAKAO_APP_KEY)</string>
 		<string>kakaolink</string>
 		<string>kakaokompassauth</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kakao$(KAKAO_APP_KEY)</string>
+			</array>
+		</dict>
 	</array>
 	<key>KeychainAccessGroups</key>
 	<array>
