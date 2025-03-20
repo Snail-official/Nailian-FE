@@ -30,9 +30,9 @@ export const SHAPE_SIZE_RATIO: Record<
   // 라운드(기본형) - 기준 비율
   ROUND: { width: 1, height: 1 },
   SQUARE: { width: 1.05, height: 1 },
-  ALMOND: { width: 1.05, height: 1 },
-  BALLERINA: { width: 1.2, height: 1 },
-  STILETTO: { width: 1.2, height: 1 },
+  ALMOND: { width: 1.05, height: 1.05 },
+  BALLERINA: { width: 1.25, height: 1.1 },
+  STILETTO: { width: 1.3, height: 1.15 },
 };
 
 /**
@@ -46,9 +46,9 @@ export const SHAPE_SIZE_RATIO: Record<
 export const SHAPE_POSITION_OFFSET: Record<Shape, { x: number; y: number }> = {
   ROUND: { x: 0, y: 0 },
   SQUARE: { x: -1, y: -2 },
-  ALMOND: { x: -1, y: -2 },
-  BALLERINA: { x: -5, y: -3 },
-  STILETTO: { x: -5, y: -4 },
+  ALMOND: { x: -1, y: -3 },
+  BALLERINA: { x: -6.7, y: -5 },
+  STILETTO: { x: -7.5, y: -6 },
 };
 
 /**
@@ -68,33 +68,33 @@ export const BASE_NAIL_POSITIONS: Record<string, NailPosition> = {
   },
   // 검지손가락
   index: {
-    x: scale(202),
-    y: scale(27),
-    width: scale(49),
-    height: scale(35),
+    x: scale(203.7),
+    y: scale(29),
+    width: scale(47),
+    height: scale(33),
     rotation: 1,
   },
   // 중지손가락
   middle: {
-    x: scale(159),
-    y: scale(6),
-    width: scale(53),
-    height: scale(39),
-    rotation: 0,
+    x: scale(159.7),
+    y: scale(7),
+    width: scale(52),
+    height: scale(37),
+    rotation: 1,
   },
   // 약지손가락
   ring: {
-    x: scale(116),
-    y: scale(31),
-    width: scale(51),
-    height: scale(37),
-    rotation: -3,
+    x: scale(116.7),
+    y: scale(33),
+    width: scale(47),
+    height: scale(33),
+    rotation: -2,
   },
   // 소지손가락 - 가장 왼쪽에 위치
   pinky: {
     x: scale(79),
-    y: scale(88),
-    width: scale(40),
+    y: scale(91),
+    width: scale(37),
     height: scale(28),
     rotation: -5, // 반대 방향으로 약간 기울임
   },

@@ -8,11 +8,11 @@ import { INailSet } from '~/shared/types/nail-set';
  * 현재는 모든 손가락에 'ROUND' 쉐입을 적용합니다.
  */
 export const DEFAULT_NAIL_SHAPES: Record<keyof Omit<INailSet, 'id'>, Shape> = {
-  thumb: 'ALMOND',
-  index: 'ALMOND',
-  middle: 'ALMOND',
-  ring: 'ALMOND',
-  pinky: 'ALMOND',
+  thumb: 'ROUND',
+  index: 'ROUND',
+  middle: 'ROUND',
+  ring: 'ROUND',
+  pinky: 'ROUND',
 };
 
 /**

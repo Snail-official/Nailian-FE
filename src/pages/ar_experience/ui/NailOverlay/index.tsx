@@ -69,9 +69,9 @@ export default function NailOverlay({ nailSet }: NailOverlayProps) {
                   { rotate: `${position.rotation}deg` },
                   // 손가락별 3D 회전 효과 추가
                   ...(fingerType === 'thumb'
-                    ? [{ rotateY: '35deg' }, { rotateX: '20deg' }]
+                    ? [{ rotateY: '45deg' }, { rotateX: '25deg' }]
                     : fingerType === 'pinky'
-                      ? [{ rotateY: '-20deg' }, { rotateX: '-5deg' }]
+                      ? [{ rotateY: '-10deg' }, { rotateX: '-5deg' }]
                       : [{ rotateY: '0deg' }, { rotateX: '0deg' }]),
                 ],
               },
