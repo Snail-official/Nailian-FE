@@ -69,6 +69,20 @@ export function NailGrid({
   const scrollViewRef =
     useRef<React.ComponentRef<typeof BottomSheetScrollView>>(null);
 
+  // 상태 참조용 ref (의존성 순환 방지)
+  const isLoadingRef = useRef(isLoading);
+  const hasMoreRef = useRef(hasMore);
+  const currentPageRef = useRef(currentPage);
+  const activeFiltersRef = useRef(activeFilters);
+
+  // ref 값 업데이트
+  useEffect(() => {
+    isLoadingRef.current = isLoading;
+    hasMoreRef.current = hasMore;
+    currentPageRef.current = currentPage;
+    activeFiltersRef.current = activeFilters;
+  }, [isLoading, hasMore, currentPage, activeFilters]);
+
   // 네일 세트 상태 관리 (API 형식에 맞춤)
   const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
 
@@ -87,8 +101,10 @@ export function NailGrid({
 
   // 네일 이미지 로드 함수 (필터 적용 지원)
   const loadNailImages = useCallback(
-    async (page = 1, filters: FilterValues = activeFilters) => {
-      if (isLoading || !hasMore) return;
+    async (page = 1, filters: FilterValues = activeFiltersRef.current) => {
+      // 이미 로딩 중이거나 더 이상 데이터가 없으면 중단
+      if (isLoadingRef.current) return;
+      if (page > 1 && !hasMoreRef.current) return;
 
       try {
         setIsLoading(true);
@@ -120,8 +136,23 @@ export function NailGrid({
         setIsLoading(false);
       }
     },
-    [isLoading, hasMore, activeFilters],
+    [], // 의존성 없음: 모든 상태는 ref를 통해 최신값을 참조
   );
+
+  // 데이터 로드 트리거 - 초기 로드와 필터 변경 시
+  useEffect(() => {
+    // 페이지 초기화 및 데이터 로드
+    setNails([]);
+    setCurrentPage(1);
+    setHasMore(true);
+
+    // 0ms 지연을 통해 상태 업데이트 완료 후 실행
+    const timer = setTimeout(() => {
+      loadNailImages(1, activeFilters);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [activeFilters, loadNailImages]);
 
   // 이미지를 네일 세트에 추가하는 함수
   const addImageToNailSet = useCallback(
@@ -138,19 +169,6 @@ export function NailGrid({
     },
     [getFingerTypeByIndex],
   );
-
-  // 필터 변경 시 데이터 다시 로드
-  useEffect(() => {
-    setNails([]);
-    setCurrentPage(1);
-    setHasMore(true);
-    loadNailImages(1, activeFilters);
-  }, [activeFilters, loadNailImages]);
-
-  // 초기 데이터 로드
-  useEffect(() => {
-    loadNailImages(1);
-  }, [loadNailImages]);
 
   // 그리드 네일 아이템 클릭 핸들러
   const handleNailItemClick = useCallback(
@@ -169,20 +187,23 @@ export function NailGrid({
   // 무한 스크롤을 위한 스크롤 핸들러
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (isLoading || !hasMore) return;
+      if (isLoadingRef.current || !hasMoreRef.current) return;
 
       const { layoutMeasurement, contentOffset, contentSize } =
         event.nativeEvent;
-      // 스크롤이 하단에 도달했는지 체크
+
+      // 스크롤이 하단에 도달했는지 체크 (하단에서 10% 지점)
+      const threshold = 0.1; // 10%에 해당하는 임계값
       const isCloseToBottom =
-        layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+        layoutMeasurement.height + contentOffset.y >=
+        contentSize.height - layoutMeasurement.height * threshold;
 
       if (isCloseToBottom) {
-        // 다음 페이지 로드
-        loadNailImages(currentPage + 1);
+        // 다음 페이지 로드 (현재 페이지 + 1)
+        loadNailImages(currentPageRef.current + 1);
       }
     },
-    [loadNailImages, currentPage, isLoading, hasMore],
+    [loadNailImages], // 의존성 최소화: 상태는 ref를 통해 참조
   );
 
   // 네일 아이템 렌더링 함수
