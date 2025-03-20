@@ -8,49 +8,14 @@ import {
   FlatList,
   NativeSyntheticEvent,
   NativeScrollEvent,
-  Text,
-  BackHandler,
-  Platform,
 } from 'react-native';
-import { colors, typography } from '~/shared/styles/design';
+import { colors } from '~/shared/styles/design';
 import { NailListResponse } from '~/shared/api/types';
 import { fetchNails } from '~/entities/nail-tip/api';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import FilterIcon from '~/shared/assets/icons/ic_filter.svg';
-import Button from '~/shared/ui/Button';
 import { scale, vs } from '~/shared/lib/responsive';
-import FilterModal, { FilterValues } from '../FilterModal';
-
-// 손가락 타입 정의
-export type FingerType = 'pinky' | 'ring' | 'middle' | 'index' | 'thumb';
-
-// 손가락 타입과 인덱스 매핑
-const FINGER_MAP = [
-  { index: 0, type: 'pinky' }, // 소지
-  { index: 1, type: 'ring' }, // 약지
-  { index: 2, type: 'middle' }, // 중지
-  { index: 3, type: 'index' }, // 검지
-  { index: 4, type: 'thumb' }, // 엄지
-];
-
-/**
- * 네일 이미지 인터페이스
- */
-interface NailImage {
-  id: string;
-  imageUrl: string;
-}
-
-/**
- * 네일 세트 인터페이스 (API 요청 형식에 맞춤)
- */
-interface NailSet {
-  thumb?: NailImage;
-  index?: NailImage;
-  middle?: NailImage;
-  ring?: NailImage;
-  pinky?: NailImage;
-}
+import { FilterValues } from '../FilterModal';
+import { FingerType, NailSet } from '../NailSelection';
 
 interface NailGridProps {
   /**
@@ -61,6 +26,22 @@ interface NailGridProps {
    * 현재 네일 세트가 변경될 때 호출되는 콜백 함수
    */
   onNailSetChange?: (nailSet: NailSet) => void;
+  /**
+   * 활성화된 필터 값
+   */
+  activeFilters?: FilterValues;
+  /**
+   * 현재 선택된 네일 버튼 인덱스
+   */
+  selectedNailButton?: number | null;
+  /**
+   * 이미지 선택 모드 여부
+   */
+  isSelectingImage?: boolean;
+  /**
+   * 손가락 타입과 인덱스 매핑
+   */
+  fingerMap: Array<{ index: number; type: string }>;
 }
 
 /**
@@ -69,12 +50,17 @@ interface NailGridProps {
  * 네일 디자인 이미지를 그리드 형태로 표시합니다.
  * - 무한 스크롤을 지원합니다.
  * - 터치 가능한 네일 아이템을 제공합니다.
- * - 손가락별 네일팁을 선택하여 네일 세트를 구성합니다.
- * - 필터링 기능을 제공합니다.
  *
  * @returns {JSX.Element} 네일 그리드 컴포넌트
  */
-export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
+export function NailGrid({
+  onSelectNail,
+  onNailSetChange,
+  activeFilters = {},
+  selectedNailButton = null,
+  isSelectingImage = false,
+  fingerMap,
+}: NailGridProps) {
   // 기본 데이터 상태
   const [nails, setNails] = useState<{ id: string; imageUrl: string }[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,27 +69,15 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
   const scrollViewRef =
     useRef<React.ComponentRef<typeof BottomSheetScrollView>>(null);
 
-  // 네일 버튼 상태 관리
-  const [selectedNailButton, setSelectedNailButton] = useState<number | null>(
-    null,
-  );
-
   // 네일 세트 상태 관리 (API 형식에 맞춤)
   const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
-
-  // 이미지 선택 모드 상태
-  const [isSelectingImage, setIsSelectingImage] = useState(false);
-
-  // 필터 모달 상태
-  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<FilterValues>({});
 
   // 인덱스로 손가락 타입 찾기
   const getFingerTypeByIndex = useCallback(
     (index: number): FingerType =>
-      (FINGER_MAP.find(item => item.index === index)?.type as FingerType) ||
+      (fingerMap.find(item => item.index === index)?.type as FingerType) ||
       'pinky',
-    [],
+    [fingerMap],
   );
 
   // 네일 세트 변경 시 콜백 호출
@@ -161,78 +135,22 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
           imageUrl: nailItem.imageUrl,
         },
       }));
-
-      // 선택 상태 해제
-      setSelectedNailButton(null);
     },
     [getFingerTypeByIndex],
   );
 
-  // 필터 버튼 클릭 핸들러
-  const handleFilterClick = useCallback(() => {
-    // 필터 모달 열기
-    setIsFilterModalVisible(true);
-  }, []);
+  // 필터 변경 시 데이터 다시 로드
+  useEffect(() => {
+    setNails([]);
+    setCurrentPage(1);
+    setHasMore(true);
+    loadNailImages(1, activeFilters);
+  }, [activeFilters, loadNailImages]);
 
-  // 필터 모달 취소 핸들러 (뒤로가기 버튼)
-  const handleCancelFilter = useCallback(() => {
-    // 모달 닫기만 하고 필터는 적용하지 않음
-    setIsFilterModalVisible(false);
-  }, []);
-
-  // 필터 적용 핸들러
-  const handleApplyFilter = useCallback(
-    (filterValues: FilterValues) => {
-      // 모달 닫기
-      setIsFilterModalVisible(false);
-
-      // 모달 닫기 애니메이션이 완료된 후 필터 적용
-      setTimeout(() => {
-        // 필터를 activeFilters에 적용
-        setActiveFilters(filterValues);
-        setNails([]);
-        setCurrentPage(1);
-        setHasMore(true);
-
-        // 필터 적용 후 데이터 로드
-        loadNailImages(1, filterValues);
-      }, 300); // 300ms 지연
-    },
-    [loadNailImages],
-  );
-
-  // 네일 버튼 클릭 핸들러
-  const handleNailButtonClick = useCallback(
-    (index: number) => {
-      if (selectedNailButton === index) {
-        // 같은 버튼 다시 클릭: 선택 취소
-        setSelectedNailButton(null);
-        setIsSelectingImage(false);
-      } else {
-        // 다른 버튼 클릭 또는 이미 이미지가 있는 버튼 클릭: 선택 + 이미지 선택 모드 활성화
-        setSelectedNailButton(index);
-        setIsSelectingImage(true); // 이미지 선택 모드 활성화
-      }
-    },
-    [selectedNailButton],
-  );
-
-  // 네일 이미지 삭제 핸들러
-  const handleNailImageDelete = useCallback(
-    (index: number) => {
-      const fingerType = getFingerTypeByIndex(index);
-
-      setCurrentNailSet(prev => {
-        const updatedNailSet = { ...prev };
-        delete updatedNailSet[fingerType];
-
-        return updatedNailSet;
-      });
-
-      setSelectedNailButton(null);
-    },
-    [getFingerTypeByIndex],
-  );
+  // 초기 데이터 로드
+  useEffect(() => {
+    loadNailImages(1);
+  }, [loadNailImages]);
 
   // 그리드 네일 아이템 클릭 핸들러
   const handleNailItemClick = useCallback(
@@ -240,11 +158,9 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
       // 이미지 선택 모드일 때: 버튼에 이미지 추가
       if (isSelectingImage && selectedNailButton !== null) {
         addImageToNailSet(selectedNailButton, item);
-        setIsSelectingImage(false);
-        return;
       }
 
-      // 기본 모드일 때: 외부 콜백 실행
+      // 외부 콜백 실행
       onSelectNail?.(item.id);
     },
     [isSelectingImage, selectedNailButton, onSelectNail, addImageToNailSet],
@@ -269,15 +185,6 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
     [loadNailImages, currentPage, isLoading, hasMore],
   );
 
-  // 화면 터치 핸들러
-  const handleScreenTouch = useCallback(() => {
-    // 현재 선택 중인 네일 버튼이 있으면 선택 해제
-    if (selectedNailButton !== null) {
-      setSelectedNailButton(null);
-      setIsSelectingImage(false);
-    }
-  }, [selectedNailButton]);
-
   // 네일 아이템 렌더링 함수
   const renderNailItem = useCallback(
     (props: { item: { id: string; imageUrl: string } }) => (
@@ -296,143 +203,50 @@ export function NailGrid({ onSelectNail, onNailSetChange }: NailGridProps) {
     [handleNailItemClick],
   );
 
-  // 네일 추가 버튼 렌더링
-  const renderNailButtons = useCallback(
-    () =>
-      FINGER_MAP.map(fingerMap => {
-        const { index, type } = fingerMap;
-        const nailImage = currentNailSet[type as keyof NailSet];
-        const isSelected = selectedNailButton === index;
+  // 리스트 Footer 렌더링 (로딩 표시)
+  const renderFooter = useCallback(() => {
+    if (!isLoading) return null;
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={colors.purple500} />
+      </View>
+    );
+  }, [isLoading]);
 
-        return (
-          <Button
-            key={`nail-button-${type}`}
-            variant="add_nail"
-            isSelected={isSelected}
-            imageSource={nailImage ? { uri: nailImage.imageUrl } : undefined}
-            onPress={() => handleNailButtonClick(index)}
-            onImageDelete={() => handleNailImageDelete(index)}
-          />
-        );
-      }),
-    [
-      currentNailSet,
-      selectedNailButton,
-      handleNailButtonClick,
-      handleNailImageDelete,
-    ],
-  );
-
-  // 아이템 구분선 컴포넌트
+  // 아이템 사이 구분선
   const ItemSeparator = useCallback(
     () => <View style={styles.separator} />,
     [],
   );
 
-  // 로딩 푸터 컴포넌트
-  const renderFooter = useCallback(() => {
-    if (!isLoading) return null;
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="small" color={colors.purple500} />
-      </View>
-    );
-  }, [isLoading]);
-
-  // 초기 데이터 로드
-  useEffect(() => {
-    loadNailImages();
-  }, [loadNailImages]);
-
-  // 뒤로가기 버튼 핸들러 (Android)
-  useEffect(() => {
-    // Android에서만 적용
-    if (Platform.OS !== 'android') return;
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        // 필터 모달이 열려있을 때 뒤로가기 버튼을 누르면 모달만 닫기
-        // 실제 로직은 FilterModal 컴포넌트에서 처리됨
-        if (isFilterModalVisible) {
-          return true; // 이벤트 처리 완료 (FilterModal에서 처리)
-        }
-        return false; // 기본 뒤로가기 동작 수행
-      },
-    );
-
-    // 컴포넌트 언마운트 시 이벤트 리스너 제거
-    return () => backHandler.remove();
-  }, [isFilterModalVisible]);
-
   return (
-    <>
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={handleScreenTouch}
-        style={styles.screenContainer}
-      >
-        <BottomSheetScrollView
-          ref={scrollViewRef}
-          style={styles.container}
-          contentContainerStyle={styles.scrollViewContent}
-          bounces={false}
-          showsVerticalScrollIndicator={true}
-          onScroll={handleScroll}
-          overScrollMode="never"
-          directionalLockEnabled={true}
-          disableScrollViewPanResponder={false}
-        >
-          {/* 필터 버튼 */}
-          <View style={styles.filterContainer}>
-            <TouchableOpacity
-              style={styles.filterButton}
-              onPress={handleFilterClick}
-              activeOpacity={0.7}
-            >
-              <View style={styles.filterButtonContent}>
-                <FilterIcon
-                  width={scale(20)}
-                  height={scale(20)}
-                  color={colors.gray600}
-                />
-                <Text style={styles.filterText}>필터</Text>
-                {Object.keys(activeFilters).length > 0 && (
-                  <View style={styles.filterActiveIndicator} />
-                )}
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          {/* 네일 추가 버튼 영역 */}
-          <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
-
-          {/* 네일 그리드 */}
-          <FlatList
-            data={nails}
-            renderItem={renderNailItem}
-            keyExtractor={(item, index) => `nail-${item.id}-${index}`}
-            numColumns={3}
-            columnWrapperStyle={styles.columnWrapper}
-            contentContainerStyle={styles.flatListContent}
-            scrollEnabled={false}
-            ListFooterComponent={renderFooter}
-            ItemSeparatorComponent={ItemSeparator}
-            initialNumToRender={12}
-            removeClippedSubviews={false}
-          />
-          {renderFooter()}
-        </BottomSheetScrollView>
-      </TouchableOpacity>
-
-      {/* 필터 모달 */}
-      <FilterModal
-        visible={isFilterModalVisible}
-        onClose={handleCancelFilter}
-        onApply={handleApplyFilter}
-        initialValues={activeFilters}
+    <BottomSheetScrollView
+      ref={scrollViewRef}
+      style={styles.container}
+      contentContainerStyle={styles.scrollViewContent}
+      bounces={false}
+      showsVerticalScrollIndicator={true}
+      onScroll={handleScroll}
+      overScrollMode="never"
+      directionalLockEnabled={true}
+      disableScrollViewPanResponder={false}
+    >
+      {/* 네일 그리드 */}
+      <FlatList
+        data={nails}
+        renderItem={renderNailItem}
+        keyExtractor={(item, index) => `nail-${item.id}-${index}`}
+        numColumns={3}
+        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={styles.flatListContent}
+        scrollEnabled={false}
+        ListFooterComponent={renderFooter}
+        ItemSeparatorComponent={ItemSeparator}
+        initialNumToRender={12}
+        removeClippedSubviews={false}
       />
-    </>
+      {renderFooter()}
+    </BottomSheetScrollView>
   );
 }
 
@@ -445,39 +259,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
-  filterActiveIndicator: {
-    backgroundColor: colors.purple500,
-    borderRadius: scale(3),
-    height: scale(6),
-    position: 'absolute',
-    right: scale(3),
-    top: scale(8),
-    width: scale(6),
-  },
-  filterButton: {
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  filterButtonContent: {
-    alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'row',
-    gap: scale(4),
-    padding: scale(10),
-    paddingHorizontal: scale(12),
-    position: 'relative',
-  },
-  filterContainer: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: vs(15),
-    paddingHorizontal: scale(10),
-  },
-  filterText: {
-    ...typography.body2_SB,
-    color: colors.gray700,
-  },
   flatListContent: {
     alignItems: 'flex-start',
     paddingBottom: vs(20),
@@ -486,13 +267,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: vs(20),
     paddingBottom: vs(20),
-  },
-  nailButtonsContainer: {
-    flexDirection: 'row',
-    gap: scale(10),
-    justifyContent: 'center',
-    marginBottom: vs(20),
-    paddingHorizontal: scale(10),
   },
   nailImage: {
     borderRadius: scale(4),
@@ -506,13 +280,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     width: scale(98),
   },
-  screenContainer: {
-    flex: 1,
-    width: '100%',
-  },
   scrollViewContent: {
     paddingBottom: vs(40),
-    paddingHorizontal: scale(10),
     paddingTop: vs(10),
   },
   separator: {

@@ -13,7 +13,7 @@ export const useOnboardingNavigation = () => {
       // 온보딩 상태 조회 (최신 지원 버전 반영)
       const response = await fetchOnboardingStatus({ maxSupportedVersion: 2 });
       const nextOnboardingStep = response.data?.nextOnboardingStep;
-
+      console.log('nextOnboardingStep', nextOnboardingStep);
       if (nextOnboardingStep) {
         navigation.replace(nextOnboardingStep);
       } else {

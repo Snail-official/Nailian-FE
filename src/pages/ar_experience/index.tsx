@@ -15,7 +15,7 @@ import BottomSheet, {
   BottomSheetRefProps,
 } from '~/pages/ar_experience/ui/BottomSheet';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import NailGrid from '~/pages/ar_experience/ui/NailGrid';
+import NailSelection from '~/pages/ar_experience/ui/NailSelection';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
@@ -33,7 +33,7 @@ export default function ARExperiencePage() {
   const navigation = useNavigation();
   // 바텀시트 참조 생성
   const bottomSheetRef = useRef<BottomSheetRefProps>(null);
-  // 현재 바텀시트 인덱스 상태 (0: 27%, 1: 93%)
+  // 현재 바텀시트 인덱스 상태 (0: 25%, 1: 93%)
   const [bottomSheetIndex, setBottomSheetIndex] = useState(0);
 
   // 네일 선택 핸들러
@@ -137,7 +137,7 @@ export default function ARExperiencePage() {
         {/* 바텀시트 */}
         <BottomSheet
           ref={bottomSheetRef}
-          snapPoints={['27%', '93%']}
+          snapPoints={['25%', '93%']}
           initialIndex={0}
           handleType="custom"
           customHandle={renderCustomHandle}
@@ -152,7 +152,7 @@ export default function ARExperiencePage() {
           backdropPressBehavior="collapse"
           onChange={handleSheetChange}
         >
-          <NailGrid onSelectNail={handleNailSelect} />
+          <NailSelection onSelectNail={handleNailSelect} />
         </BottomSheet>
       </View>
     </BottomSheetModalProvider>
@@ -166,16 +166,10 @@ const styles = StyleSheet.create({
   },
   bottomSheetBackground: {
     backgroundColor: colors.white,
+    borderColor: colors.black,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    elevation: 8,
-    shadowColor: colors.black,
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+    borderTopWidth: 30,
   },
   container: {
     backgroundColor: colors.white,
