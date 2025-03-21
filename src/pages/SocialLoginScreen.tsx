@@ -110,7 +110,13 @@ export default function SocialLoginScreen({ navigation }: Props) {
             >
               <View style={styles.socialButtonContent}>
                 <AppleIcon width={scale(24)} height={scale(24)} />
-                <Text style={[styles.buttonText, typography.title2_SB]}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    { color: colors.white },
+                    typography.title2_SB,
+                  ]}
+                >
                   Apple로 계속하기
                 </Text>
               </View>
