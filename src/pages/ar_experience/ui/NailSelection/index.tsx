@@ -113,19 +113,26 @@ export default function NailSelection({
   );
 
   // 네일 이미지 삭제 핸들러
-  const handleNailImageDelete = useCallback((index: number) => {
-    const fingerType =
-      (FINGER_MAP.find(item => item.index === index)?.type as FingerType) ||
-      'pinky';
+  const handleNailImageDelete = useCallback(
+    (index: number) => {
+      const fingerType =
+        (FINGER_MAP.find(item => item.index === index)?.type as FingerType) ||
+        'pinky';
 
-    setCurrentNailSet(prev => {
-      const updatedNailSet = { ...prev };
-      delete updatedNailSet[fingerType];
-      return updatedNailSet;
-    });
+      setCurrentNailSet(prev => {
+        const updatedNailSet = { ...prev };
+        delete updatedNailSet[fingerType];
 
-    setSelectedNailButton(null);
-  }, []);
+        // 부모 컴포넌트에 변경사항 알림
+        onNailSetChange?.(updatedNailSet);
+
+        return updatedNailSet;
+      });
+
+      setSelectedNailButton(null);
+    },
+    [onNailSetChange],
+  );
 
   // 네일 그리드에서 이미지 선택 시 콜백
   const handleNailImageSelect = useCallback(
