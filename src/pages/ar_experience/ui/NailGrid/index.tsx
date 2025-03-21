@@ -276,7 +276,8 @@ export function NailGrid({
 const styles = StyleSheet.create({
   columnWrapper: {
     gap: scale(10),
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: scale(22),
   },
   container: {
     flex: 1,
@@ -284,7 +285,6 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     alignItems: 'flex-start',
-    marginLeft: scale(10),
     paddingBottom: vs(20),
   },
   loaderContainer: {
@@ -300,12 +300,13 @@ const styles = StyleSheet.create({
   nailItem: {
     backgroundColor: colors.gray50,
     borderRadius: scale(4),
-    height: scale(98),
+    height: scale(104),
     overflow: 'hidden',
-    width: scale(98),
+    width: scale(104),
   },
   scrollViewContent: {
     paddingBottom: vs(40),
+    paddingHorizontal: 0,
     paddingTop: vs(10),
   },
   separator: {

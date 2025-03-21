@@ -10,6 +10,7 @@ import PlusIcon from '~/shared/assets/icons/ic_plus.svg';
 import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 import DeleteIcon from '~/shared/assets/icons/ic_delete.svg';
 import { colors } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
 import { NailAddButtonProps } from '../index';
 
 /**
@@ -44,14 +45,18 @@ function NailAddButton({
     backgroundColor: colors.white,
   };
 
-  let iconComponent: ReactNode = <PlusIcon width={12} height={12} />;
+  let iconComponent: ReactNode = (
+    <PlusIcon width={scale(12)} height={scale(12)} />
+  );
 
   // 2. 선택 상태 (이미지 없음, 선택됨)
   if (isSelected && !hasImage) {
     nailButtonStyle.borderStyle = 'solid';
     nailButtonStyle.borderColor = colors.gray650;
     nailButtonStyle.backgroundColor = colors.white;
-    iconComponent = <CheckIcon width={18} height={18} color={colors.gray900} />;
+    iconComponent = (
+      <CheckIcon width={scale(18)} height={scale(18)} color={colors.gray900} />
+    );
   }
 
   // 3. 이미지 추가 상태 (이미지 있음, 선택되지 않음)
@@ -95,9 +100,14 @@ function NailAddButton({
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={onImageDelete}
-              hitSlop={{ top: 3, right: 8, bottom: 3, left: 8 }}
+              hitSlop={{
+                top: scale(3),
+                right: scale(8),
+                bottom: scale(3),
+                left: scale(8),
+              }}
             >
-              <DeleteIcon width={20} height={20} />
+              <DeleteIcon width={scale(20)} height={scale(20)} />
             </TouchableOpacity>
           )}
         </View>
@@ -111,8 +121,8 @@ function NailAddButton({
 const styles = StyleSheet.create({
   deleteButton: {
     position: 'absolute',
-    right: 2,
-    top: 2,
+    right: scale(2),
+    top: scale(2),
   },
   imageContainer: {
     height: '100%',
@@ -121,14 +131,14 @@ const styles = StyleSheet.create({
   nailAddButton: {
     alignItems: 'center',
     aspectRatio: 2 / 3,
-    borderRadius: 4,
-    borderWidth: 1,
-    height: 87,
+    borderRadius: scale(4),
+    borderWidth: scale(1),
+    height: vs(87),
     justifyContent: 'center',
-    width: 58,
+    width: scale(58),
   },
   nailImage: {
-    borderRadius: 4,
+    borderRadius: scale(4),
     height: '100%',
     width: '100%',
   },

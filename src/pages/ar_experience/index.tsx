@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    paddingHorizontal: scale(20),
+    paddingHorizontal: 0,
     paddingTop: vs(10),
   },
   handContainer: {

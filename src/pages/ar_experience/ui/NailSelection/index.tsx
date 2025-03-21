@@ -282,22 +282,26 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    marginBottom: vs(12),
+    marginTop: vs(20),
+    paddingRight: scale(22),
   },
   filterText: {
     ...typography.body2_SB,
     color: colors.gray700,
   },
   fixedHeader: {
-    marginBottom: vs(5),
-    paddingHorizontal: scale(20),
+    paddingHorizontal: 0,
   },
   gridContainer: {
     flex: 1,
+    paddingHorizontal: 0,
   },
   nailButtonsContainer: {
     flexDirection: 'row',
     gap: scale(10),
-    justifyContent: 'center',
-    marginBottom: vs(15),
+    justifyContent: 'flex-start',
+    paddingLeft: scale(22),
+    paddingRight: scale(22),
   },
 });
