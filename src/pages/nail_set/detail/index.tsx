@@ -310,13 +310,13 @@ function NailSetDetailPage() {
   }, [nailSetId, navigation]);
 
   /**
-   * AR 기능 핸들러
    * AR 버튼 클릭 시 "내 손에 올려보기" 기능을 실행합니다.
    */
   const handleArButtonPress = useCallback(() => {
     console.log('AR 기능 실행: 내 손에 올려보기');
-    // AR 기능 구현 전까지는 로그만 출력
-  }, []);
+    // AR 페이지로 이동
+    navigation.navigate('ARExperiencePage');
+  }, [navigation]);
 
   /**
    * 네일 세트 아이템 렌더링 함수

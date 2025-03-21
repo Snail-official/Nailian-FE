@@ -65,9 +65,9 @@ function MainHomeScreen({ navigation }: Props) {
   );
 
   /**
-   * 탭 변경 핸들러
+   * 탭 선택 핸들러
    *
-   * 하단 탭바에서 탭 선택 시 해당 화면으로 이동하는 함수입니다.
+   * 하단 탭바에서 탭 선택 시 해당 화면으로 이동합니다.
    *
    * @param {'home' | 'ar_experience' | 'my_page'} tab 선택된 탭
    */
@@ -76,9 +76,9 @@ function MainHomeScreen({ navigation }: Props) {
 
     if (tab === 'my_page') {
       navigation.navigate('MyPage');
-    } else {
-      // AR 체험 페이지로 이동 (구현 필요)
-      console.log('AR 체험 페이지로 이동');
+    } else if (tab === 'ar_experience') {
+      // AR 체험 페이지로 이동
+      navigation.navigate('ARExperiencePage');
     }
   };
 

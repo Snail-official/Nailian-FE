@@ -1,8 +1,16 @@
 import React, { ReactNode } from 'react';
-import { TouchableOpacity, Text, StyleSheet, TextStyle } from 'react-native';
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  TextStyle,
+  ImageSourcePropType,
+} from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import Gradient from '../Gradient';
+import NailAddButton from './variants/NailAddButton';
+import FilterContentButton from './variants/FilterContentButton';
 
 /**
  * 공통 버튼 컴포넌트
@@ -17,8 +25,24 @@ import Gradient from '../Gradient';
  * <Button variant="primaryMediumGradient" onPress={handlePress}>
  *   시작하기
  * </Button>
+ * // 네일 추가 버튼
+ * <Button
+ *   variant="add_nail"
+ *   onPress={handlePress}
+ *   isSelected={isSelected}
+ *   imageSource={selectedImage}
+ *   onImageDelete={handleImageDelete}
+ * />
+ * // 필터 콘텐츠 버튼
+ * <Button
+ *   variant="filter_content"
+ *   onPress={handlePress}
+ *   isSelected={isSelected}
+ *   imageSource={filterImage}
+ *   label="프렌치"
+ * />
  */
-type ButtonVariant =
+export type ButtonVariant =
   | 'primaryMedium'
   | 'secondaryMedium'
   | 'primaryLarge'
@@ -29,7 +53,9 @@ type ButtonVariant =
   | 'kakaoMedium'
   | 'appleMedium'
   | 'googleMedium'
-  | 'primary_ar';
+  | 'primary_ar'
+  | 'add_nail'
+  | 'filter_content';
 
 interface ButtonStyleProps {
   height: number;
@@ -42,7 +68,10 @@ interface ButtonStyleProps {
   borderWidth?: number;
 }
 
-const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
+const BUTTON_STYLES: Record<
+  Exclude<ButtonVariant, 'add_nail' | 'filter_content'>,
+  ButtonStyleProps
+> = {
   primaryMedium: {
     height: vs(48),
     width: scale(331),
@@ -133,17 +162,33 @@ const BUTTON_STYLES: Record<ButtonVariant, ButtonStyleProps> = {
   },
 };
 
-interface ButtonProps {
+export interface BaseButtonProps {
   /** 버튼 내부 텍스트 */
-  children: ReactNode;
+  children?: ReactNode;
   /** 버튼 클릭 핸들러 */
   onPress: () => void;
   /** 버튼 활성화 여부 */
-  disabled: boolean;
+  disabled?: boolean;
   /** 로딩 상태 표시 여부 */
-  loading: boolean;
+  loading?: boolean;
   /** 버튼 스타일 variant */
-  variant: ButtonVariant;
+  variant?: ButtonVariant;
+  /** 선택 상태 (특수 버튼에서 사용) */
+  isSelected?: boolean;
+}
+
+export interface NailAddButtonProps extends BaseButtonProps {
+  /** 네일 추가 버튼의 이미지 */
+  imageSource?: ImageSourcePropType;
+  /** 이미지 삭제 핸들러 */
+  onImageDelete?: () => void;
+}
+
+export interface FilterContentButtonProps extends BaseButtonProps {
+  /** 필터 버튼의 이미지 */
+  imageSource?: ImageSourcePropType;
+  /** 필터 버튼의 라벨 */
+  label?: string;
 }
 
 function Button({
@@ -152,11 +197,44 @@ function Button({
   disabled = false,
   loading = false,
   variant = 'primaryMedium',
-}: ButtonProps) {
-  const variantStyle = BUTTON_STYLES[variant];
+  isSelected = false,
+  ...props
+}: BaseButtonProps & NailAddButtonProps & FilterContentButtonProps) {
+  // 네일 추가 버튼 렌더링
+  if (variant === 'add_nail') {
+    return (
+      <NailAddButton
+        onPress={onPress}
+        disabled={disabled}
+        isSelected={isSelected}
+        imageSource={props.imageSource}
+        onImageDelete={props.onImageDelete}
+      />
+    );
+  }
+
+  // 필터 콘텐츠 버튼 렌더링
+  if (variant === 'filter_content') {
+    return (
+      <FilterContentButton
+        onPress={onPress}
+        disabled={disabled}
+        isSelected={isSelected}
+        imageSource={props.imageSource}
+        label={props.label}
+      />
+    );
+  }
+
+  // 기본 버튼 로직
+  const variantStyle =
+    BUTTON_STYLES[
+      variant as Exclude<ButtonVariant, 'add_nail' | 'filter_content'>
+    ];
   const isGradientVariant = variant.includes('Gradient');
   const isSecondarySmall = variant === 'secondarySmall';
 
+  // 기존 버튼 렌더링 로직
   const buttonContent = (
     <TouchableOpacity
       style={[
@@ -174,7 +252,7 @@ function Button({
           ...(isSecondarySmall ? { padding: scale(12) } : {}),
         },
       ]}
-      disabled={false}
+      disabled={disabled}
       onPress={onPress}
     >
       {loading ? (
