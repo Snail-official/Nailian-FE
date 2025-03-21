@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   flatListContent: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginLeft: scale(10),
     paddingBottom: vs(20),
   },
