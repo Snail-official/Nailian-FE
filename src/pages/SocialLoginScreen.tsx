@@ -117,31 +117,30 @@ export default function SocialLoginScreen({ navigation }: Props) {
             </Button>
           ) : (
             <Button
-              variant="kakaoMedium"
-              onPress={handleKakaoLogin}
+              variant="googleMedium"
+              onPress={() => {}}
               disabled={false}
               loading={false}
             >
               <View style={styles.socialButtonContent}>
-                <KakaoIcon width={scale(24)} height={scale(24)} />
+                <GoogleIcon width={scale(24)} height={scale(24)} />
                 <Text style={[styles.buttonText, typography.title2_SB]}>
-                  Kakao로 계속하기
+                  Google로 계속하기
                 </Text>
               </View>
             </Button>
           )}
-
-          {/* 구글 로그인 버튼 (공통) */}
+          {/* 카카오 로그인 버튼 (공통) */}
           <Button
-            variant="googleMedium"
-            onPress={() => {}}
+            variant="kakaoMedium"
+            onPress={handleKakaoLogin}
             disabled={false}
             loading={false}
           >
             <View style={styles.socialButtonContent}>
-              <GoogleIcon width={scale(24)} height={scale(24)} />
+              <KakaoIcon width={scale(24)} height={scale(24)} />
               <Text style={[styles.buttonText, typography.title2_SB]}>
-                Google로 계속하기
+                Kakao로 계속하기
               </Text>
             </View>
           </Button>
