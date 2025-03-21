@@ -51,7 +51,7 @@ function NailAddButton({
     nailButtonStyle.borderStyle = 'solid';
     nailButtonStyle.borderColor = colors.gray650;
     nailButtonStyle.backgroundColor = colors.white;
-    iconComponent = <CheckIcon width={18} height={18} />;
+    iconComponent = <CheckIcon width={18} height={18} color={colors.gray900} />;
   }
 
   // 3. 이미지 추가 상태 (이미지 있음, 선택되지 않음)

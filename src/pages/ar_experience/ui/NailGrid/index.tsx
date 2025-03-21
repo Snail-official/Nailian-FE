@@ -274,14 +274,15 @@ export function NailGrid({
 const styles = StyleSheet.create({
   columnWrapper: {
     gap: scale(10),
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
   },
   container: {
     flex: 1,
     width: '100%',
   },
   flatListContent: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    marginLeft: scale(10),
     paddingBottom: vs(20),
   },
   loaderContainer: {
