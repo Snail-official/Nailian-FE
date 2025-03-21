@@ -196,6 +196,9 @@ export default function NailSelection({
     >
       {/* 상단 고정 영역 */}
       <View style={styles.fixedHeader}>
+        {/* 네일 추가 버튼 영역 */}
+        <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
+
         {/* 필터 버튼 */}
         <View style={styles.filterContainer}>
           <TouchableOpacity
@@ -216,9 +219,6 @@ export default function NailSelection({
             </View>
           </TouchableOpacity>
         </View>
-
-        {/* 네일 추가 버튼 영역 */}
-        <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
       </View>
 
       {/* 네일 그리드 (스크롤 영역) */}
@@ -275,7 +275,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginBottom: vs(15),
   },
   filterText: {
     ...typography.body2_SB,

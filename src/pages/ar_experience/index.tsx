@@ -136,8 +136,8 @@ export default function ARExperiencePage() {
             rightContent={
               <TouchableOpacity onPress={handleBookmark}>
                 <BookmarkIcon
-                  width={scale(19)}
-                  height={scale(18.5)}
+                  width={scale(24)}
+                  height={scale(24)}
                   color={colors.gray600}
                 />
               </TouchableOpacity>
@@ -178,7 +178,7 @@ export default function ARExperiencePage() {
           {/* 바텀시트 */}
           <BottomSheet
             ref={bottomSheetRef}
-            snapPoints={['25%', '93%']}
+            snapPoints={['20%', '93%']}
             initialIndex={0}
             handleType="custom"
             customHandle={renderCustomHandle}

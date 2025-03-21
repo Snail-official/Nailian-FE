@@ -72,7 +72,7 @@ export function TabBarHeader({
   rightContent,
 }: TabBarHeaderProps) {
   return (
-    <SafeAreaView style={styles.headerContainer}>
+    <View style={styles.headerContainer}>
       <View style={styles.header}>
         {onBack && (
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
@@ -84,7 +84,7 @@ export function TabBarHeader({
           <View style={styles.rightContent}>{rightContent}</View>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flexShrink: 0,
-    left: scale(5),
+    left: scale(0),
     padding: scale(8),
     position: 'absolute',
   },
