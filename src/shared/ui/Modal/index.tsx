@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal as RNModal } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, typography, spacing } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
@@ -44,6 +45,8 @@ export default function Modal({
   onCancel,
   onConfirm,
 }: ModalProps) {
+  const insets = useSafeAreaInsets();
+
   return (
     <RNModal
       transparent={true}
@@ -51,7 +54,17 @@ export default function Modal({
       animationType="fade"
       onRequestClose={onCancel}
     >
-      <View style={styles.overlay}>
+      <View
+        style={[
+          styles.overlay,
+          {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+          },
+        ]}
+      >
         <View style={styles.container}>
           <View style={styles.content}>
             <ErrorIcon

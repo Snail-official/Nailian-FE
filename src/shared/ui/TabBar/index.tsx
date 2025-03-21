@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+} from 'react-native';
 import { colors, typography, spacing } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import HomeIcon from '~/shared/assets/icons/ic_home.svg';
@@ -66,40 +72,49 @@ export function TabBarHeader({
   rightContent,
 }: TabBarHeaderProps) {
   return (
-    <View style={styles.header}>
-      {onBack && (
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <BackIcon width={scale(48)} height={scale(48)} />
-        </TouchableOpacity>
-      )}
-      <Text style={styles.headerTitle}>{title}</Text>
-      {rightContent && <View style={styles.rightContent}>{rightContent}</View>}
-    </View>
+    <SafeAreaView style={styles.headerContainer}>
+      <View style={styles.header}>
+        {onBack && (
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <BackIcon width={scale(48)} height={scale(48)} />
+          </TouchableOpacity>
+        )}
+        <Text style={styles.headerTitle}>{title}</Text>
+        {rightContent && (
+          <View style={styles.rightContent}>{rightContent}</View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 export function TabBarFooter({ activeTab, onTabPress }: TabBarFooterProps) {
   return (
-    <View style={styles.footer}>
-      {TAB_DATA.map(({ id, label, Icon }) => (
-        <TouchableOpacity
-          key={id}
-          style={styles.tabItem}
-          onPress={() => onTabPress(id as TabType)}
-        >
-          <Icon
-            width={scale(24)}
-            height={scale(24)}
-            color={activeTab === id ? colors.gray900 : colors.gray400}
-          />
-          <Text
-            style={[styles.tabLabel, activeTab === id && styles.activeTabLabel]}
+    <SafeAreaView style={styles.footerContainer}>
+      <View style={styles.footer}>
+        {TAB_DATA.map(({ id, label, Icon }) => (
+          <TouchableOpacity
+            key={id}
+            style={styles.tabItem}
+            onPress={() => onTabPress(id as TabType)}
           >
-            {label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+            <Icon
+              width={scale(24)}
+              height={scale(24)}
+              color={activeTab === id ? colors.gray900 : colors.gray400}
+            />
+            <Text
+              style={[
+                styles.tabLabel,
+                activeTab === id && styles.activeTabLabel,
+              ]}
+            >
+              {label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -115,12 +130,16 @@ const styles = StyleSheet.create({
   },
   footer: {
     backgroundColor: colors.white,
-    borderTopColor: colors.gray100,
-    borderTopWidth: 1,
-    bottom: 0,
     flexDirection: 'row',
     height: vs(74),
     justifyContent: 'center',
+    width: '100%',
+  },
+  footerContainer: {
+    backgroundColor: colors.white,
+    borderTopColor: colors.gray100,
+    borderTopWidth: 1,
+    bottom: 0,
     left: 0,
     position: 'absolute',
     right: 0,
@@ -131,7 +150,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.02,
     shadowRadius: 4,
-    width: '100%',
   },
   header: {
     alignItems: 'center',
@@ -139,6 +157,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: vs(48),
     justifyContent: 'center',
+    width: '100%',
+  },
+  headerContainer: {
+    backgroundColor: colors.white,
     width: '100%',
   },
   headerTitle: {

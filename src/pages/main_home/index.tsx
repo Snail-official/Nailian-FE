@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Text,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
@@ -231,6 +232,9 @@ function MainHomeScreen({ navigation }: Props) {
                 </View>
               </View>
             </View>
+
+            {/* 탭바 아래 추가 여백 */}
+            <View style={styles.tabBarSpacer} />
           </ScrollView>
         </View>
 
@@ -301,6 +305,9 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     borderTopColor: colors.gray100,
     borderTopWidth: 1,
+  },
+  tabBarSpacer: {
+    height: vs(Platform.OS === 'ios' ? 100 : 80), // iOS에서는 더 큰 여백을 추가
   },
 });
 

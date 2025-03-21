@@ -6,7 +6,9 @@ import {
   KeyboardAvoidingView,
   View,
   Keyboard,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { updateNickname } from '~/entities/user/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 import { typography, colors } from '~/shared/styles/design';
@@ -105,46 +107,51 @@ export default function OnboardingNicknameScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <View style={styles.content}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>반가워요!</Text>
-          <Text style={styles.title}>어떤 이름으로 불러드릴까요?</Text>
-        </View>
-        <TextInput
-          style={[styles.input, isError && styles.inputError]}
-          placeholder="닉네임을 입력해주세요"
-          placeholderTextColor={colors.gray300}
-          value={nickname}
-          onChangeText={handleNicknameChange}
-          maxLength={4}
-          editable={!loading}
-          autoFocus
-        />
-        <View style={styles.conditionContainer}>
-          <ErrorIcon
-            width={scale(12)}
-            height={scale(12)}
-            color={colors.gray400}
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={styles.content}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>반가워요!</Text>
+            <Text style={styles.title}>어떤 이름으로 불러드릴까요?</Text>
+          </View>
+          <TextInput
+            style={[styles.input, isError && styles.inputError]}
+            placeholder="닉네임을 입력해주세요"
+            placeholderTextColor={colors.gray300}
+            value={nickname}
+            onChangeText={handleNicknameChange}
+            maxLength={4}
+            editable={!loading}
+            autoFocus
           />
-          <Text style={styles.conditionText}>
-            한글 최대 4자 / 공백, 영문, 숫자, 특수기호 불가
-          </Text>
+          <View style={styles.conditionContainer}>
+            <ErrorIcon
+              width={scale(12)}
+              height={scale(12)}
+              color={colors.gray400}
+            />
+            <Text style={styles.conditionText}>
+              한글 최대 4자 / 공백, 영문, 숫자, 특수기호 불가
+            </Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.bottomButtonContainer}>
-        <Button
-          variant={isKeyboardVisible ? 'primaryLarge' : 'primaryMedium'}
-          onPress={handleNicknameSubmit}
-          loading={loading}
-          disabled={!nickname.trim() || isError}
-        >
-          <Text style={[styles.buttonText, typography.title2_SB]}>
-            입력 완료
-          </Text>
-        </Button>
-      </View>
-    </KeyboardAvoidingView>
+        <View style={styles.bottomButtonContainer}>
+          <Button
+            variant={isKeyboardVisible ? 'primaryLarge' : 'primaryMedium'}
+            onPress={handleNicknameSubmit}
+            loading={loading}
+            disabled={!nickname.trim() || isError}
+          >
+            <Text style={[styles.buttonText, typography.title2_SB]}>
+              입력 완료
+            </Text>
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -188,6 +195,10 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: colors.warn_red,
     color: colors.warn_red,
+  },
+  safeArea: {
+    backgroundColor: colors.white,
+    flex: 1,
   },
   title: {
     ...typography.head1_B,
