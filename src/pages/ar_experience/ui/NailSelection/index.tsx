@@ -4,9 +4,9 @@ import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import Button from '~/shared/ui/Button';
 import FilterIcon from '~/shared/assets/icons/ic_filter.svg';
+import { INailSet } from '~/shared/types/nail-set';
 import FilterModal, { FilterValues } from '../FilterModal';
 import NailGrid from '../NailGrid';
-
 // 손가락 타입 정의
 export type FingerType = 'pinky' | 'ring' | 'middle' | 'index' | 'thumb';
 
@@ -46,7 +46,7 @@ interface NailSelectionProps {
   /**
    * 현재 네일 세트가 변경될 때 호출되는 콜백 함수
    */
-  onNailSetChange?: (nailSet: NailSet) => void;
+  onNailSetChange?: (nailSet: Partial<INailSet>) => void;
 }
 
 /**
@@ -72,7 +72,7 @@ export default function NailSelection({
     null,
   );
   const [isSelectingImage, setIsSelectingImage] = useState(false);
-  const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
+  const [currentNailSet, setCurrentNailSet] = useState<Partial<INailSet>>({});
 
   // 필터 버튼 클릭 핸들러
   const handleFilterClick = useCallback(() => {
@@ -145,7 +145,7 @@ export default function NailSelection({
 
   // 네일 세트 변경 핸들러
   const handleNailSetChange = useCallback(
-    (nailSet: NailSet) => {
+    (nailSet: Partial<INailSet>) => {
       setCurrentNailSet(nailSet);
       onNailSetChange?.(nailSet);
     },

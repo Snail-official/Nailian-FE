@@ -1,12 +1,17 @@
+// Shape 타입 임포트
+import { Shape } from '../api/types';
+
 /**
  * 네일 이미지 인터페이스
  *
  * 각 손가락에 적용될 네일 이미지 정보를 정의합니다.
  *
  * @property {string} imageUrl - 네일 이미지 URL
+ * @property {Shape} shape - 네일 형태 (기본값: 'ROUND')
  */
 export interface INail {
   imageUrl: string;
+  shape?: Shape;
 }
 
 /**

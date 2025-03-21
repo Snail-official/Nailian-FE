@@ -16,11 +16,13 @@ import BottomSheet, {
 } from '~/pages/ar_experience/ui/BottomSheet';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import NailSelection from '~/pages/ar_experience/ui/NailSelection';
+import NailOverlay from '~/pages/ar_experience/ui/NailOverlay';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import { useNavigation } from '@react-navigation/native';
 import { scale, vs } from '~/shared/lib/responsive';
+import { INail, INailSet } from '~/shared/types/nail-set';
 
 // 화면 크기 가져오기
 const { height } = Dimensions.get('window');
@@ -36,10 +38,18 @@ export default function ARExperiencePage() {
   // 현재 바텀시트 인덱스 상태 (0: 25%, 1: 93%)
   const [bottomSheetIndex, setBottomSheetIndex] = useState(0);
 
+  // 현재 선택된 네일셋 상태
+  const [currentNailSet, setCurrentNailSet] = useState<Partial<INailSet>>({});
+
   // 네일 선택 핸들러
   const handleNailSelect = useCallback((id: string) => {
     console.log('선택한 네일 ID:', id);
     // 여기에 네일 선택 시 필요한 로직 추가
+  }, []);
+
+  // 네일셋 변경 핸들러 - NailGrid 컴포넌트에서 호출됨
+  const handleNailSetChange = useCallback((nailSet: Partial<INailSet>) => {
+    setCurrentNailSet(nailSet);
   }, []);
 
   // 북마크 핸들러
@@ -50,7 +60,30 @@ export default function ARExperiencePage() {
   // AR 버튼 핸들러
   const handleArButtonPress = useCallback(() => {
     console.log('AR 버튼이 클릭되었습니다.');
-  }, []);
+    // 모든 손가락에 네일팁이 선택되었는지 확인
+    const fingerTypes: Array<keyof Omit<INailSet, 'id'>> = [
+      'thumb',
+      'index',
+      'middle',
+      'ring',
+      'pinky',
+    ];
+    const allFingersSelected = fingerTypes.every(
+      finger =>
+        currentNailSet[finger] &&
+        typeof currentNailSet[finger] === 'object' &&
+        (currentNailSet[finger] as INail).imageUrl,
+    );
+
+    if (!allFingersSelected) {
+      // 모든 손가락에 네일팁이 선택되지 않은 경우, 사용자에게 알림
+      console.log('모든 손가락에 네일팁을 선택해주세요.');
+      // 실제 구현에서는 토스트 메시지나 모달 등으로 사용자에게 안내
+    } else {
+      // 모든 손가락에 네일팁이 선택된 경우, 추가 로직 실행
+      console.log('AR 체험을 시작합니다!');
+    }
+  }, [currentNailSet]);
 
   // 뒤로가기 핸들러
   const handleGoBack = useCallback(() => {
@@ -121,12 +154,18 @@ export default function ARExperiencePage() {
             </Text>
           </View>
 
-          {/* 손 이미지 */}
-          <Image
-            source={require('~/shared/assets/images/hand.png')}
-            style={styles.handImage}
-            resizeMode="contain"
-          />
+          {/* 손 이미지와 네일 오버레이 컨테이너 */}
+          <View style={styles.handContainer}>
+            {/* 기본 손 이미지 */}
+            <Image
+              source={require('~/shared/assets/images/hand.png')}
+              style={styles.handImage}
+              resizeMode="contain"
+            />
+
+            {/* 네일 오버레이 - 선택된 네일팁을 손 위에 표시 */}
+            <NailOverlay nailSet={currentNailSet} />
+          </View>
 
           {/* AR 버튼 */}
           <View style={styles.arButtonContainer}>
@@ -152,7 +191,10 @@ export default function ARExperiencePage() {
           backdropPressBehavior="collapse"
           onChange={handleSheetChange}
         >
-          <NailSelection onSelectNail={handleNailSelect} />
+          <NailSelection
+            onSelectNail={handleNailSelect}
+            onNailSetChange={handleNailSetChange}
+          />
         </BottomSheet>
       </View>
     </BottomSheetModalProvider>
@@ -176,6 +218,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentArea: {
+    backgroundColor: colors.gray50,
     flex: 1,
     paddingTop: vs(8),
   },
@@ -184,24 +227,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(20),
     paddingTop: vs(10),
   },
-  handImage: {
-    alignSelf: 'center',
+  handContainer: {
+    alignItems: 'center',
     height: vs(370),
     marginTop: vs(24),
+    position: 'relative',
+  },
+  handImage: {
+    height: vs(370),
     width: scale(237),
   },
   header: {
     alignItems: 'center',
     backgroundColor: colors.white,
+    borderLeftColor: colors.gray100,
+    borderLeftWidth: 1,
+    borderRightColor: colors.gray100,
+    borderRightWidth: 1,
+    borderTopColor: colors.gray100,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
+    borderTopWidth: 1,
+    elevation: 0,
     paddingVertical: vs(15),
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
   },
   indicator: {
-    backgroundColor: colors.gray200,
+    backgroundColor: colors.gray400,
     borderRadius: 100,
-    height: vs(4),
-    width: scale(44),
+    height: vs(5),
+    width: scale(60),
   },
   mainTitle: {
     ...typography.head2_B,
