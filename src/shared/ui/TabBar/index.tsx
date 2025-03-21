@@ -140,6 +140,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.gray100,
     borderTopWidth: 1,
     bottom: 0,
+    elevation: 3,
     left: 0,
     position: 'absolute',
     right: 0,
@@ -150,6 +151,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.02,
     shadowRadius: 4,
+    zIndex: 10,
   },
   header: {
     alignItems: 'center',
