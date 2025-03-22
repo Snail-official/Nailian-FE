@@ -14,7 +14,7 @@ COMMIT_MSG_FILE=$1
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 
 # 정규식으로 메시지가 올바른지 확인 (허용된 타입만 사용)
-if ! echo "$COMMIT_MSG" | grep -qE "^(feat|fix|refactor|docs|style|chore): "; then
+if ! echo "$COMMIT_MSG" | grep -qE "^(feat|fix|refactor|docs|style|chore|remove): "; then
   echo "❌ ERROR: 커밋 메시지는 'feat: 메시지', 'fix: 메시지' 형식이어야 합니다."
   echo "✅ 허용된 타입: feat, fix, refactor, docs, style, chore"
   exit 1
