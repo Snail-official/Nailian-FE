@@ -32,18 +32,28 @@ type Props = {
 /**
  * 온보딩 로그인 화면
  *
- * iOS:
- * - Apple 로그인
- * - Kakao 로그인
+ * 사용자가 소셜 계정을 통해 앱에 로그인할 수 있는 첫 화면입니다.
+ * 앱 최초 진입점으로, 사용자의 인증 상태를 확인하고 적절한 화면으로 라우팅합니다.
  *
- * Android:
- * - Kakao 로그인
- * - Google 로그인
+ * 주요 기능:
+ * - 기존 로그인 상태 확인 (토큰 유효성 검사)
+ * - 플랫폼별 소셜 로그인 옵션 제공
+ *   - iOS: Apple 로그인, Kakao 로그인
+ *   - Android: Google 로그인, Kakao 로그인
+ * - 로그인 성공 시 온보딩 엔트리 화면으로 자동 이동
+ *
+ * @param {Props} props - 컴포넌트 props
+ * @param {NativeStackNavigationProp<RootStackParamList, 'SocialLogin'>} props.navigation - 네비게이션 객체
+ * @returns {JSX.Element} 소셜 로그인 화면 컴포넌트
  */
 export default function SocialLoginScreen({ navigation }: Props) {
   const { loadTokens, setTokens } = useAuthStore();
   const [isCheckingLogin, setIsCheckingLogin] = React.useState(true);
 
+  /**
+   * 로그인 상태 확인
+   * 앱 실행 시 기존 로그인 토큰이 있는지 확인하고, 있으면 온보딩 엔트리 화면으로 자동 이동합니다.
+   */
   useEffect(() => {
     const checkLoginStatus = async () => {
       await loadTokens();
@@ -56,6 +66,11 @@ export default function SocialLoginScreen({ navigation }: Props) {
     checkLoginStatus();
   }, [navigation, loadTokens]);
 
+  /**
+   * 카카오 로그인 처리
+   * 카카오 SDK를 통해 로그인 후, 받은 토큰으로 백엔드 서버에 인증하고
+   * 성공 시 앱 내부 토큰을 저장하고 온보딩 엔트리 화면으로 이동합니다.
+   */
   const handleKakaoLogin = async () => {
     try {
       const kakaoToken = await login();
