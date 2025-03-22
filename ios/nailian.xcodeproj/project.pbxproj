@@ -80,6 +80,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E14D84192D8D7C6E00EDD138 /* Modules */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Modules; sourceTree = "<group>"; };
+		E1D033572D8E8DB900C244AD /* Models */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Models; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +127,7 @@
 		13B07FAE1A68108700A75B9A /* nailian */ = {
 			isa = PBXGroup;
 			children = (
+				E1D033572D8E8DB900C244AD /* Models */,
 				E14D84192D8D7C6E00EDD138 /* Modules */,
 				E1E0C2642D8C157B0053273B /* Debug.xcconfig */,
 				E1E0C2652D8C157B0053273B /* Release.xcconfig */,
@@ -255,6 +257,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				E14D84192D8D7C6E00EDD138 /* Modules */,
+				E1D033572D8E8DB900C244AD /* Models */,
 			);
 			name = nailian;
 			productName = nailian;
