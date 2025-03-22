@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { INailSet } from '~/shared/types/nail-set';
+import { NailSet } from '~/pages/ar_experience';
 import { getNailPositionByShape } from './utils';
 import { addDefaultShapesToNailSet } from './model';
 
@@ -9,7 +10,7 @@ import { addDefaultShapesToNailSet } from './model';
  * @property {Object} nailSet - 현재 선택된 네일 세트 (손가락별 네일 이미지 정보)
  */
 interface NailOverlayProps {
-  nailSet: Partial<INailSet>;
+  nailSet: Partial<NailSet>;
 }
 
 /**

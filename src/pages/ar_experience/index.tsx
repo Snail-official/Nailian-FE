@@ -16,17 +16,42 @@ import BottomSheet, {
   BottomSheetRefProps,
 } from '~/pages/ar_experience/ui/BottomSheet';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import NailSelection from '~/pages/ar_experience/ui/NailSelection';
 import NailOverlay from '~/pages/ar_experience/ui/NailOverlay';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import { useNavigation } from '@react-navigation/native';
 import { scale, vs } from '~/shared/lib/responsive';
-import { INail, INailSet } from '~/shared/types/nail-set';
+import { createUserNailSet } from '~/entities/nail-set/api';
+import { toast } from '~/shared/lib/toast';
+import { CreateNailSetRequest, Shape } from '~/shared/api/types';
+import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기
 const { height } = Dimensions.get('window');
+
+// 손가락 타입 정의
+export type FingerType = 'pinky' | 'ring' | 'middle' | 'index' | 'thumb';
+
+// 손가락 타입 상수
+export const FINGER_TYPES = [
+  'thumb',
+  'index',
+  'middle',
+  'ring',
+  'pinky',
+] as const;
+
+/**
+ * 네일 세트 인터페이스 (API 요청 형식에 맞춤)
+ */
+export interface NailSet {
+  thumb?: { id: number; imageUrl: string; shape?: Shape };
+  index?: { id: number; imageUrl: string; shape?: Shape };
+  middle?: { id: number; imageUrl: string; shape?: Shape };
+  ring?: { id: number; imageUrl: string; shape?: Shape };
+  pinky?: { id: number; imageUrl: string; shape?: Shape };
+}
 
 /**
  * AR 체험 페이지
@@ -48,69 +73,70 @@ export default function ARExperiencePage() {
   // 현재 바텀시트 인덱스 상태 (0: 25%, 1: 93%)
   const [bottomSheetIndex, setBottomSheetIndex] = useState(0);
 
-  // 현재 선택된 네일셋 상태
-  const [currentNailSet, setCurrentNailSet] = useState<Partial<INailSet>>({});
+  // 현재 선택된 네일셋 상태 (API 타입에 맞게 관리)
+  const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
 
   /**
-   * 개별 네일 선택 핸들러
-   * 특정 네일 디자인이 선택되었을 때 호출됩니다.
-   *
-   * @param {string} id - 선택된 네일의 고유 ID
+   * 네일셋이 완전한지 확인하는 함수 (모든 손가락에 네일이 선택되었는지)
    */
-  const handleNailSelect = useCallback((id: string) => {
-    console.log('선택한 네일 ID:', id);
-    // 여기에 네일 선택 시 필요한 로직 추가
-  }, []);
-
-  /**
-   * 네일셋 변경 핸들러
-   * NailGrid 컴포넌트에서 호출되며, 현재 선택된 네일셋을 업데이트합니다.
-   *
-   * @param {Partial<INailSet>} nailSet - 선택된 네일셋 정보
-   */
-  const handleNailSetChange = useCallback((nailSet: Partial<INailSet>) => {
-    setCurrentNailSet(nailSet);
-  }, []);
-
-  /**
-   * 북마크 기능 핸들러
-   * 현재 보고 있는 네일셋을 북마크/저장하는 기능을 처리합니다.
-   */
-  const handleBookmark = useCallback(() => {
-    console.log('북마크 버튼이 클릭되었습니다.');
-  }, []);
+  const isNailSetComplete = useCallback(
+    () => FINGER_TYPES.every(finger => currentNailSet[finger as keyof NailSet]),
+    [currentNailSet],
+  );
 
   /**
    * AR 버튼 클릭 핸들러
-   * 사용자가 AR 버튼을 클릭했을 때 호출됩니다.
-   * 모든 손가락에 네일팁이 선택되었는지 확인하고 AR 체험을 시작합니다.
    */
   const handleArButtonPress = useCallback(() => {
-    console.log('AR 버튼이 클릭되었습니다.');
-    // 모든 손가락에 네일팁이 선택되었는지 확인
-    const fingerTypes: Array<keyof Omit<INailSet, 'id'>> = [
-      'thumb',
-      'index',
-      'middle',
-      'ring',
-      'pinky',
-    ];
-    const allFingersSelected = fingerTypes.every(
-      finger =>
-        currentNailSet[finger] &&
-        typeof currentNailSet[finger] === 'object' &&
-        (currentNailSet[finger] as INail).imageUrl,
-    );
-
-    if (!allFingersSelected) {
-      // 모든 손가락에 네일팁이 선택되지 않은 경우, 사용자에게 알림
-      console.log('모든 손가락에 네일팁을 선택해주세요.');
-      // 실제 구현에서는 토스트 메시지나 모달 등으로 사용자에게 안내
+    if (!isNailSetComplete()) {
+      toast.showToast('모든 손가락에 네일팁을 선택해주세요', {
+        position: 'bottom',
+      });
     } else {
-      // 모든 손가락에 네일팁이 선택된 경우, 추가 로직 실행
+      // AR 체험 로직 실행
       console.log('AR 체험을 시작합니다!');
     }
-  }, [currentNailSet]);
+  }, [isNailSetComplete]);
+
+  /**
+   * 북마크 버튼 클릭 핸들러
+   */
+  const handleBookmark = useCallback(async () => {
+    if (!isNailSetComplete()) {
+      toast.showToast('아트가 완성되어야 저장 가능합니다', {
+        position: 'bottom',
+      });
+      return;
+    }
+
+    // API 요청 형식으로 변환
+    const requestData: CreateNailSetRequest = {
+      thumb: { id: currentNailSet.thumb!.id },
+      index: { id: currentNailSet.index!.id },
+      middle: { id: currentNailSet.middle!.id },
+      ring: { id: currentNailSet.ring!.id },
+      pinky: { id: currentNailSet.pinky!.id },
+    };
+
+    try {
+      // 네일셋 저장 API 호출
+      await createUserNailSet(requestData);
+
+      // 성공 시 메시지 표시
+      toast.showToast('보관함에 저장되었습니다', { position: 'bottom' });
+    } catch (error) {
+      console.error('북마크 에러:', error);
+
+      // 중복 에러 처리 (서버 응답에 따라 조건 변경 가능)
+      if (error instanceof Error && error.message.includes('409')) {
+        // HTTP 409 Conflict - 중복 오류
+        toast.showToast('이미 저장된 아트입니다', { position: 'bottom' });
+      } else {
+        // 기타 오류
+        toast.showToast('저장에 실패했습니다', { position: 'bottom' });
+      }
+    }
+  }, [currentNailSet, isNailSetComplete]);
 
   /**
    * 뒤로가기 버튼 핸들러
@@ -233,8 +259,8 @@ export default function ARExperiencePage() {
             onChange={handleSheetChange}
           >
             <NailSelection
-              onSelectNail={handleNailSelect}
-              onNailSetChange={handleNailSetChange}
+              currentNailSet={currentNailSet}
+              onNailSetChange={nailSet => setCurrentNailSet(nailSet)}
             />
           </BottomSheet>
         </View>
