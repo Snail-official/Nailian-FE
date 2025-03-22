@@ -252,7 +252,6 @@ export function NailGrid({
         initialNumToRender={12}
         removeClippedSubviews={false}
       />
-      {renderFooter()}
     </BottomSheetScrollView>
   );
 }
