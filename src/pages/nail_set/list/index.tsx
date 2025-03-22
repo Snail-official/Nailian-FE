@@ -17,6 +17,7 @@ import { scale, vs } from '~/shared/lib/responsive';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import { fetchNailSetFeed, fetchUserNailSets } from '~/entities/nail-set/api';
 import NailSet from '~/features/nail-set/ui/NailSet';
+import EmptyView from './ui/EmptyView';
 
 /**
  * 네일 세트 UI 레이아웃 상수
@@ -60,6 +61,7 @@ function NailSetListPage() {
   const [hasMoreData, setHasMoreData] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookmarkedNailIds, setBookmarkedNailIds] = useState<number[]>([]);
+  const [dataFetched, setDataFetched] = useState(false); // 데이터 로드 완료 여부
   const pageSize = 10;
 
   /**
@@ -114,9 +116,13 @@ function NailSetListPage() {
           // 더 불러올 데이터가 있는지 확인
           setHasMoreData(newNailSets.length === pageSize);
         }
+
+        // 데이터 로드 완료 표시
+        setDataFetched(true);
       } catch (err) {
         console.error('네일 세트 피드 불러오기 실패:', err);
         setError('데이터를 불러오는데 실패했습니다.');
+        setDataFetched(true); // 에러가 나도 로드 시도는 완료됨
       } finally {
         setIsLoading(false);
       }
@@ -155,6 +161,7 @@ function NailSetListPage() {
   useEffect(() => {
     setCurrentPage(1);
     setHasMoreData(true);
+    setDataFetched(false); // 데이터 로드 시작 시 초기화
     fetchNailSets(1, true);
     fetchBookmarkStatus();
   }, [fetchNailSets, fetchBookmarkStatus]);
@@ -230,9 +237,12 @@ function NailSetListPage() {
    */
   if (isLoading && nailSets.length === 0) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.purple500} />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <TabBarHeader title={styleName} onBack={() => navigation.goBack()} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.purple500} />
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -241,9 +251,24 @@ function NailSetListPage() {
    */
   if (error && nailSets.length === 0) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <TabBarHeader title={styleName} onBack={() => navigation.goBack()} />
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  /**
+   * 보관함이 비어있을 때 엠티 뷰 표시 (북마크 모드인 경우만)
+   */
+  if (isBookmarkMode && dataFetched && nailSets.length === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <TabBarHeader title={styleName} onBack={() => navigation.goBack()} />
+        <EmptyView />
+      </SafeAreaView>
     );
   }
 
