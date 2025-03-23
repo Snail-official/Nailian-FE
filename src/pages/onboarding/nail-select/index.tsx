@@ -178,14 +178,34 @@ export default function NailSelectScreen() {
 
   useEffect(() => {
     let isMounted = true;
+    let initialLoad = true;
 
     const loadData = async () => {
       try {
-        if (isMounted) {
-          await loadNailPreferences(1);
+        if (isMounted && initialLoad) {
+          initialLoad = false;
+          const response = await fetchNailPreferences({
+            page: 1,
+            size: 24,
+          });
+
+          if (response.data && isMounted) {
+            const newData =
+              response.data?.content.map(nail => ({
+                ...nail,
+                id: String(nail.id),
+              })) ?? [];
+
+            setNails(newData);
+            setCurrentPage(1);
+            setHasMore(
+              response.data.pageInfo.currentPage <
+                response.data.pageInfo.totalPages,
+            );
+          }
         }
       } catch (error) {
-        console.error(error);
+        console.error('네일 취향 목록 불러오기 실패:', error);
       }
     };
 
@@ -194,7 +214,7 @@ export default function NailSelectScreen() {
     return () => {
       isMounted = false;
     };
-  }, [loadNailPreferences]);
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
