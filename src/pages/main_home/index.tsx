@@ -171,11 +171,15 @@ function MainHomeScreen({ navigation }: Props) {
    */
   const handleNailSetPress = useCallback(
     (nailSet: NailSet, styleInfo: StyleInfo) => {
+      // styleId가 유효한 값인지 확인 (0이 아닌 양수)
+      const validStyleId =
+        typeof styleInfo.id === 'number' && styleInfo.id > 0 ? styleInfo.id : 1; // 기본값으로 1 설정 (0은 북마크 모드를 의미하므로 피함)
+
       // 네일 세트 상세 페이지로 이동
       navigation.navigate('NailSetDetailPage', {
         nailSetId: nailSet.id,
-        styleId: styleInfo.id,
-        styleName: styleInfo.name,
+        styleId: validStyleId,
+        styleName: styleInfo.name || '추천 네일',
         isBookmarked: false, // 북마크 상태는 상세 페이지에서 관리
       });
     },

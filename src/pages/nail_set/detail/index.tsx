@@ -129,6 +129,9 @@ function NailSetDetailPage() {
     async (pageToFetch = 1, refresh = false) => {
       if (!nailSetId) return;
 
+      // 이미 로딩 중이거나 더 불러올 데이터가 없는 경우 중단
+      if (similarLoading || (!hasMore && !refresh)) return;
+
       setSimilarLoading(true);
       setSimilarError(null);
       try {
@@ -167,8 +170,12 @@ function NailSetDetailPage() {
           // 새로고침이면 목록을 대체하고, 아니면 추가
           setSimilarNailSets(prev => (refresh ? data : [...prev, ...data]));
 
-          // 다음 페이지가 있는지 확인
-          setHasMore(pageInfo.currentPage < pageInfo.totalPages);
+          // 다음 페이지가 있는지 확인 - 페이지 총수 비교 또는 현재 받은 데이터 크기 확인
+          const hasNextPage = pageInfo.currentPage < pageInfo.totalPages;
+          const hasDataInCurrentPage = data.length > 0;
+
+          // 다음 페이지가 있고 현재 페이지에 데이터가 있는 경우에만 hasMore를 true로 설정
+          setHasMore(hasNextPage && hasDataInCurrentPage);
           setPage(pageToFetch);
         } else {
           setSimilarError(
@@ -176,6 +183,7 @@ function NailSetDetailPage() {
               ? '보관함의 다른 네일 세트를 불러오는데 실패했습니다.'
               : '유사한 네일 세트를 불러오는데 실패했습니다.',
           );
+          setHasMore(false); // 에러 발생 시 더 이상 로드하지 않음
         }
       } catch (err) {
         console.error(
@@ -189,11 +197,12 @@ function NailSetDetailPage() {
             ? '보관함의 다른 네일 세트를 불러오는데 실패했습니다.'
             : '유사한 네일 세트를 불러오는데 실패했습니다.',
         );
+        setHasMore(false); // 에러 발생 시 더 이상 로드하지 않음
       } finally {
         setSimilarLoading(false);
       }
     },
-    [styleId, nailSetId, styleName, isBookmarkMode],
+    [styleId, nailSetId, styleName, isBookmarkMode, similarLoading, hasMore],
   );
 
   // 컴포넌트 마운트 시 데이터 가져오기
