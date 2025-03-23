@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
 import {
   StyleSheet,
   View,
@@ -12,6 +12,7 @@ import { colors } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import { fetchHomeBanners } from '~/entities/banner/api';
 import { BannerResponse } from '~/shared/api/types';
+import { Banner as BannerType } from '../types';
 
 const BANNER_WIDTH = scale(331);
 const BANNER_SPACING = scale(8);
@@ -21,11 +22,7 @@ interface BannerProps {
    * 배너 클릭 시 호출될 콜백 함수
    * @param banner 클릭된 배너 객체
    */
-  onBannerPress?: (banner: {
-    id: number;
-    imageUrl: string;
-    link: string;
-  }) => void;
+  onBannerPress?: (banner: BannerType) => void;
 }
 
 /**
@@ -42,7 +39,7 @@ interface BannerProps {
  * // 배너 클릭 시 네비게이션
  * <Banner onBannerPress={(banner) => navigation.navigate('BannerDetail', { link: banner.link })} />
  */
-export function Banner({ onBannerPress }: BannerProps) {
+function Banner({ onBannerPress }: BannerProps) {
   const [banners, setBanners] = useState<BannerResponse['data']>([]);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -62,22 +59,26 @@ export function Banner({ onBannerPress }: BannerProps) {
   }, []);
 
   // 스크롤 이벤트 처리
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / (BANNER_WIDTH + BANNER_SPACING));
-    setCurrentBannerIndex(index);
-  };
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const contentOffsetX = event.nativeEvent.contentOffset.x;
+      const index = Math.round(
+        contentOffsetX / (BANNER_WIDTH + BANNER_SPACING),
+      );
+      setCurrentBannerIndex(index);
+    },
+    [],
+  );
 
   // 배너 클릭 핸들러
-  const handleBannerPress = (banner: {
-    id: number;
-    imageUrl: string;
-    link: string;
-  }) => {
-    if (onBannerPress) {
-      onBannerPress(banner);
-    }
-  };
+  const handleBannerPress = useCallback(
+    (banner: BannerType) => {
+      if (onBannerPress) {
+        onBannerPress(banner);
+      }
+    },
+    [onBannerPress],
+  );
 
   return (
     <View style={styles.bannerWrapper}>
@@ -96,7 +97,7 @@ export function Banner({ onBannerPress }: BannerProps) {
         {banners?.map(banner => (
           <TouchableOpacity
             key={banner.id}
-            onPress={() => handleBannerPress(banner)}
+            onPress={() => handleBannerPress(banner as BannerType)}
             style={styles.bannerItem}
           >
             <Image
@@ -163,4 +164,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Banner;
+export default memo(Banner);

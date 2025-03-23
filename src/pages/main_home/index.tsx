@@ -6,9 +6,6 @@ import {
   SafeAreaView,
   Text,
   Dimensions,
-  Platform,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
   Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -22,29 +19,11 @@ import { TabBarFooter } from '~/shared/ui/TabBar';
 import { toast } from '~/shared/lib/toast';
 import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
+import { NailSet, StyleGroup, StyleInfo, Banner as BannerType } from './types';
 
 const { width } = Dimensions.get('window');
 const BANNER_WIDTH = scale(331);
 const LEFT_MARGIN = (width - BANNER_WIDTH) / 2;
-
-// 네일 세트 인터페이스 정의
-interface NailSet {
-  id: number;
-  thumb: { imageUrl: string };
-  index: { imageUrl: string };
-  middle: { imageUrl: string };
-  ring: { imageUrl: string };
-  pinky: { imageUrl: string };
-}
-
-// 스타일 그룹 인터페이스 정의
-interface StyleGroup {
-  style: {
-    id: number;
-    name: string;
-  };
-  nailSets: NailSet[];
-}
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MainHome'>;
@@ -65,12 +44,8 @@ type Props = {
  */
 function MainHomeScreen({ navigation }: Props) {
   const [nickname, setNickname] = useState<string>('');
-  const [recommendedNailSets, setRecommendedNailSets] = useState<StyleGroup[]>(
-    [],
-  );
+  const [styleGroups, setStyleGroups] = useState<StyleGroup[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
-  const [isAtTop, setIsAtTop] = useState(true);
-  const [isAtBottom, setIsAtBottom] = useState(false);
 
   /**
    * 탭 선택 핸들러
@@ -79,16 +54,19 @@ function MainHomeScreen({ navigation }: Props) {
    *
    * @param {'home' | 'ar_experience' | 'my_page'} tab 선택된 탭
    */
-  const handleTabPress = (tab: 'home' | 'ar_experience' | 'my_page') => {
-    if (tab === 'home') return; // 이미 홈 화면이므로 아무 작업도 하지 않음
+  const handleTabPress = useCallback(
+    (tab: 'home' | 'ar_experience' | 'my_page') => {
+      if (tab === 'home') return; // 이미 홈 화면이므로 아무 작업도 하지 않음
 
-    if (tab === 'my_page') {
-      navigation.navigate('MyPage');
-    } else if (tab === 'ar_experience') {
-      // AR 체험 페이지로 이동
-      navigation.navigate('ARExperiencePage');
-    }
-  };
+      if (tab === 'my_page') {
+        navigation.navigate('MyPage');
+      } else if (tab === 'ar_experience') {
+        // AR 체험 페이지로 이동
+        navigation.navigate('ARExperiencePage');
+      }
+    },
+    [navigation],
+  );
 
   /**
    * 사용자 프로필 정보 가져오기
@@ -109,23 +87,23 @@ function MainHomeScreen({ navigation }: Props) {
   }, []);
 
   /**
-   * 추천 네일 세트 가져오기
+   * 스타일 그룹 가져오기
    *
-   * 컴포넌트 마운트 시 사용자 맞춤형 추천 네일 세트 목록을 가져옵니다.
+   * 컴포넌트 마운트 시 사용자 맞춤형 스타일 그룹 목록을 가져옵니다.
    */
   useEffect(() => {
-    const getRecommendedNailSets = async () => {
+    const fetchStyleGroups = async () => {
       try {
         const response = await fetchRecommendedNailSets();
         if (response.data) {
-          setRecommendedNailSets(response.data);
+          setStyleGroups(response.data);
         }
       } catch (err) {
         console.error('추천 네일 세트 불러오기 실패:', err);
       }
     };
 
-    getRecommendedNailSets();
+    fetchStyleGroups();
   }, []);
 
   /**
@@ -133,42 +111,36 @@ function MainHomeScreen({ navigation }: Props) {
    *
    * 배너 이미지 클릭 시 해당 링크로 이동하는 함수입니다.
    *
-   * @param {Object} banner 배너 정보
-   * @param {number} banner.id 배너 ID
-   * @param {string} banner.imageUrl 배너 이미지 URL
-   * @param {string} banner.link 배너 링크 URL
+   * @param {BannerType} banner 배너 정보
    */
-  const handleBannerPress = useCallback(
-    async (banner: { id: number; imageUrl: string; link: string }) => {
-      // URL이 유효한지 확인
-      if (!banner.link) {
-        toast.showToast('유효하지 않은 링크입니다', { position: 'bottom' });
-        return;
-      }
+  const handleBannerPress = useCallback(async (banner: BannerType) => {
+    // URL이 유효한지 확인
+    if (!banner.link) {
+      toast.showToast('유효하지 않은 링크입니다', { position: 'bottom' });
+      return;
+    }
 
-      // 링크 형식 확인 및 처리
-      const url = banner.link.startsWith('http')
-        ? banner.link
-        : `https://${banner.link}`;
+    // 링크 형식 확인 및 처리
+    const url = banner.link.startsWith('http')
+      ? banner.link
+      : `https://${banner.link}`;
 
-      // URL을 열 수 있는지 확인 후 기본 브라우저로 열기
-      try {
-        const canOpen = await Linking.canOpenURL(url);
-        if (canOpen) {
-          await Linking.openURL(url);
-        } else {
-          console.error('URL을 열 수 없습니다:', url);
-          toast.showToast('브라우저를 열 수 없습니다', { position: 'bottom' });
-        }
-      } catch (error) {
-        console.error('링크 열기 오류:', error);
-        toast.showToast('링크를 여는 중 오류가 발생했습니다', {
-          position: 'bottom',
-        });
+    // URL을 열 수 있는지 확인 후 기본 브라우저로 열기
+    try {
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        console.error('URL을 열 수 없습니다:', url);
+        toast.showToast('브라우저를 열 수 없습니다', { position: 'bottom' });
       }
-    },
-    [],
-  );
+    } catch (error) {
+      console.error('링크 열기 오류:', error);
+      toast.showToast('링크를 여는 중 오류가 발생했습니다', {
+        position: 'bottom',
+      });
+    }
+  }, []);
 
   /**
    * 스타일 클릭 핸들러
@@ -178,56 +150,37 @@ function MainHomeScreen({ navigation }: Props) {
    * @param {number} styleId 스타일 ID
    * @param {string} styleName 스타일 이름
    */
-  const handleStylePress = (styleId: number, styleName: string) => {
-    // 스타일 정보 설정 및 네일 세트 리스트 페이지로 이동
-    navigation.navigate('NailSetListPage', {
-      styleId,
-      styleName,
-    });
-  };
+  const handleStylePress = useCallback(
+    (styleId: number, styleName: string) => {
+      // 스타일 정보 설정 및 네일 세트 리스트 페이지로 이동
+      navigation.navigate('NailSetListPage', {
+        styleId,
+        styleName,
+      });
+    },
+    [navigation],
+  );
 
   /**
-   * 추천 네일 세트 클릭 핸들러
+   * 네일 세트 클릭 핸들러
    *
-   * 추천 네일 세트 클릭 시 해당 네일 세트의 상세 페이지로 이동하는 함수입니다.
+   * 네일 세트 클릭 시 해당 네일 세트의 상세 페이지로 이동하는 함수입니다.
    *
    * @param {NailSet} nailSet 선택된 네일 세트
-   * @param {Object} styleInfo 스타일 정보
-   * @param {number} styleInfo.id 스타일 ID
-   * @param {string} styleInfo.name 스타일 이름
+   * @param {StyleInfo} styleInfo 스타일 정보
    */
-  const handleRecommendedNailSetPress = (
-    nailSet: NailSet,
-    styleInfo: { id: number; name: string },
-  ) => {
-    console.log('추천 네일 세트 클릭:', nailSet.id);
-
-    // 네일 세트 상세 페이지로 이동
-    navigation.navigate('NailSetDetailPage', {
-      nailSetId: nailSet.id,
-      styleId: styleInfo.id,
-      styleName: styleInfo.name,
-      isBookmarked: false, // 북마크 상태는 상세 페이지에서 관리
-    });
-  };
-
-  /**
-   * 스크롤 이벤트 핸들러
-   * 스크롤 위치에 따라 상단/하단 도달 여부를 설정합니다.
-   */
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
-
-    // 상단 도달 여부 확인 (약간의 여유 추가)
-    const isTop = contentOffset.y <= 1;
-    setIsAtTop(isTop);
-
-    // 하단 도달 여부 확인 (푸터 시작 지점에 도달했는지)
-    const isBottom =
-      contentOffset.y + layoutMeasurement.height >=
-      contentSize.height - vs(100);
-    setIsAtBottom(isBottom);
-  };
+  const handleNailSetPress = useCallback(
+    (nailSet: NailSet, styleInfo: StyleInfo) => {
+      // 네일 세트 상세 페이지로 이동
+      navigation.navigate('NailSetDetailPage', {
+        nailSetId: nailSet.id,
+        styleId: styleInfo.id,
+        styleName: styleInfo.name,
+        isBookmarked: false, // 북마크 상태는 상세 페이지에서 관리
+      });
+    },
+    [navigation],
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -240,7 +193,6 @@ function MainHomeScreen({ navigation }: Props) {
             removeClippedSubviews={false}
             showsVerticalScrollIndicator={false}
             bounces={false}
-            onScroll={handleScroll}
             scrollEventThrottle={16}
             overScrollMode="never"
             contentInsetAdjustmentBehavior="never"
@@ -268,9 +220,9 @@ function MainHomeScreen({ navigation }: Props) {
               {/* 추천 네일 세트 목록 */}
               <RecommendedNailSets
                 leftMargin={LEFT_MARGIN}
-                nailSets={recommendedNailSets}
+                styleGroups={styleGroups}
                 onStylePress={handleStylePress}
-                onNailSetPress={handleRecommendedNailSetPress}
+                onNailSetPress={handleNailSetPress}
               />
             </View>
 
@@ -370,9 +322,6 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     borderTopColor: colors.gray100,
     borderTopWidth: 1,
-  },
-  tabBarSpacer: {
-    height: vs(Platform.OS === 'ios' ? 100 : 80), // iOS에서는 더 큰 여백을 추가
   },
   topSection: {
     backgroundColor: colors.white,
