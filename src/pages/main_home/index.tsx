@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,6 +9,7 @@ import {
   Platform,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
@@ -18,6 +19,7 @@ import { fetchUserProfile } from '~/entities/user/api';
 import { fetchRecommendedNailSets } from '~/entities/nail-set/api';
 import Logo from '~/shared/assets/icons/logo.svg';
 import { TabBarFooter } from '~/shared/ui/TabBar';
+import { toast } from '~/shared/lib/toast';
 import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
 
@@ -136,14 +138,37 @@ function MainHomeScreen({ navigation }: Props) {
    * @param {string} banner.imageUrl 배너 이미지 URL
    * @param {string} banner.link 배너 링크 URL
    */
-  const handleBannerPress = (banner: {
-    id: number;
-    imageUrl: string;
-    link: string;
-  }) => {
-    console.log('배너 클릭:', banner.id);
-    // 필요시 navigation.navigate 등 추가
-  };
+  const handleBannerPress = useCallback(
+    async (banner: { id: number; imageUrl: string; link: string }) => {
+      // URL이 유효한지 확인
+      if (!banner.link) {
+        toast.showToast('유효하지 않은 링크입니다', { position: 'bottom' });
+        return;
+      }
+
+      // 링크 형식 확인 및 처리
+      const url = banner.link.startsWith('http')
+        ? banner.link
+        : `https://${banner.link}`;
+
+      // URL을 열 수 있는지 확인 후 기본 브라우저로 열기
+      try {
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          console.error('URL을 열 수 없습니다:', url);
+          toast.showToast('브라우저를 열 수 없습니다', { position: 'bottom' });
+        }
+      } catch (error) {
+        console.error('링크 열기 오류:', error);
+        toast.showToast('링크를 여는 중 오류가 발생했습니다', {
+          position: 'bottom',
+        });
+      }
+    },
+    [],
+  );
 
   /**
    * 스타일 클릭 핸들러
@@ -154,8 +179,6 @@ function MainHomeScreen({ navigation }: Props) {
    * @param {string} styleName 스타일 이름
    */
   const handleStylePress = (styleId: number, styleName: string) => {
-    console.log('스타일 클릭:', styleName);
-
     // 스타일 정보 설정 및 네일 세트 리스트 페이지로 이동
     navigation.navigate('NailSetListPage', {
       styleId,
