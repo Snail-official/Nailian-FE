@@ -102,8 +102,8 @@ function NailSetDetailPage() {
   const [similarError, setSimilarError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
-  // 북마크 모드 여부 확인 (styleId가 0이면 북마크 모드)
-  const isBookmarkMode = styleId === 0;
+  // 북마크 모드 여부 확인 (styleName이 '네일 보관함'이면 북마크 모드)
+  const isBookmarkMode = styleName === '네일 보관함';
 
   // 네일 세트 상세 정보 가져오기
   const fetchNailSetInfo = useCallback(async () => {
@@ -217,7 +217,8 @@ function NailSetDetailPage() {
     // 페이지 초기화 후 첫 페이지 데이터 로드 (refresh = true)
     resetPage();
     fetchNailSets(1, true);
-  }, [fetchNailSetInfo, fetchNailSets, resetPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * 네일 세트 아이템 클릭 핸들러
@@ -257,10 +258,6 @@ function NailSetDetailPage() {
         // 성공적으로 저장되면 북마크 상태 업데이트 및 토스트 메시지 표시
         setIsBookmarked(true);
         toast.showToast('보관함에 저장되었습니다');
-        console.log(
-          '네일 세트가 보관함에 성공적으로 저장되었습니다:',
-          nailSetId,
-        );
       }
     } catch (err) {
       console.error('Failed to save to bookmark', err);

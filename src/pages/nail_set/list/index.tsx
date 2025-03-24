@@ -53,7 +53,7 @@ function NailSetListPage() {
   const navigation = useNavigation<NailSetListScreenNavigationProp>();
   const route = useRoute<NailSetListScreenRouteProp>();
   const { styleId, styleName } = route.params;
-  const isBookmarkMode = styleId === 0;
+  const isBookmarkMode = styleName === '네일 보관함';
 
   // 상태 관리
   const [nailSets, setNailSets] = useState<INailSet[]>([]);
@@ -147,7 +147,7 @@ function NailSetListPage() {
    */
   const fetchBookmarkStatus = useCallback(async () => {
     // 북마크 모드에서는 호출하지 않음
-    if (styleId === 0) return;
+    if (styleName === '네일 보관함') return;
 
     try {
       const response = await fetchUserNailSets({ page: 1, size: 100 });
@@ -157,7 +157,7 @@ function NailSetListPage() {
     } catch (err) {
       console.error('북마크 상태 불러오기 실패:', err);
     }
-  }, [styleId]);
+  }, [styleName]);
 
   /**
    * 컴포넌트 마운트 시 데이터 로드
@@ -171,7 +171,8 @@ function NailSetListPage() {
     resetPage(); // 페이지 초기화
     fetchNailSets(1, true);
     fetchBookmarkStatus();
-  }, [fetchNailSets, fetchBookmarkStatus, resetPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * 네일 세트 아이템 클릭 핸들러

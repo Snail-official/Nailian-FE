@@ -129,7 +129,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
    */
   const handleNailBookmarkPress = () => {
     navigation.navigate('NailSetListPage', {
-      styleId: 0, // 0은 북마크 모드를 의미합니다
+      styleId: -1, // 북마크 모드를 위한 특별한 값 사용
       styleName: '네일 보관함',
     });
   };
