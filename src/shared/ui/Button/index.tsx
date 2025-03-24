@@ -53,7 +53,7 @@ export type ButtonVariant =
   | 'kakaoMedium'
   | 'appleMedium'
   | 'googleMedium'
-  | 'primary_ar'
+  | 'chip_black'
   | 'add_nail'
   | 'filter_content';
 
@@ -152,13 +152,17 @@ const BUTTON_STYLES: Record<
     borderColor: colors.borderGray,
     borderWidth: scale(1),
   },
-  primary_ar: {
-    height: vs(42),
-    width: scale(179),
-    enabledColor: colors.purple500,
-    disabledColor: colors.purple200,
-    textStyle: typography.body2_SB,
-    borderRadius: scale(24),
+  chip_black: {
+    height: vs(34),
+    width: scale(105),
+    enabledColor: colors.gray650,
+    disabledColor: colors.gray650,
+    textStyle: {
+      ...typography.body4_M,
+      color: colors.white,
+      textAlign: 'center',
+    },
+    borderRadius: scale(30),
   },
 };
 
