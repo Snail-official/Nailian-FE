@@ -11,8 +11,8 @@ import Accelerate
     private var model: MLModel?
     
     // 모델 파일 정보
-    private let modelName = "model_final_coco"
-    private let modelExt = "mlmodelc"
+    private let modelName = "segmentation_model"
+    private let modelExt = "mlpackage"
     
     // 처리 시간 측정용 변수
     private var lastProcessingTime: TimeInterval = 0
@@ -22,20 +22,79 @@ import Accelerate
         preloadModel()
     }
     
-    // 모델 미리 로드 (백그라운드에서 실행)
-    private func preloadModel() {
-        DispatchQueue.global(qos: .background).async {
-            do {
-                guard let modelURL = Bundle.main.url(forResource: self.modelName, withExtension: self.modelExt) else { return }
-                let config = MLModelConfiguration()
-                config.computeUnits = .all
-                self.model = try MLModel(contentsOf: modelURL, configuration: config)
-                self.modelLoaded = true
-            } catch {
-                // 에러 핸들링 필요시 추가
-            }
-        }
-    }
+  // 로컬에 다운로드된 모델 URL 확인
+  private func localModelURL() -> URL? {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            
+            let modelsDirectory = documentsDirectory.appendingPathComponent("Models/segmentation", isDirectory: true)
+            
+            // 모델 디렉토리 존재 확인
+            if !FileManager.default.fileExists(atPath: modelsDirectory.path) {
+              // 디렉토리 구조 확인
+              let modelParentDir = documentsDirectory.appendingPathComponent("Models", isDirectory: true)
+              if FileManager.default.fileExists(atPath: modelParentDir.path) {
+                  do {
+                      let contents = try FileManager.default.contentsOfDirectory(at: modelParentDir, includingPropertiesForKeys: nil)
+                  } catch {
+                      print("Models 디렉토리 내용 읽기 실패: \(error.localizedDescription)")
+                  }
+              }
+          }
+          
+          let modelURL = modelsDirectory.appendingPathComponent("\(modelName).\(modelExt)")
+          
+          if FileManager.default.fileExists(atPath: modelURL.path) {
+              return modelURL
+          }
+          
+          // Models 내 다른 디렉토리 확인 (iOS vs android)
+          let rootModelsDir = documentsDirectory.appendingPathComponent("Models", isDirectory: true)
+          if FileManager.default.fileExists(atPath: rootModelsDir.path) {
+              do {
+                  let contents = try FileManager.default.contentsOfDirectory(at: rootModelsDir, includingPropertiesForKeys: nil)
+                  
+                  // 각 하위 디렉토리의 내용도 확인
+                  for item in contents {
+                      if item.hasDirectoryPath {
+                          do {
+                              let subContents = try FileManager.default.contentsOfDirectory(at: item, includingPropertiesForKeys: nil)
+                          } catch {
+                              print("하위 디렉토리 '\(item.lastPathComponent)' 내용 읽기 실패: \(error.localizedDescription)")
+                          }
+                      }
+                  }
+              } catch {
+                  print("Models 루트 디렉토리 내용 읽기 실패: \(error.localizedDescription)")
+              }
+          }
+          
+          return nil
+      }
+      
+      // 모델 미리 로드
+      private func preloadModel() {
+          DispatchQueue.global(qos: .background).async {
+              do {
+                  let config = MLModelConfiguration()
+                  config.computeUnits = .all
+                  
+                  // 로컬에 모델 파일이 있는지 확인
+                  guard let modelURL = self.localModelURL() else {
+                      self.modelLoaded = false
+                      return
+                  }
+                  
+                  // MLModel.compileModel(at:)를 사용해 모델 컴파일
+                  let compiledModelURL = try MLModel.compileModel(at: modelURL)
+                  
+                  self.model = try MLModel(contentsOf: compiledModelURL, configuration: config)
+                  self.modelLoaded = true
+              } catch {
+                  self.modelLoaded = false
+                  print("모델 로드 실패: \(error.localizedDescription)")
+              }
+          }
+      }
     
     // 모델 입력용 리사이즈
     private func resizeImageForModel(_ image: UIImage) -> UIImage {
@@ -202,22 +261,15 @@ import Accelerate
         let displayImage = resizeImageForDisplay(image)
         let resizeTime = CACurrentMediaTime() - totalStartTime
         
-        guard let modelURL = Bundle.main.url(forResource: modelName, withExtension: modelExt) else {
-            completion(nil, NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "모델 파일을 찾을 수 없습니다"]))
+        // 모델이 로드되었는지 확인
+        guard modelLoaded, let modelToUse = model else {
+            completion(nil, NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "모델이 로드되지 않았습니다. 먼저 모델을 다운로드해야 합니다."])) 
             return
         }
         
+        let modelLoadTime = CACurrentMediaTime() - totalStartTime - resizeTime
+        
         do {
-            let config = MLModelConfiguration()
-            config.computeUnits = .all
-            let modelToUse: MLModel
-            if modelLoaded, let loadedModel = model {
-                modelToUse = loadedModel
-            } else {
-                modelToUse = try MLModel(contentsOf: modelURL, configuration: config)
-            }
-            let modelLoadTime = CACurrentMediaTime() - totalStartTime - resizeTime
-            
             let convertStartTime = CACurrentMediaTime()
             var inputFeature: MLFeatureValue
             // 모델 입력 피처 타입에 따라 변환 수행

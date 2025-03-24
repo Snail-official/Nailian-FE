@@ -37,4 +37,6 @@ target 'nailian' do
       # :ccache_enabled => true
     )
   end
+
+  pod 'ZIPFoundation', '~> 0.9.15'
 end
