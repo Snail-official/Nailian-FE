@@ -6,6 +6,7 @@ import {
   UpdateNicknameRequest,
   UpdateNicknameResponse,
   UserMeResponse,
+  DeleteUserResponse,
 } from '../../shared/api/types';
 import { ONBOARDING_FLAGS } from '../constants/onboarding';
 import { validateToken } from '../utils/auth';
@@ -107,6 +108,45 @@ const userHandlers = [
     };
 
     return createSuccessResponse(response.data, response.message);
+  }),
+
+  /**
+   * 회원 탈퇴 API
+   *
+   * @endpoint DELETE /users/me
+   * @returns 성공 시 탈퇴 완료 메시지, 실패 시 오류 응답
+   */
+  http.delete(`${API_BASE_URL}/users/me`, async ({ request }) => {
+    try {
+      // 토큰 검증
+      const authResult = await validateToken(request);
+
+      // 인증 실패 시 401 응답 반환
+      if (authResult instanceof HttpResponse) {
+        return authResult;
+      }
+
+      // 인증된 사용자 정보 사용
+      const user = authResult;
+
+      // 사용자를 찾을 수 없는 경우 (추가 안전장치)
+      if (!user) {
+        return createErrorResponse('사용자를 찾을 수 없습니다.', 404);
+      }
+
+      user.accessToken = undefined;
+      user.refreshToken = undefined;
+
+      const response: DeleteUserResponse = {
+        code: 200,
+        message: '회원 탈퇴 성공',
+        data: null,
+      };
+
+      return createSuccessResponse(response.data, response.message);
+    } catch (error) {
+      return createErrorResponse('서버 오류가 발생했습니다.', 500);
+    }
   }),
 ];
 
