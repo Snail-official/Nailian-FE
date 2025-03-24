@@ -362,6 +362,28 @@ export type BannerResponse = ApiResponse<
   }[]
 >;
 
+/* ─────────────────── 모델 (Models) ─────────────────── */
+
+/** 모델 정보 */
+export interface ModelInfo {
+  releaseDate: string;
+  url: string;
+}
+
+/** 최신 모델 정보 응답 */
+export type ModelInfoResponse = ApiResponse<{
+  models: {
+    android: {
+      segmentation: ModelInfo;
+      detection: ModelInfo;
+    };
+    ios: {
+      segmentation: ModelInfo;
+      detection: ModelInfo;
+    };
+  };
+}>;
+
 // API 관련 타입 정의
 export type RequestOptions = {
   endpoint: string;

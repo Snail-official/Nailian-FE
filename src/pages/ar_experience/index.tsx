@@ -67,7 +67,8 @@ export interface NailSet {
  * @returns {JSX.Element} AR 체험 페이지 컴포넌트
  */
 export default function ARExperiencePage() {
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   // 바텀시트 참조 생성
   const bottomSheetRef = useRef<BottomSheetRefProps>(null);
   // 현재 바텀시트 인덱스 상태 (0: 25%, 1: 93%)
@@ -93,8 +94,8 @@ export default function ARExperiencePage() {
         position: 'bottom',
       });
     } else {
-      // AR 체험 로직 실행
-      console.log('AR 체험을 시작합니다!');
+      // 모든 손가락에 네일팁이 선택된 경우, 추가 로직 실행
+      navigation.navigate('ARCameraPage');
     }
   }, [isNailSetComplete]);
 
