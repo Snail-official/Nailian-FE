@@ -17,8 +17,8 @@ import { TabBarHeader } from '~/shared/ui/TabBar';
 import {
   fetchNailSetDetail,
   fetchSimilarNailSets,
-  createUserNailSet,
   fetchUserNailSets,
+  saveUserNailSet,
 } from '~/entities/nail-set/api';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import TrashIcon from '~/shared/assets/icons/ic_trash.svg';
@@ -253,14 +253,7 @@ function NailSetDetailPage() {
       // 북마크 API 호출
       if (nailSet) {
         // 네일 세트를 보관함에 저장
-        /* TODO: 네일 세트 아이디 타입 수정 후 수정 필요 */
-        await createUserNailSet({
-          thumb: { id: nailSet.id as number },
-          index: { id: nailSet.id as number },
-          middle: { id: nailSet.id as number },
-          ring: { id: nailSet.id as number },
-          pinky: { id: nailSet.id as number },
-        });
+        await saveUserNailSet({ nailSetId });
         // 성공적으로 저장되면 북마크 상태 업데이트 및 토스트 메시지 표시
         setIsBookmarked(true);
         toast.showToast('보관함에 저장되었습니다');
@@ -272,13 +265,12 @@ function NailSetDetailPage() {
     } catch (err) {
       console.error('Failed to save to bookmark', err);
       // 이미 저장된 네일인 경우 (HTTP 409 Conflict) 다른 메시지 표시
-      if (err instanceof Error && err.message.includes('500')) {
+      if (err instanceof Error && err.message.includes('409')) {
+        setIsBookmarked(true);
         toast.showToast('이미 저장된 네일입니다');
       } else {
         toast.showToast('보관함에 저장되었습니다');
       }
-      // API 오류 발생해도 북마크 상태는 true로 설정 (아이콘 숨김 처리)
-      setIsBookmarked(true);
     }
   }, [nailSet, nailSetId]);
 
