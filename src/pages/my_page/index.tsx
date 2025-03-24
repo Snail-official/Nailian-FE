@@ -7,6 +7,7 @@ import {
   Image,
   ScrollView,
   SafeAreaView,
+  Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
@@ -19,6 +20,7 @@ import Modal from '~/shared/ui/Modal';
 import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
 import UnsubscribeIcon from '~/shared/assets/icons/ic_unsubscribe.svg';
 import { useAuthStore } from '~/shared/store/authStore';
+import { toast } from '~/shared/lib/toast';
 
 const BookmarkBar = require('~/shared/assets/images/bookmark_bar.png');
 const ProfileImage = require('~/shared/assets/images/img_profile.png');
@@ -136,7 +138,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
    *
    * @param {string} menuType 선택된 메뉴 유형
    */
-  const handleMenuPress = (menuType: string) => {
+  const handleMenuPress = async (menuType: string) => {
     const urls: Record<string, string> = {
       '1:1 문의': 'https://example.com/inquiry',
       FAQ: 'https://example.com/faq',
@@ -144,10 +146,23 @@ function MyPageScreen({ navigation }: MyPageProps) {
     };
     // URL이 있으면 웹페이지로 이동
     if (urls[menuType]) {
-      // 여기에 웹뷰 네비게이션 로직 추가
-      console.log(`${menuType} 페이지로 이동: ${urls[menuType]}`);
+      try {
+        const url = urls[menuType];
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          console.error('URL을 열 수 없습니다:', url);
+          toast.showToast('브라우저를 열 수 없습니다', { position: 'bottom' });
+        }
+      } catch (error) {
+        console.error('링크 열기 오류:', error);
+        toast.showToast('링크를 여는 중 오류가 발생했습니다', {
+          position: 'bottom',
+        });
+      }
     } else {
-      console.log(`${menuType} 페이지로 이동`);
+      toast.showToast('링크 주소가 없습니다', { position: 'bottom' });
     }
   };
 
