@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Platform,
   NativeModules,
@@ -65,6 +65,11 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
     detection?: StoredModelInfo;
   }>({});
 
+  const modelInfoRef = useRef(modelInfo);
+  useEffect(() => {
+    modelInfoRef.current = modelInfo;
+  }, [modelInfo]);
+
   /**
    * AsyncStorage에서 저장된 모델 정보 로드
    */
@@ -87,7 +92,6 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
         detection,
       });
     } catch (e) {
-      // 에러 처리
       console.error('저장된 모델 정보 로드 실패:', e);
     }
   };
@@ -150,6 +154,8 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
 
   /**
    * 중복된 모델 처리 로직 (세그멘테이션, 디텍션)
+   *
+   * modelInfo는 ref(modelInfoRef.current)를 사용하여 의존성에서 제거함
    */
   const processModel = useCallback(
     async (
@@ -157,7 +163,7 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
       serverModelInfo: ModelInfo,
     ) => {
       const modelUrl = serverModelInfo.url;
-      const currentInfo = modelInfo[modelType];
+      const currentInfo = modelInfoRef.current[modelType];
       const upToDate = isModelUpToDate(currentInfo, serverModelInfo);
       const loaded = await isModelAlreadyLoaded(modelType);
       if (!upToDate || !loaded) {
@@ -170,7 +176,7 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
         }
       }
     },
-    [modelInfo],
+    [],
   );
 
   const loadModels = useCallback(async (): Promise<void> => {
@@ -192,7 +198,11 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
           setStatus('success');
         } catch (nativeError) {
           throw new Error(
-            `모델 로드 중 오류 발생: ${nativeError instanceof Error ? nativeError.message : String(nativeError)}`,
+            `모델 로드 중 오류 발생: ${
+              nativeError instanceof Error
+                ? nativeError.message
+                : String(nativeError)
+            }`,
           );
         }
       } else {
