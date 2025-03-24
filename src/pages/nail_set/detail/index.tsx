@@ -296,7 +296,7 @@ function NailSetDetailPage() {
     try {
       if (!nailSetId) return;
       // 네일 세트 삭제 API 호출
-      await deleteUserNailSet(nailSetId);
+      await deleteUserNailSet({ nailSetId });
       toast.showToast('보관함에서 삭제되었습니다');
       // 모달 닫기
       setShowDeleteModal(false);

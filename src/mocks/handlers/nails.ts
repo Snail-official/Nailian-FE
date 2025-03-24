@@ -696,6 +696,55 @@ const nailHandlers = [
 
     return createSuccessResponse(response.data, response.message);
   }),
+
+  /**
+   * 네일 세트 ID로 사용자 보관함에서 삭제하는 API
+   *
+   * @endpoint DELETE /users/me/nail-sets/:nailSetId
+   * @response 삭제 결과 메시지 반환
+   * @returns 성공 시 삭제 성공 메시지, 실패 시 오류 응답
+   */
+  http.delete(
+    `${API_BASE_URL}/users/me/nail-sets/:nailSetId`,
+    async ({ request, params }) => {
+      // 토큰 검증
+      const authResult = await validateToken(request);
+
+      // 인증 실패 시 401 응답 반환
+      if (authResult instanceof HttpResponse) {
+        return authResult;
+      }
+
+      // 인증된 사용자 정보 사용
+      const user = authResult;
+      const nailSetId = Number(params.nailSetId);
+
+      if (!nailSetId) {
+        return createErrorResponse('네일 세트 ID가 필요합니다.', 400);
+      }
+
+      // 사용자의 보관함에서 해당 네일 세트를 찾습니다.
+      const nailSetIndex = nailSets.findIndex(
+        set => set.id === nailSetId && set.user?.id === user.id,
+      );
+
+      if (nailSetIndex === -1) {
+        return createErrorResponse('네일 세트를 찾을 수 없습니다.', 404);
+      }
+
+      // 네일 세트 삭제
+      nailSets.splice(nailSetIndex, 1);
+
+      return HttpResponse.json(
+        {
+          code: 200,
+          message: '네일 세트 삭제 성공',
+          data: undefined,
+        },
+        { status: 200 },
+      );
+    },
+  ),
 ];
 
 export default nailHandlers;
