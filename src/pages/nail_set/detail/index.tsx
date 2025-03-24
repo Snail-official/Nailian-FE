@@ -19,6 +19,7 @@ import {
   fetchSimilarNailSets,
   fetchUserNailSets,
   saveUserNailSet,
+  deleteUserNailSet,
 } from '~/entities/nail-set/api';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import TrashIcon from '~/shared/assets/icons/ic_trash.svg';
@@ -294,8 +295,8 @@ function NailSetDetailPage() {
   const handleDeleteBookmark = useCallback(async () => {
     try {
       if (!nailSetId) return;
-      // 백엔드 API 구현 전까지는 콘솔 로그만 출력
-      console.log('네일 세트 삭제:', nailSetId);
+      // 네일 세트 삭제 API 호출
+      await deleteUserNailSet(nailSetId);
       toast.showToast('보관함에서 삭제되었습니다');
       // 모달 닫기
       setShowDeleteModal(false);

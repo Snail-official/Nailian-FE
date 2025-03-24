@@ -343,6 +343,14 @@ export type UserNailSetsResponse = ApiResponse<
   }>
 >;
 
+/** 네일 세트 삭제 요청 */
+export interface DeleteNailSetRequest {
+  nailSetId: number;
+}
+
+/** 네일 세트 삭제 응답 */
+export type DeleteNailSetResponse = ApiResponse<null>;
+
 /* ─────────────────── 배너 (Banners) ─────────────────── */
 
 /** 배너 목록 조회 응답 */

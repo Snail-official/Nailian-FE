@@ -2,6 +2,8 @@ import fetcher from '../../shared/api/fetcher';
 import {
   CreateNailSetRequest,
   CreateNailSetResponse,
+  DeleteNailSetRequest,
+  DeleteNailSetResponse,
   GetNailFeedRequest,
   GetNailSetDetailRequest,
   GetSimilarNailSetsRequest,
@@ -117,4 +119,18 @@ export const saveUserNailSet = async ({
     endpoint: '/users/me/nail-sets/save',
     method: 'POST',
     body: { nailSetId },
+  });
+
+/**
+ * 네일 세트 ID로 사용자 보관함에서 삭제하는 함수
+ *
+ * @param {number} nailSetId - 삭제할 네일 세트 ID
+ * @returns {Promise<DeleteNailSetResponse>} 삭제 결과 메시지 반환
+ */
+export const deleteUserNailSet = async ({
+  nailSetId,
+}: DeleteNailSetRequest): Promise<DeleteNailSetResponse> =>
+  fetcher({
+    endpoint: `/users/me/nail-sets/${nailSetId}`,
+    method: 'DELETE',
   });
