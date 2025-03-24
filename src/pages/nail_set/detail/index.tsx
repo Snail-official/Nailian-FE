@@ -27,6 +27,7 @@ import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import Modal from '~/shared/ui/Modal';
 import { toast } from '~/shared/lib/toast';
 import { scale, vs } from '~/shared/lib/responsive';
+import { useLoadMore } from '~/shared/api/hooks';
 
 type NailSetDetailScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -99,7 +100,6 @@ function NailSetDetailPage() {
   const [similarNailSets, setSimilarNailSets] = useState<INailSet[]>([]);
   const [similarLoading, setSimilarLoading] = useState(false);
   const [similarError, setSimilarError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
   // 북마크 모드 여부 확인 (styleId가 0이면 북마크 모드)
@@ -129,8 +129,8 @@ function NailSetDetailPage() {
     async (pageToFetch = 1, refresh = false) => {
       if (!nailSetId) return;
 
-      // 이미 로딩 중이거나 더 불러올 데이터가 없는 경우 중단
-      if (similarLoading || (!hasMore && !refresh)) return;
+      // 새로고침이거나 더 불러올 데이터가 있거나 로딩 중이 아닐 때만 실행
+      if (!refresh && (similarLoading || !hasMore)) return;
 
       setSimilarLoading(true);
       setSimilarError(null);
@@ -176,7 +176,6 @@ function NailSetDetailPage() {
 
           // 다음 페이지가 있고 현재 페이지에 데이터가 있는 경우에만 hasMore를 true로 설정
           setHasMore(hasNextPage && hasDataInCurrentPage);
-          setPage(pageToFetch);
         } else {
           setSimilarError(
             isBookmarkMode
@@ -205,18 +204,20 @@ function NailSetDetailPage() {
     [styleId, nailSetId, styleName, isBookmarkMode, similarLoading, hasMore],
   );
 
+  // useLoadMore 훅을 사용하여 무한 스크롤 처리
+  const { handleLoadMore, resetPage } = useLoadMore({
+    onLoad: page => fetchNailSets(page),
+    hasMore,
+    isLoading: similarLoading,
+  });
+
   // 컴포넌트 마운트 시 데이터 가져오기
   useEffect(() => {
     fetchNailSetInfo();
+    // 페이지 초기화 후 첫 페이지 데이터 로드 (refresh = true)
+    resetPage();
     fetchNailSets(1, true);
-  }, [fetchNailSetInfo, fetchNailSets]);
-
-  // 더 불러오기 함수
-  const handleLoadMore = useCallback(() => {
-    if (!similarLoading && hasMore) {
-      fetchNailSets(page + 1);
-    }
-  }, [similarLoading, hasMore, fetchNailSets, page]);
+  }, [fetchNailSetInfo, fetchNailSets, resetPage]);
 
   /**
    * 네일 세트 아이템 클릭 핸들러

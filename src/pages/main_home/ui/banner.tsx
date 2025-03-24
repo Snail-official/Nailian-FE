@@ -33,9 +33,6 @@ interface BannerProps {
  * 배너 데이터는 컴포넌트 내부에서 API를 호출하여 가져옵니다.
  *
  * @example
- * // 기본 사용법
- * <Banner onBannerPress={(banner) => console.log('배너 클릭:', banner.id)} />
- *
  * // 배너 클릭 시 네비게이션
  * <Banner onBannerPress={(banner) => navigation.navigate('BannerDetail', { link: banner.link })} />
  */
