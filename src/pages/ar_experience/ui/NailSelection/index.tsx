@@ -52,11 +52,17 @@ interface NailSelectionProps {
 /**
  * 네일 선택 컴포넌트
  *
- * 네일 디자인 선택을 위한 상위 컴포넌트입니다.
- * - 필터링 기능을 제공합니다.
- * - 손가락별 네일팁을 선택하여 네일 세트를 구성합니다.
- * - 네일 그리드를 포함합니다.
+ * AR 체험 화면에서 사용자가 각 손가락별로 네일 디자인을 선택할 수 있는 영역을 제공합니다.
+ * 필터 기능을 통해 다양한 네일 스타일을 필터링할 수 있고,
+ * 손가락별로 네일 디자인을 선택하여 가상으로 적용해볼 수 있습니다.
  *
+ * 주요 기능:
+ * - 손가락별 네일 선택 탭 UI 제공
+ * - 필터 모달을 통한 네일 스타일 필터링
+ * - 선택된 네일을 표시하는 그리드 뷰
+ * - 선택된 네일 정보를 상위 컴포넌트로 전달
+ *
+ * @param {NailSelectionProps} props - 네일 선택 컴포넌트 속성
  * @returns {JSX.Element} 네일 선택 컴포넌트
  */
 export default function NailSelection({
@@ -113,19 +119,26 @@ export default function NailSelection({
   );
 
   // 네일 이미지 삭제 핸들러
-  const handleNailImageDelete = useCallback((index: number) => {
-    const fingerType =
-      (FINGER_MAP.find(item => item.index === index)?.type as FingerType) ||
-      'pinky';
+  const handleNailImageDelete = useCallback(
+    (index: number) => {
+      const fingerType =
+        (FINGER_MAP.find(item => item.index === index)?.type as FingerType) ||
+        'pinky';
 
-    setCurrentNailSet(prev => {
-      const updatedNailSet = { ...prev };
-      delete updatedNailSet[fingerType];
-      return updatedNailSet;
-    });
+      setCurrentNailSet(prev => {
+        const updatedNailSet = { ...prev };
+        delete updatedNailSet[fingerType];
 
-    setSelectedNailButton(null);
-  }, []);
+        // 부모 컴포넌트에 변경사항 알림
+        onNailSetChange?.(updatedNailSet);
+
+        return updatedNailSet;
+      });
+
+      setSelectedNailButton(null);
+    },
+    [onNailSetChange],
+  );
 
   // 네일 그리드에서 이미지 선택 시 콜백
   const handleNailImageSelect = useCallback(
@@ -196,6 +209,9 @@ export default function NailSelection({
     >
       {/* 상단 고정 영역 */}
       <View style={styles.fixedHeader}>
+        {/* 네일 추가 버튼 영역 */}
+        <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
+
         {/* 필터 버튼 */}
         <View style={styles.filterContainer}>
           <TouchableOpacity
@@ -216,9 +232,6 @@ export default function NailSelection({
             </View>
           </TouchableOpacity>
         </View>
-
-        {/* 네일 추가 버튼 영역 */}
-        <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
       </View>
 
       {/* 네일 그리드 (스크롤 영역) */}
@@ -275,23 +288,26 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginBottom: vs(15),
+    marginBottom: vs(12),
+    marginTop: vs(20),
+    paddingRight: scale(22),
   },
   filterText: {
     ...typography.body2_SB,
     color: colors.gray700,
   },
   fixedHeader: {
-    marginBottom: vs(5),
-    paddingHorizontal: scale(20),
+    paddingHorizontal: 0,
   },
   gridContainer: {
     flex: 1,
+    paddingHorizontal: 0,
   },
   nailButtonsContainer: {
     flexDirection: 'row',
     gap: scale(10),
-    justifyContent: 'center',
-    marginBottom: vs(15),
+    justifyContent: 'flex-start',
+    paddingLeft: scale(22),
+    paddingRight: scale(22),
   },
 });

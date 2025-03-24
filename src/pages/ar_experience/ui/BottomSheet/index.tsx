@@ -4,6 +4,7 @@ import React, {
   ReactNode,
   forwardRef,
   useImperativeHandle,
+  useEffect,
 } from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { colors } from '~/shared/styles/design';
@@ -145,6 +146,29 @@ const BottomSheet = forwardRef<BottomSheetRefProps, BottomSheetProps>(
   ) => {
     const bottomSheetRef = useRef<BottomSheetComponent>(null);
     const animatedIndex = useSharedValue(initialIndex);
+
+    // 컴포넌트 언마운트 시 바텀시트 정리
+    useEffect(
+      () => () => {
+        // 애니메이션 정리 작업
+        if (bottomSheetRef.current) {
+          bottomSheetRef.current.close();
+        }
+      },
+      [],
+    );
+
+    // animatedIndex 변경 감지
+    useEffect(() => {
+      // 초기화
+      animatedIndex.value = initialIndex;
+
+      // 컴포넌트 언마운트시 정리
+      return () => {
+        // Reanimated 값 초기화
+        animatedIndex.value = -1;
+      };
+    }, [initialIndex, animatedIndex]);
 
     // 외부에서 사용할 수 있는 메서드를 노출
     useImperativeHandle(ref, () => ({

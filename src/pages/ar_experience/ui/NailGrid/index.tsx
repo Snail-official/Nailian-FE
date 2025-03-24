@@ -48,10 +48,17 @@ interface NailGridProps {
 /**
  * 네일 그리드 컴포넌트
  *
- * 네일 디자인 이미지를 그리드 형태로 표시합니다.
- * - 무한 스크롤을 지원합니다.
- * - 터치 가능한 네일 아이템을 제공합니다.
+ * AR 체험 화면에서 사용자가 선택할 수 있는 네일 디자인 이미지를 그리드 형태로 표시합니다.
+ * 선택된 손가락에 적용할 네일 디자인을 선택할 수 있으며, 무한 스크롤과 필터링 기능을 제공합니다.
  *
+ * 주요 기능:
+ * - 네일 디자인 이미지를 그리드 형태로 표시
+ * - 무한 스크롤을 통한 추가 네일 데이터 로딩
+ * - 필터 조건에 따른 네일 디자인 필터링
+ * - 네일 선택 시 상위 컴포넌트에 선택 정보 전달
+ * - 로딩 상태 및 에러 상태 처리
+ *
+ * @param {NailGridProps} props - 네일 그리드 컴포넌트 속성
  * @returns {JSX.Element} 네일 그리드 컴포넌트
  */
 export function NailGrid({
@@ -94,11 +101,6 @@ export function NailGrid({
       'pinky',
     [fingerMap],
   );
-
-  // 네일 세트 변경 시 콜백 호출
-  useEffect(() => {
-    onNailSetChange?.(currentNailSet);
-  }, [currentNailSet, onNailSetChange]);
 
   // 네일 이미지 로드 함수 (필터 적용 지원)
   const loadNailImages = useCallback(
@@ -160,14 +162,21 @@ export function NailGrid({
     (index: number, nailItem: { id: string; imageUrl: string }) => {
       const fingerType = getFingerTypeByIndex(index);
 
-      setCurrentNailSet(prev => ({
-        ...prev,
-        [fingerType]: {
-          imageUrl: nailItem.imageUrl,
-        } as INail,
-      }));
+      setCurrentNailSet(prev => {
+        const updatedSet = {
+          ...prev,
+          [fingerType]: {
+            imageUrl: nailItem.imageUrl,
+          } as INail,
+        };
+
+        // 바로 부모 컴포넌트에 업데이트된 상태 전달
+        onNailSetChange?.(updatedSet);
+
+        return updatedSet;
+      });
     },
-    [getFingerTypeByIndex],
+    [getFingerTypeByIndex, onNailSetChange],
   );
 
   // 그리드 네일 아이템 클릭 핸들러
@@ -275,6 +284,7 @@ const styles = StyleSheet.create({
   columnWrapper: {
     gap: scale(10),
     justifyContent: 'flex-start',
+    paddingHorizontal: scale(22),
   },
   container: {
     flex: 1,
@@ -297,12 +307,13 @@ const styles = StyleSheet.create({
   nailItem: {
     backgroundColor: colors.gray50,
     borderRadius: scale(4),
-    height: scale(98),
+    height: scale(104),
     overflow: 'hidden',
-    width: scale(98),
+    width: scale(104),
   },
   scrollViewContent: {
     paddingBottom: vs(40),
+    paddingHorizontal: 0,
     paddingTop: vs(10),
   },
   separator: {

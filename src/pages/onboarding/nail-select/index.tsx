@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   colors,
   typography,
@@ -196,40 +197,44 @@ export default function NailSelectScreen() {
   }, [loadNailPreferences]);
 
   return (
-    <View style={styles.container}>
-      {/* 헤더 영역 */}
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          마음에 드는 네일을{'\n'}3개 이상 골라주세요
-        </Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* 헤더 영역 */}
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            마음에 드는 네일을{'\n'}3개 이상 골라주세요
+          </Text>
+        </View>
+
+        {/* 네일 이미지 그리드 */}
+        {nails.length > 0 && (
+          <FlatList
+            data={nails}
+            renderItem={renderNailItem}
+            keyExtractor={(item, index) => `nail-${item.id}-${index}`}
+            numColumns={3}
+            contentContainerStyle={styles.gridContainer}
+            columnWrapperStyle={styles.row}
+            ItemSeparatorComponent={ItemSeparator}
+            onEndReached={() => loadNailPreferences(currentPage + 1)}
+            onEndReachedThreshold={0.1}
+            removeClippedSubviews={false}
+          />
+        )}
+
+        {/* 버튼 영역 */}
+        <Button
+          variant="primaryMediumGradient"
+          disabled={!isEnabled}
+          loading={isLoading}
+          onPress={handleCompleteSelection}
+        >
+          <Text style={[styles.buttonText, typography.title2_SB]}>
+            시작하기
+          </Text>
+        </Button>
       </View>
-
-      {/* 네일 이미지 그리드 */}
-      {nails.length > 0 && (
-        <FlatList
-          data={nails}
-          renderItem={renderNailItem}
-          keyExtractor={(item, index) => `nail-${item.id}-${index}`}
-          numColumns={3}
-          contentContainerStyle={styles.gridContainer}
-          columnWrapperStyle={styles.row}
-          ItemSeparatorComponent={ItemSeparator}
-          onEndReached={() => loadNailPreferences(currentPage + 1)}
-          onEndReachedThreshold={0.1}
-          removeClippedSubviews={false}
-        />
-      )}
-
-      {/* 버튼 영역 */}
-      <Button
-        variant="primaryMediumGradient"
-        disabled={!isEnabled}
-        loading={isLoading}
-        onPress={handleCompleteSelection}
-      >
-        <Text style={[styles.buttonText, typography.title2_SB]}>시작하기</Text>
-      </Button>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -261,6 +266,10 @@ const styles = StyleSheet.create({
   row: {
     gap: scale(11),
     justifyContent: 'flex-start',
+  },
+  safeArea: {
+    backgroundColor: colors.white,
+    flex: 1,
   },
   separator: {
     height: vs(11),
