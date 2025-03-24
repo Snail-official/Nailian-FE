@@ -86,3 +86,6 @@ src/mocks/data/*
 # iOS security files
 ios/Debug.xcconfig
 ios/Release.xcconfig
+
+# iOS models
+ios/Models/

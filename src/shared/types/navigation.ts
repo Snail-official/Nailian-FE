@@ -51,4 +51,7 @@ export type RootStackParamList = {
 
   /** AR 체험 페이지 */
   ARExperiencePage: undefined;
+
+  /** AR 카메라 화면 */
+  ARCameraPage: undefined;
 };
