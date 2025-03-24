@@ -24,6 +24,8 @@ import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import { useNavigation } from '@react-navigation/native';
 import { scale, vs } from '~/shared/lib/responsive';
 import { INail, INailSet } from '~/shared/types/nail-set';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '~/shared/types/navigation';
 
 // 화면 크기 가져오기
 const { height } = Dimensions.get('window');
@@ -33,7 +35,8 @@ const { height } = Dimensions.get('window');
  * @returns {JSX.Element} AR 체험 페이지 컴포넌트
  */
 export default function ARExperiencePage() {
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   // 바텀시트 참조 생성
   const bottomSheetRef = useRef<BottomSheetRefProps>(null);
   // 현재 바텀시트 인덱스 상태 (0: 25%, 1: 93%)
@@ -82,14 +85,9 @@ export default function ARExperiencePage() {
       // 실제 구현에서는 토스트 메시지나 모달 등으로 사용자에게 안내
     } else {
       // 모든 손가락에 네일팁이 선택된 경우, 추가 로직 실행
-      console.log('AR 체험을 시작합니다!');
+      navigation.navigate('ARCameraPage');
     }
-  }, [currentNailSet]);
-
-  // 뒤로가기 핸들러
-  const handleGoBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
+  }, [currentNailSet, navigation]);
 
   // 바텀시트 인덱스 변경 핸들러
   const handleSheetChange = useCallback((index: number) => {

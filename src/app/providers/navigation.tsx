@@ -16,6 +16,7 @@ import MyPageScreen from '~/pages/my_page';
 import NailSetListPage from '~/pages/nail_set/list';
 import NailSetDetailPage from '~/pages/nail_set/detail';
 import ARExperiencePage from '~/pages/ar_experience';
+import ARCameraPage from '~/pages/ar_camera';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -56,6 +57,7 @@ export default function AppNavigation() {
         <Stack.Screen name="NailSetListPage" component={NailSetListPage} />
         <Stack.Screen name="NailSetDetailPage" component={NailSetDetailPage} />
         <Stack.Screen name="ARExperiencePage" component={ARExperiencePage} />
+        <Stack.Screen name="ARCameraPage" component={ARCameraPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );
