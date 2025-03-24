@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   ImageSourcePropType,
 } from 'react-native';
-import { componentStyles } from '~/shared/styles/design';
+import { componentStyles, colors } from '~/shared/styles/design';
 import { scale } from '~/shared/lib/responsive';
 import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 
@@ -45,7 +45,11 @@ export default function NailItem({
       {isSelected && (
         <View style={componentStyles.nailItem.selectedOverlay}>
           <View style={componentStyles.nailItem.checkIconContainer}>
-            <CheckIcon width={scale(18)} height={scale(18)} />
+            <CheckIcon
+              width={scale(18)}
+              height={scale(18)}
+              color={colors.gray900}
+            />
           </View>
         </View>
       )}

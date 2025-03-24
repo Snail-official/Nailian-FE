@@ -45,10 +45,10 @@ export const SHAPE_SIZE_RATIO: Record<
  */
 export const SHAPE_POSITION_OFFSET: Record<Shape, { x: number; y: number }> = {
   ROUND: { x: 0, y: 0 },
-  SQUARE: { x: -1, y: -2 },
-  ALMOND: { x: -1, y: -3 },
-  BALLERINA: { x: -6.7, y: -5 },
-  STILETTO: { x: -7.5, y: -6 },
+  SQUARE: { x: scale(-1), y: scale(-2) },
+  ALMOND: { x: scale(-1), y: scale(-3) },
+  BALLERINA: { x: scale(-6.7), y: scale(-5) },
+  STILETTO: { x: scale(-7.5), y: scale(-6) },
 };
 
 /**

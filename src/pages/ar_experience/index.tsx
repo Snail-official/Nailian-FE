@@ -9,6 +9,7 @@ import {
   Dimensions,
   BackHandler,
   Platform,
+  SafeAreaView,
 } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import BottomSheet, {
@@ -124,79 +125,81 @@ export default function ARExperiencePage() {
 
   return (
     <BottomSheetModalProvider>
-      <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <StatusBar barStyle="dark-content" />
 
-        {/* 상단 탭바 */}
-        <TabBarHeader
-          title=""
-          onBack={handleGoBack}
-          rightContent={
-            <TouchableOpacity onPress={handleBookmark}>
-              <BookmarkIcon
-                width={scale(19)}
-                height={scale(18.5)}
-                color={colors.gray600}
-              />
-            </TouchableOpacity>
-          }
-        />
-
-        {/* 메인 콘텐츠 영역 */}
-        <View style={styles.contentArea}>
-          {/* 상단 타이틀 */}
-          <View style={styles.titleContainer}>
-            <Text style={styles.mainTitle}>
-              먼저, 나만의 아트를 만들어보세요
-            </Text>
-            <Text style={styles.subTitle}>
-              원하는 시안들을 골라 조합할 수 있어요
-            </Text>
-          </View>
-
-          {/* 손 이미지와 네일 오버레이 컨테이너 */}
-          <View style={styles.handContainer}>
-            {/* 기본 손 이미지 */}
-            <Image
-              source={require('~/shared/assets/images/hand.png')}
-              style={styles.handImage}
-              resizeMode="contain"
-            />
-
-            {/* 네일 오버레이 - 선택된 네일팁을 손 위에 표시 */}
-            <NailOverlay nailSet={currentNailSet} />
-          </View>
-
-          {/* AR 버튼 */}
-          <View style={styles.arButtonContainer}>
-            <ArButton onPress={handleArButtonPress} />
-          </View>
-        </View>
-
-        {/* 바텀시트 */}
-        <BottomSheet
-          ref={bottomSheetRef}
-          snapPoints={['25%', '93%']}
-          initialIndex={0}
-          handleType="custom"
-          customHandle={renderCustomHandle}
-          enablePanDownToClose={false}
-          enableContentPanningGesture={true}
-          enableHandlePanningGesture={true}
-          enableOverDrag={false}
-          maxDynamicContentSize={Math.min(780, height * 0.9)}
-          backgroundStyle={styles.bottomSheetBackground}
-          contentContainerStyle={styles.contentContainer}
-          enableBackdrop={true}
-          backdropPressBehavior="collapse"
-          onChange={handleSheetChange}
-        >
-          <NailSelection
-            onSelectNail={handleNailSelect}
-            onNailSetChange={handleNailSetChange}
+          {/* 상단 탭바 */}
+          <TabBarHeader
+            title=""
+            onBack={handleGoBack}
+            rightContent={
+              <TouchableOpacity onPress={handleBookmark}>
+                <BookmarkIcon
+                  width={scale(24)}
+                  height={scale(24)}
+                  color={colors.gray600}
+                />
+              </TouchableOpacity>
+            }
           />
-        </BottomSheet>
-      </View>
+
+          {/* 메인 콘텐츠 영역 */}
+          <View style={styles.contentArea}>
+            {/* 상단 타이틀 */}
+            <View style={styles.titleContainer}>
+              <Text style={styles.mainTitle}>
+                먼저, 나만의 아트를 만들어보세요
+              </Text>
+              <Text style={styles.subTitle}>
+                원하는 시안들을 골라 조합할 수 있어요
+              </Text>
+            </View>
+
+            {/* 손 이미지와 네일 오버레이 컨테이너 */}
+            <View style={styles.handContainer}>
+              {/* 기본 손 이미지 */}
+              <Image
+                source={require('~/shared/assets/images/hand.png')}
+                style={styles.handImage}
+                resizeMode="contain"
+              />
+
+              {/* 네일 오버레이 - 선택된 네일팁을 손 위에 표시 */}
+              <NailOverlay nailSet={currentNailSet} />
+            </View>
+
+            {/* AR 버튼 */}
+            <View style={styles.arButtonContainer}>
+              <ArButton onPress={handleArButtonPress} />
+            </View>
+          </View>
+
+          {/* 바텀시트 */}
+          <BottomSheet
+            ref={bottomSheetRef}
+            snapPoints={['20%', '93%']}
+            initialIndex={0}
+            handleType="custom"
+            customHandle={renderCustomHandle}
+            enablePanDownToClose={false}
+            enableContentPanningGesture={true}
+            enableHandlePanningGesture={true}
+            enableOverDrag={false}
+            maxDynamicContentSize={Math.min(780, height * 0.9)}
+            backgroundStyle={styles.bottomSheetBackground}
+            contentContainerStyle={styles.contentContainer}
+            enableBackdrop={true}
+            backdropPressBehavior="collapse"
+            onChange={handleSheetChange}
+          >
+            <NailSelection
+              onSelectNail={handleNailSelect}
+              onNailSetChange={handleNailSetChange}
+            />
+          </BottomSheet>
+        </View>
+      </SafeAreaView>
     </BottomSheetModalProvider>
   );
 }
@@ -212,6 +215,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     borderTopWidth: 30,
+    // iOS의 안전 영역 고려
+    paddingBottom: Platform.OS === 'ios' ? vs(34) : 0,
   },
   container: {
     backgroundColor: colors.white,
@@ -224,7 +229,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    paddingHorizontal: scale(20),
+    paddingHorizontal: 0,
     paddingTop: vs(10),
   },
   handContainer: {
@@ -263,6 +268,10 @@ const styles = StyleSheet.create({
   mainTitle: {
     ...typography.head2_B,
     color: colors.gray850,
+  },
+  safeArea: {
+    backgroundColor: colors.white,
+    flex: 1,
   },
   subTitle: {
     ...typography.body4_M,

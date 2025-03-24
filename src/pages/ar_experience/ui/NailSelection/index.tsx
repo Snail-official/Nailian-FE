@@ -113,19 +113,26 @@ export default function NailSelection({
   );
 
   // 네일 이미지 삭제 핸들러
-  const handleNailImageDelete = useCallback((index: number) => {
-    const fingerType =
-      (FINGER_MAP.find(item => item.index === index)?.type as FingerType) ||
-      'pinky';
+  const handleNailImageDelete = useCallback(
+    (index: number) => {
+      const fingerType =
+        (FINGER_MAP.find(item => item.index === index)?.type as FingerType) ||
+        'pinky';
 
-    setCurrentNailSet(prev => {
-      const updatedNailSet = { ...prev };
-      delete updatedNailSet[fingerType];
-      return updatedNailSet;
-    });
+      setCurrentNailSet(prev => {
+        const updatedNailSet = { ...prev };
+        delete updatedNailSet[fingerType];
 
-    setSelectedNailButton(null);
-  }, []);
+        // 부모 컴포넌트에 변경사항 알림
+        onNailSetChange?.(updatedNailSet);
+
+        return updatedNailSet;
+      });
+
+      setSelectedNailButton(null);
+    },
+    [onNailSetChange],
+  );
 
   // 네일 그리드에서 이미지 선택 시 콜백
   const handleNailImageSelect = useCallback(
@@ -196,6 +203,9 @@ export default function NailSelection({
     >
       {/* 상단 고정 영역 */}
       <View style={styles.fixedHeader}>
+        {/* 네일 추가 버튼 영역 */}
+        <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
+
         {/* 필터 버튼 */}
         <View style={styles.filterContainer}>
           <TouchableOpacity
@@ -216,9 +226,6 @@ export default function NailSelection({
             </View>
           </TouchableOpacity>
         </View>
-
-        {/* 네일 추가 버튼 영역 */}
-        <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
       </View>
 
       {/* 네일 그리드 (스크롤 영역) */}
@@ -275,23 +282,26 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginBottom: vs(15),
+    marginBottom: vs(12),
+    marginTop: vs(20),
+    paddingRight: scale(22),
   },
   filterText: {
     ...typography.body2_SB,
     color: colors.gray700,
   },
   fixedHeader: {
-    marginBottom: vs(5),
-    paddingHorizontal: scale(20),
+    paddingHorizontal: 0,
   },
   gridContainer: {
     flex: 1,
+    paddingHorizontal: 0,
   },
   nailButtonsContainer: {
     flexDirection: 'row',
     gap: scale(10),
-    justifyContent: 'center',
-    marginBottom: vs(15),
+    justifyContent: 'flex-start',
+    paddingLeft: scale(22),
+    paddingRight: scale(22),
   },
 });
