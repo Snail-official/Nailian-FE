@@ -13,7 +13,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
-import { fetchUserProfile, logoutFromService } from '~/entities/user/api';
+import {
+  fetchUserProfile,
+  logoutFromService,
+  deleteUser,
+} from '~/entities/user/api';
 import { fetchUserNailSets } from '~/entities/nail-set/api';
 import { TabBarFooter } from '~/shared/ui/TabBar';
 import Modal from '~/shared/ui/Modal';
@@ -205,13 +209,18 @@ function MyPageScreen({ navigation }: MyPageProps) {
   /**
    * 회원 탈퇴 처리 함수
    *
-   * 회원 탈퇴 요청을 처리하는 함수입니다.
-   * 현재는 실제 API 연동 없이 콘솔 로그만 출력합니다.
+   * 회원 탈퇴 API를 호출하고 성공 시 로그인 화면으로 이동합니다.
    */
-  const handleUnsubscribe = () => {
-    // 실제 탈퇴 API가 없으므로 콘솔 로그만 출력
-    console.log('회원 탈퇴 처리');
-    setShowUnsubscribeModal(false);
+  const handleUnsubscribe = async () => {
+    try {
+      await deleteUser();
+      // 로컬에 저장된 인증 토큰 제거
+      await useAuthStore.getState().clearTokens();
+      setShowUnsubscribeModal(false);
+      navigation.replace('SocialLogin');
+    } catch (err) {
+      toast.showToast('회원 탈퇴에 실패했습니다', { position: 'bottom' });
+    }
   };
 
   return (

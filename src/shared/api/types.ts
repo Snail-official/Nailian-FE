@@ -66,6 +66,9 @@ export type TokenReissueResponse = ApiResponse<{
 /** 로그아웃 응답 */
 export type LogoutResponse = ApiResponse<null>;
 
+/** 회원 탈퇴 응답 */
+export type DeleteUserResponse = ApiResponse<null>;
+
 /* ─────────────────── 온보딩 (Onboarding) ─────────────────── */
 
 /** 온보딩 상태 조회 요청 */

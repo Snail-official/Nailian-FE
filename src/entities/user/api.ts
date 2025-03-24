@@ -10,6 +10,8 @@ import {
   UpdateNicknameRequest,
   UpdateNicknameResponse,
   UserMeResponse,
+  DeleteUserResponse,
+  ApiResponse,
 } from '../../shared/api/types';
 import { useAuthStore } from '../../shared/store/authStore';
 
@@ -95,4 +97,16 @@ export const fetchOnboardingStatus = async ({
   fetcher({
     endpoint: '/onboarding-status',
     query: { maxSupportedVersion },
+  });
+
+/**
+ * 회원 탈퇴 API 호출
+ *
+ * @header {Authorization: Bearer {accessToken}}
+ * @returns {Promise<DeleteUserResponse>} 회원 탈퇴 성공 여부 반환
+ */
+export const deleteUser = (): Promise<DeleteUserResponse> =>
+  fetcher({
+    endpoint: '/users/me',
+    method: 'DELETE',
   });
