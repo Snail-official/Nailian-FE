@@ -8,15 +8,18 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigation from './src/app/providers/navigation';
 import { ToastContainer } from './src/shared/ui/Toast';
 
 function App(): React.JSX.Element {
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <AppNavigation />
-      <ToastContainer />
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={styles.container}>
+        <AppNavigation />
+        <ToastContainer />
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 

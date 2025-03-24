@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,6 +6,9 @@ import {
   SafeAreaView,
   Text,
   Dimensions,
+  Platform,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
@@ -63,6 +66,9 @@ function MainHomeScreen({ navigation }: Props) {
   const [recommendedNailSets, setRecommendedNailSets] = useState<StyleGroup[]>(
     [],
   );
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const [isAtBottom, setIsAtBottom] = useState(false);
 
   /**
    * 탭 선택 핸들러
@@ -182,52 +188,83 @@ function MainHomeScreen({ navigation }: Props) {
     });
   };
 
+  /**
+   * 스크롤 이벤트 핸들러
+   * 스크롤 위치에 따라 상단/하단 도달 여부를 설정합니다.
+   */
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+
+    // 상단 도달 여부 확인 (약간의 여유 추가)
+    const isTop = contentOffset.y <= 1;
+    setIsAtTop(isTop);
+
+    // 하단 도달 여부 확인 (푸터 시작 지점에 도달했는지)
+    const isBottom =
+      contentOffset.y + layoutMeasurement.height >=
+      contentSize.height - vs(100);
+    setIsAtBottom(isBottom);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.mainContainer}>
         <View style={styles.container}>
           <ScrollView
+            ref={scrollViewRef}
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
             removeClippedSubviews={false}
             showsVerticalScrollIndicator={false}
+            bounces={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            overScrollMode="never"
+            contentInsetAdjustmentBehavior="never"
           >
-            {/* 로고 */}
-            <View style={styles.logoContainer}>
-              <Logo width={scale(78)} height={vs(25)} />
+            {/* 상단 영역 - 로고 */}
+            <View style={styles.topSection}>
+              <View style={styles.logoContainer}>
+                <Logo width={scale(78)} height={vs(25)} />
+              </View>
             </View>
 
-            {/* 배너 */}
-            <Banner onBannerPress={handleBannerPress} />
+            {/* 본문 영역 */}
+            <View style={styles.contentSection}>
+              {/* 배너 */}
+              <Banner onBannerPress={handleBannerPress} />
 
-            {/* 추천 아트 타이틀 */}
-            <View style={styles.recommendationContainer}>
-              <Text style={styles.recommendationText}>
-                <Text style={styles.nicknameText}>{nickname}</Text>
-                <Text>님을 위한{'\n'}아트를 추천드려요</Text>
-              </Text>
-            </View>
-
-            {/* 추천 네일 세트 목록 */}
-            <RecommendedNailSets
-              leftMargin={LEFT_MARGIN}
-              nailSets={recommendedNailSets}
-              onStylePress={handleStylePress}
-              onNailSetPress={handleRecommendedNailSetPress}
-            />
-
-            {/* 푸터 */}
-            <View style={styles.footer}>
-              <View>
-                <Text style={styles.footerText}>버전 1.0.0</Text>
-                <Text style={styles.footerText}>
-                  문의 메일 : snail.official.kr@gmail.com
+              {/* 추천 아트 타이틀 */}
+              <View style={styles.recommendationContainer}>
+                <Text style={styles.recommendationText}>
+                  <Text style={styles.nicknameText}>{nickname}</Text>
+                  <Text>님을 위한{'\n'}아트를 추천드려요</Text>
                 </Text>
-                <View style={styles.footerNotice}>
-                  <Text style={styles.footerText}>유의사항</Text>
+              </View>
+
+              {/* 추천 네일 세트 목록 */}
+              <RecommendedNailSets
+                leftMargin={LEFT_MARGIN}
+                nailSets={recommendedNailSets}
+                onStylePress={handleStylePress}
+                onNailSetPress={handleRecommendedNailSetPress}
+              />
+            </View>
+
+            {/* 푸터 영역 */}
+            <View style={styles.footerSection}>
+              <View style={styles.footer}>
+                <View>
+                  <Text style={styles.footerText}>버전 1.0.0</Text>
                   <Text style={styles.footerText}>
-                    • 위 아트 이미지는 모두 AI로 생성되었습니다.
+                    문의 메일 : snail.official.kr@gmail.com
                   </Text>
+                  <View style={styles.footerNotice}>
+                    <Text style={styles.footerText}>유의사항</Text>
+                    <Text style={styles.footerText}>
+                      • 위 아트 이미지는 모두 AI로 생성되었습니다.
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
@@ -247,11 +284,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     flex: 1,
   },
+  contentSection: {
+    flex: 1,
+  },
   footer: {
     alignItems: 'center',
     backgroundColor: colors.gray50,
     flexDirection: 'row',
-    paddingBottom: vs(41),
+    marginTop: vs(20),
+    paddingBottom: vs(20),
     paddingLeft: scale(26),
     paddingRight: scale(167),
     paddingTop: vs(25),
@@ -259,6 +300,10 @@ const styles = StyleSheet.create({
   },
   footerNotice: {
     marginTop: vs(8),
+  },
+  footerSection: {
+    marginBottom: vs(10),
+    width: '100%',
   },
   footerText: {
     ...typography.caption_M,
@@ -293,7 +338,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: vs(74), // 탭바 높이만큼 패딩 추가
+    flexGrow: 0,
+    paddingBottom: vs(54),
   },
   scrollView: {
     flex: 1,
@@ -301,6 +347,15 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     borderTopColor: colors.gray100,
     borderTopWidth: 1,
+  },
+  tabBarSpacer: {
+    height: vs(Platform.OS === 'ios' ? 100 : 80), // iOS에서는 더 큰 여백을 추가
+  },
+  topSection: {
+    backgroundColor: colors.white,
+    minHeight: vs(40),
+    width: '100%',
+    zIndex: 10,
   },
 });
 

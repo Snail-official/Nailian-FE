@@ -95,11 +95,6 @@ export function NailGrid({
     [fingerMap],
   );
 
-  // 네일 세트 변경 시 콜백 호출
-  useEffect(() => {
-    onNailSetChange?.(currentNailSet);
-  }, [currentNailSet, onNailSetChange]);
-
   // 네일 이미지 로드 함수 (필터 적용 지원)
   const loadNailImages = useCallback(
     async (page = 1, filters: FilterValues = activeFiltersRef.current) => {
@@ -160,14 +155,21 @@ export function NailGrid({
     (index: number, nailItem: { id: string; imageUrl: string }) => {
       const fingerType = getFingerTypeByIndex(index);
 
-      setCurrentNailSet(prev => ({
-        ...prev,
-        [fingerType]: {
-          imageUrl: nailItem.imageUrl,
-        } as INail,
-      }));
+      setCurrentNailSet(prev => {
+        const updatedSet = {
+          ...prev,
+          [fingerType]: {
+            imageUrl: nailItem.imageUrl,
+          } as INail,
+        };
+
+        // 바로 부모 컴포넌트에 업데이트된 상태 전달
+        onNailSetChange?.(updatedSet);
+
+        return updatedSet;
+      });
     },
-    [getFingerTypeByIndex],
+    [getFingerTypeByIndex, onNailSetChange],
   );
 
   // 그리드 네일 아이템 클릭 핸들러
@@ -275,6 +277,7 @@ const styles = StyleSheet.create({
   columnWrapper: {
     gap: scale(10),
     justifyContent: 'flex-start',
+    paddingHorizontal: scale(22),
   },
   container: {
     flex: 1,
@@ -297,12 +300,13 @@ const styles = StyleSheet.create({
   nailItem: {
     backgroundColor: colors.gray50,
     borderRadius: scale(4),
-    height: scale(98),
+    height: scale(104),
     overflow: 'hidden',
-    width: scale(98),
+    width: scale(104),
   },
   scrollViewContent: {
     paddingBottom: vs(40),
+    paddingHorizontal: 0,
     paddingTop: vs(10),
   },
   separator: {
