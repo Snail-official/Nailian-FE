@@ -20,6 +20,7 @@ import {
   BottomSheetBackdropProps,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 /**
  * 필터 항목 유형 (카테고리, 색상, 쉐입)
@@ -84,6 +85,7 @@ export interface FilterModalRefProps {
  * - 선택한 필터 값 시각적 표시
  * - 필터 초기화 및 적용 기능
  * - Android 뒤로가기 버튼 핸들링
+ * - SafeAreaView 통합으로 다양한 기기에서 안전한 화면 표시
  *
  * @param {FilterModalProps} props - 필터 모달 컴포넌트 속성
  * @returns {JSX.Element} 필터 모달 컴포넌트
@@ -361,7 +363,8 @@ function FilterModal({
       handleComponent={null}
       backgroundStyle={styles.modalBackground}
     >
-      <View style={styles.modalContent}>
+      {/* SafeAreaView를 사용하여 노치, 홈 인디케이터 등의 영역을 고려한 안전한 레이아웃 제공 */}
+      <SafeAreaView style={styles.modalContent}>
         {/* 상단 탭바 */}
         <TabBarHeader title="필터" onBack={handleClose} rightContent={null} />
 
@@ -415,7 +418,7 @@ function FilterModal({
             </Text>
           </Button>
         </View>
-      </View>
+      </SafeAreaView>
     </BottomSheetModal>
   );
 }
