@@ -4,11 +4,9 @@ import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import Button from '~/shared/ui/Button';
 import FilterIcon from '~/shared/assets/icons/ic_filter.svg';
-import { INailSet } from '~/shared/types/nail-set';
+import { NailSet, FingerType } from '~/pages/ar_experience';
 import FilterModal, { FilterValues } from '../FilterModal';
 import NailGrid from '../NailGrid';
-// 손가락 타입 정의
-export type FingerType = 'pinky' | 'ring' | 'middle' | 'index' | 'thumb';
 
 // 손가락 타입과 인덱스 매핑
 export const FINGER_MAP = [
@@ -23,30 +21,19 @@ export const FINGER_MAP = [
  * 네일 이미지 인터페이스
  */
 export interface NailImage {
-  id: string;
+  id: number;
   imageUrl: string;
-}
-
-/**
- * 네일 세트 인터페이스 (API 요청 형식에 맞춤)
- */
-export interface NailSet {
-  thumb?: NailImage;
-  index?: NailImage;
-  middle?: NailImage;
-  ring?: NailImage;
-  pinky?: NailImage;
 }
 
 interface NailSelectionProps {
   /**
-   * 네일 아이템 선택 시 호출되는 콜백 함수
+   * 현재 선택된 네일셋
    */
-  onSelectNail?: (id: string) => void;
+  currentNailSet: NailSet;
   /**
-   * 현재 네일 세트가 변경될 때 호출되는 콜백 함수
+   * 네일셋 변경 핸들러
    */
-  onNailSetChange?: (nailSet: Partial<INailSet>) => void;
+  onNailSetChange: (nailSet: NailSet) => void;
 }
 
 /**
@@ -67,7 +54,7 @@ interface NailSelectionProps {
  * @returns {JSX.Element} 네일 선택 컴포넌트
  */
 export default function NailSelection({
-  onSelectNail,
+  currentNailSet,
   onNailSetChange,
 }: NailSelectionProps) {
   // 필터 모달 상태
@@ -79,7 +66,6 @@ export default function NailSelection({
     null,
   );
   const [isSelectingImage, setIsSelectingImage] = useState(false);
-  const [currentNailSet, setCurrentNailSet] = useState<Partial<INailSet>>({});
 
   // 필터 버튼 클릭 핸들러
   const handleFilterClick = useCallback(() => {
@@ -134,47 +120,17 @@ export default function NailSelection({
   const handleNailImageDelete = useCallback(
     (index: number) => {
       const fingerType =
-        (FINGER_MAP.find(item => item.index === index)?.type as FingerType) ||
-        'pinky';
+        (FINGER_MAP.find(item => item.index === index)
+          ?.type as keyof NailSet) || 'pinky';
 
-      setCurrentNailSet(prev => {
-        const updatedNailSet = { ...prev };
-        delete updatedNailSet[fingerType];
-
-        // 부모 컴포넌트에 변경사항 알림
-        onNailSetChange?.(updatedNailSet);
-
-        return updatedNailSet;
-      });
+      // 부모 컴포넌트의 상태 업데이트
+      const updatedNailSet = { ...currentNailSet };
+      delete updatedNailSet[fingerType];
+      onNailSetChange(updatedNailSet);
 
       setSelectedNailButton(null);
     },
-    [onNailSetChange],
-  );
-
-  // 네일 그리드에서 이미지 선택 시 콜백
-  const handleNailImageSelect = useCallback(
-    (nailId: string) => {
-      // 이미지 선택 모드이고 선택된 버튼이 있는 경우
-      if (isSelectingImage && selectedNailButton !== null) {
-        // 선택 모드 해제
-        setIsSelectingImage(false);
-        setSelectedNailButton(null);
-      }
-
-      // 외부에서 제공된 콜백 실행
-      onSelectNail?.(nailId);
-    },
-    [isSelectingImage, selectedNailButton, onSelectNail],
-  );
-
-  // 네일 세트 변경 핸들러
-  const handleNailSetChange = useCallback(
-    (nailSet: Partial<INailSet>) => {
-      setCurrentNailSet(nailSet);
-      onNailSetChange?.(nailSet);
-    },
-    [onNailSetChange],
+    [currentNailSet, onNailSetChange],
   );
 
   // 네일 버튼 렌더링
@@ -249,8 +205,28 @@ export default function NailSelection({
       {/* 네일 그리드 (스크롤 영역) */}
       <View style={styles.gridContainer}>
         <NailGrid
-          onSelectNail={handleNailImageSelect}
-          onNailSetChange={handleNailSetChange}
+          onNailSetChange={(partialNailSet: Partial<NailSet>) => {
+            // 부분적으로 업데이트된 네일셋이 전달됨
+            // 현재 네일셋과 병합하여 전체 네일셋 업데이트
+
+            // 현재 네일셋 복사
+            const updatedNailSet = { ...currentNailSet };
+
+            // partialNailSet의 모든 키에 대해 업데이트 적용
+            Object.keys(partialNailSet).forEach(key => {
+              const fingerType = key as keyof NailSet;
+              if (partialNailSet[fingerType]) {
+                updatedNailSet[fingerType] = partialNailSet[fingerType];
+              }
+            });
+
+            // 부모 컴포넌트로 업데이트된 네일셋 전달
+            onNailSetChange(updatedNailSet);
+
+            // 네일 선택 후 선택 모드 해제
+            setIsSelectingImage(false);
+            setSelectedNailButton(null);
+          }}
           activeFilters={activeFilters}
           selectedNailButton={selectedNailButton}
           isSelectingImage={isSelectingImage}

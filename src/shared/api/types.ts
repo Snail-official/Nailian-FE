@@ -66,6 +66,9 @@ export type TokenReissueResponse = ApiResponse<{
 /** 로그아웃 응답 */
 export type LogoutResponse = ApiResponse<null>;
 
+/** 회원 탈퇴 응답 */
+export type DeleteUserResponse = ApiResponse<null>;
+
 /* ─────────────────── 온보딩 (Onboarding) ─────────────────── */
 
 /** 온보딩 상태 조회 요청 */
@@ -136,6 +139,31 @@ export interface SaveNailPreferenceRequest {
 export type SaveNailPreferenceResponse = ApiResponse<null>;
 
 /* ─────────────────── 네일 세트 (Nail Sets) ─────────────────── */
+
+/** 네일 세트 ID로 저장 요청 */
+export interface SaveNailSetRequest {
+  nailSetId: number;
+}
+
+/** 네일 세트 저장 응답 */
+export type SaveNailSetResponse = ApiResponse<{
+  id: number;
+  thumb: {
+    imageUrl: string;
+  };
+  index: {
+    imageUrl: string;
+  };
+  middle: {
+    imageUrl: string;
+  };
+  ring: {
+    imageUrl: string;
+  };
+  pinky: {
+    imageUrl: string;
+  };
+}>;
 
 /** 네일 세트 목록 조회 응답 */
 export type NailSetCollectionResponse = ApiResponse<
@@ -314,6 +342,14 @@ export type UserNailSetsResponse = ApiResponse<
     };
   }>
 >;
+
+/** 네일 세트 삭제 요청 */
+export interface DeleteNailSetRequest {
+  nailSetId: number;
+}
+
+/** 네일 세트 삭제 응답 */
+export type DeleteNailSetResponse = ApiResponse<null>;
 
 /* ─────────────────── 배너 (Banners) ─────────────────── */
 

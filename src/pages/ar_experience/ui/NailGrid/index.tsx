@@ -14,21 +14,18 @@ import { colors, typography } from '~/shared/styles/design';
 import { INail, INailSet } from '~/shared/types/nail-set';
 import { NailListResponse } from '~/shared/api/types';
 import { fetchNails } from '~/entities/nail-tip/api';
+import { useLoadMore } from '~/shared/api/hooks';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { scale, vs } from '~/shared/lib/responsive';
 import Button from '~/shared/ui/Button';
+import { NailSet, FingerType } from '~/pages/ar_experience';
 import { FilterValues } from '../FilterModal';
-import { FingerType } from '../NailSelection';
 
 interface NailGridProps {
   /**
-   * 네일 아이템 선택 시 호출되는 콜백 함수
-   */
-  onSelectNail?: (id: string) => void;
-  /**
    * 현재 네일 세트가 변경될 때 호출되는 콜백 함수
    */
-  onNailSetChange?: (nailSet: Partial<INailSet>) => void;
+  onNailSetChange?: (nailSet: Partial<NailSet>) => void;
   /**
    * 활성화된 필터 값
    */
@@ -69,7 +66,6 @@ interface NailGridProps {
  * @returns {JSX.Element} 네일 그리드 컴포넌트
  */
 export function NailGrid({
-  onSelectNail,
   onNailSetChange,
   activeFilters = {},
   selectedNailButton = null,
@@ -78,29 +74,13 @@ export function NailGrid({
   onResetFilter,
 }: NailGridProps) {
   // 기본 데이터 상태
-  const [nails, setNails] = useState<{ id: string; imageUrl: string }[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [nails, setNails] = useState<
+    { id: number; imageUrl: string; shape?: Shape }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const scrollViewRef =
     useRef<React.ComponentRef<typeof BottomSheetScrollView>>(null);
-
-  // 상태 참조용 ref (의존성 순환 방지)
-  const isLoadingRef = useRef(isLoading);
-  const hasMoreRef = useRef(hasMore);
-  const currentPageRef = useRef(currentPage);
-  const activeFiltersRef = useRef(activeFilters);
-
-  // ref 값 업데이트
-  useEffect(() => {
-    isLoadingRef.current = isLoading;
-    hasMoreRef.current = hasMore;
-    currentPageRef.current = currentPage;
-    activeFiltersRef.current = activeFilters;
-  }, [isLoading, hasMore, currentPage, activeFilters]);
-
-  // 네일 세트 상태 관리 (API 형식에 맞춤)
-  const [currentNailSet, setCurrentNailSet] = useState<Partial<INailSet>>({});
 
   // 인덱스로 손가락 타입 찾기
   const getFingerTypeByIndex = useCallback(
@@ -112,10 +92,10 @@ export function NailGrid({
 
   // 네일 이미지 로드 함수 (필터 적용 지원)
   const loadNailImages = useCallback(
-    async (page = 1, filters: FilterValues = activeFiltersRef.current) => {
+    async (page = 1, filters: FilterValues = activeFilters) => {
       // 이미 로딩 중이거나 더 이상 데이터가 없으면 중단
-      if (isLoadingRef.current) return;
-      if (page > 1 && !hasMoreRef.current) return;
+      if (isLoading) return;
+      if (page > 1 && !hasMore) return;
 
       try {
         setIsLoading(true);
@@ -131,11 +111,10 @@ export function NailGrid({
           const newData =
             response.data?.content.map(nail => ({
               ...nail,
-              id: String(nail.id),
+              id: nail.id, // 이미 숫자형이므로 변환 불필요
             })) ?? [];
 
           setNails(prev => (page === 1 ? newData : [...prev, ...newData]));
-          setCurrentPage(page);
           setHasMore(
             response.data.pageInfo.currentPage <
               response.data.pageInfo.totalPages,
@@ -147,15 +126,22 @@ export function NailGrid({
         setIsLoading(false);
       }
     },
-    [], // 의존성 없음: 모든 상태는 ref를 통해 최신값을 참조
+    [isLoading, hasMore, activeFilters], // 실제 필요한 의존성 명시
   );
+
+  // useLoadMore 훅을 사용하여 무한 스크롤 처리
+  const { handleLoadMore, resetPage } = useLoadMore({
+    onLoad: page => loadNailImages(page, activeFilters),
+    hasMore,
+    isLoading,
+  });
 
   // 데이터 로드 트리거 - 초기 로드와 필터 변경 시
   useEffect(() => {
     // 페이지 초기화 및 데이터 로드
     setNails([]);
-    setCurrentPage(1);
     setHasMore(true);
+    resetPage();
 
     // 0ms 지연을 통해 상태 업데이트 완료 후 실행
     const timer = setTimeout(() => {
@@ -163,69 +149,45 @@ export function NailGrid({
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [activeFilters, loadNailImages]);
+  }, [activeFilters, loadNailImages, resetPage]);
 
   // 이미지를 네일 세트에 추가하는 함수
   const addImageToNailSet = useCallback(
-    (index: number, nailItem: { id: string; imageUrl: string }) => {
+    (
+      index: number,
+      nailItem: { id: number; imageUrl: string; shape?: Shape },
+    ) => {
       const fingerType = getFingerTypeByIndex(index);
 
-      setCurrentNailSet(prev => {
-        const updatedSet = {
-          ...prev,
-          [fingerType]: {
-            imageUrl: nailItem.imageUrl,
-          } as INail,
-        };
+      // 네일 세트 업데이트 - 부모 컴포넌트의 콜백 직접 호출
+      const updatedSet: Partial<NailSet> = {
+        [fingerType]: {
+          id: nailItem.id,
+          imageUrl: nailItem.imageUrl,
+          shape: nailItem.shape,
+        },
+      };
 
-        // 바로 부모 컴포넌트에 업데이트된 상태 전달
-        onNailSetChange?.(updatedSet);
-
-        return updatedSet;
-      });
+      // 바로 부모 컴포넌트에 업데이트된 상태 전달
+      onNailSetChange?.(updatedSet);
     },
     [getFingerTypeByIndex, onNailSetChange],
   );
 
   // 그리드 네일 아이템 클릭 핸들러
   const handleNailItemClick = useCallback(
-    (item: { id: string; imageUrl: string }) => {
+    (item: { id: number; imageUrl: string; shape?: Shape }) => {
       // 이미지 선택 모드일 때: 버튼에 이미지 추가
       if (isSelectingImage && selectedNailButton !== null) {
         addImageToNailSet(selectedNailButton, item);
       }
-
-      // 외부 콜백 실행
-      onSelectNail?.(item.id);
     },
-    [isSelectingImage, selectedNailButton, onSelectNail, addImageToNailSet],
-  );
-
-  // 무한 스크롤을 위한 스크롤 핸들러
-  const handleScroll = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (isLoadingRef.current || !hasMoreRef.current) return;
-
-      const { layoutMeasurement, contentOffset, contentSize } =
-        event.nativeEvent;
-
-      // 스크롤이 하단에 도달했는지 체크 (하단에서 10% 지점)
-      const threshold = 0.1; // 10%에 해당하는 임계값
-      const isCloseToBottom =
-        layoutMeasurement.height + contentOffset.y >=
-        contentSize.height - layoutMeasurement.height * threshold;
-
-      if (isCloseToBottom) {
-        // 다음 페이지 로드 (현재 페이지 + 1)
-        loadNailImages(currentPageRef.current + 1);
-      }
-    },
-    [loadNailImages], // 의존성 최소화: 상태는 ref를 통해 참조
+    [isSelectingImage, selectedNailButton, addImageToNailSet],
   );
 
   // 네일 아이템 렌더링 함수
   const renderNailItem = useCallback(
-    (props: { item: { id: string; imageUrl: string } }) => (
+    (props: { item: { id: number; imageUrl: string; shape?: Shape } }) => (
       <TouchableOpacity
         style={styles.nailItem}
         onPress={() => handleNailItemClick(props.item)}
@@ -291,7 +253,7 @@ export function NailGrid({
       contentContainerStyle={styles.scrollViewContent}
       bounces={false}
       showsVerticalScrollIndicator={true}
-      onScroll={handleScroll}
+      onScroll={handleLoadMore}
       overScrollMode="never"
       directionalLockEnabled={true}
       disableScrollViewPanResponder={false}

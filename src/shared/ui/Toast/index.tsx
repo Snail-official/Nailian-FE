@@ -4,12 +4,14 @@ import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
 import { toast } from '~/shared/lib/toast';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
  * Toast 컴포넌트 - 사용자에게 일시적인 알림 메시지를 표시합니다.
  *
  * 위치에 따라 다른 스타일과 애니메이션을 적용하며,
  * 상단 토스트는 경고 아이콘을 포함하고 하단 토스트는 간결한 메시지만 표시합니다.
+ * SafeAreaView 내에서 안전하게 표시됩니다.
  *
  * @param {ToastProps} props Toast 컴포넌트 속성
  * @returns {JSX.Element | null} 토스트 컴포넌트 또는 표시되지 않을 경우 null
@@ -18,6 +20,7 @@ export function ToastContainer() {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
   const [position, setPosition] = useState<'top' | 'bottom'>('top');
+  const insets = useSafeAreaInsets();
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -104,7 +107,9 @@ export function ToastContainer() {
     <Animated.View
       style={[
         styles.container,
-        position === 'top' ? styles.topToast : styles.bottomToast,
+        position === 'top'
+          ? [styles.topToast, { top: vs(32) + insets.top }]
+          : [styles.bottomToast, { bottom: vs(32) + insets.bottom }],
         {
           opacity: fadeAnim,
           transform: [{ translateY }],
@@ -137,7 +142,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: colors.toast_black,
     borderRadius: scale(8),
-    bottom: vs(32),
     height: vs(49),
     justifyContent: 'center',
     padding: scale(10),
@@ -147,6 +151,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     position: 'absolute',
+    zIndex: 9999,
   },
   topMessage: {
     ...typography.body2_SB,
@@ -172,7 +177,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 33,
-    top: vs(32),
-    zIndex: 999,
+    zIndex: 9999,
   },
 });

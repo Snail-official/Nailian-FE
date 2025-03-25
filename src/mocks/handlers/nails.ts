@@ -20,6 +20,8 @@ import {
   GetNailsRequest,
   GetNailPreferencesRequest,
   NailFeedResponse,
+  SaveNailSetRequest,
+  SaveNailSetResponse,
 } from '../../shared/api/types';
 import { createSuccessResponse, createErrorResponse } from '../utils/response';
 import { ONBOARDING_FLAGS } from '../constants/onboarding';
@@ -624,6 +626,123 @@ const nailHandlers = [
       };
 
       return createSuccessResponse(response.data, response.message);
+    },
+  ),
+
+  /**
+   * 네일 세트 ID로 사용자 보관함에 저장하는 API
+   *
+   * @endpoint POST /users/me/nail-sets/save
+   * @response {SaveNailSetResponse} 저장된 네일 세트 정보 반환
+   * @returns 성공 시 저장된 네일 세트 정보, 실패 시 오류 응답
+   */
+  http.post(`${API_BASE_URL}/users/me/nail-sets/save`, async ({ request }) => {
+    // 토큰 검증
+    const authResult = await validateToken(request);
+
+    // 인증 실패 시 401 응답 반환
+    if (authResult instanceof HttpResponse) {
+      return authResult;
+    }
+
+    // 인증된 사용자 정보 사용
+    const user = authResult;
+
+    const body = (await request.json()) as SaveNailSetRequest;
+
+    if (!body.nailSetId) {
+      return createErrorResponse('네일 세트 ID가 필요합니다.', 400);
+    }
+
+    // 해당 네일 세트를 찾습니다.
+    const nailSet = nailSets.find(set => set.id === body.nailSetId);
+
+    if (!nailSet) {
+      return createErrorResponse('네일 세트를 찾을 수 없습니다.', 404);
+    }
+
+    // 이미 저장된 네일 세트인지 확인
+    const isAlreadySaved = nailSets.some(
+      set => set.user?.id === user.id && set.id === body.nailSetId,
+    );
+
+    if (isAlreadySaved) {
+      return createErrorResponse('이미 저장된 네일 세트입니다.', 409);
+    }
+
+    // 사용자 정보가 있는 네일 세트를 저장 (원본 ID 유지)
+    // 복제본을 만들어 원본 네일 세트를 변경하지 않음
+    const savedNailSet = {
+      ...nailSet, // 원본 네일 세트의 속성 유지
+      user, // 사용자 정보 추가
+      savedAt: new Date().toISOString(), // 저장 날짜 추가
+    };
+
+    // 저장된 네일 세트를 배열에 추가
+    nailSets.push(savedNailSet);
+
+    const response: SaveNailSetResponse = {
+      code: 200,
+      message: '네일 세트 보관 성공',
+      data: {
+        id: savedNailSet.id,
+        thumb: { imageUrl: savedNailSet.thumb.imageUrl },
+        index: { imageUrl: savedNailSet.index.imageUrl },
+        middle: { imageUrl: savedNailSet.middle.imageUrl },
+        ring: { imageUrl: savedNailSet.ring.imageUrl },
+        pinky: { imageUrl: savedNailSet.pinky.imageUrl },
+      },
+    };
+
+    return createSuccessResponse(response.data, response.message);
+  }),
+
+  /**
+   * 네일 세트 ID로 사용자 보관함에서 삭제하는 API
+   *
+   * @endpoint DELETE /users/me/nail-sets/:nailSetId
+   * @response 삭제 결과 메시지 반환
+   * @returns 성공 시 삭제 성공 메시지, 실패 시 오류 응답
+   */
+  http.delete(
+    `${API_BASE_URL}/users/me/nail-sets/:nailSetId`,
+    async ({ request, params }) => {
+      // 토큰 검증
+      const authResult = await validateToken(request);
+
+      // 인증 실패 시 401 응답 반환
+      if (authResult instanceof HttpResponse) {
+        return authResult;
+      }
+
+      // 인증된 사용자 정보 사용
+      const user = authResult;
+      const nailSetId = Number(params.nailSetId);
+
+      if (!nailSetId) {
+        return createErrorResponse('네일 세트 ID가 필요합니다.', 400);
+      }
+
+      // 사용자의 보관함에서 해당 네일 세트를 찾습니다.
+      const nailSetIndex = nailSets.findIndex(
+        set => set.id === nailSetId && set.user?.id === user.id,
+      );
+
+      if (nailSetIndex === -1) {
+        return createErrorResponse('네일 세트를 찾을 수 없습니다.', 404);
+      }
+
+      // 네일 세트 삭제
+      nailSets.splice(nailSetIndex, 1);
+
+      return HttpResponse.json(
+        {
+          code: 200,
+          message: '네일 세트 삭제 성공',
+          data: undefined,
+        },
+        { status: 200 },
+      );
     },
   ),
 ];

@@ -10,6 +10,8 @@ import {
   UpdateNicknameRequest,
   UpdateNicknameResponse,
   UserMeResponse,
+  DeleteUserResponse,
+  ApiResponse,
 } from '../../shared/api/types';
 import { useAuthStore } from '../../shared/store/authStore';
 
@@ -49,14 +51,11 @@ export const reissueAccessToken = ({
  * @header {Authorization: Bearer {accessToken}}
  * @returns {Promise<LogoutResponse>} 로그아웃 성공 여부 반환
  */
-export const logoutFromService = (): Promise<LogoutResponse> => {
-  const { accessToken } = useAuthStore.getState();
-  return fetcher({
+export const logoutFromService = (): Promise<LogoutResponse> =>
+  fetcher({
     endpoint: '/auth/logout',
     method: 'POST',
-    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
   });
-};
 
 /**
  * 현재 로그인한 사용자의 프로필 정보를 조회하는 함수
@@ -95,4 +94,16 @@ export const fetchOnboardingStatus = async ({
   fetcher({
     endpoint: '/onboarding-status',
     query: { maxSupportedVersion },
+  });
+
+/**
+ * 회원 탈퇴 API 호출
+ *
+ * @header {Authorization: Bearer {accessToken}}
+ * @returns {Promise<DeleteUserResponse>} 회원 탈퇴 성공 여부 반환
+ */
+export const deleteUser = (): Promise<DeleteUserResponse> =>
+  fetcher({
+    endpoint: '/users/me',
+    method: 'DELETE',
   });

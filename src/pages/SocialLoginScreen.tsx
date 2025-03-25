@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -37,6 +37,7 @@ type Props = {
  *
  * 주요 기능:
  * - 기존 로그인 상태 확인 (토큰 유효성 검사)
+ * - 로그인된 상태면 스플래시 화면을 표시 후 온보딩 화면으로 자동 이동
  * - 플랫폼별 소셜 로그인 옵션 제공
  *   - iOS: Apple 로그인, Kakao 로그인
  *   - Android: Google 로그인, Kakao 로그인
@@ -48,19 +49,28 @@ type Props = {
  */
 export default function SocialLoginScreen({ navigation }: Props) {
   const { loadTokens, setTokens } = useAuthStore();
-  const [isCheckingLogin, setIsCheckingLogin] = React.useState(true);
+  const [isCheckingLogin, setIsCheckingLogin] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
 
   /**
    * 로그인 상태 확인
-   * 앱 실행 시 기존 로그인 토큰이 있는지 확인하고, 있으면 온보딩 엔트리 화면으로 자동 이동합니다.
+   * 앱 실행 시 기존 로그인 토큰이 있는지 확인하고, 있으면 스플래시 화면을 표시한 후
+   * 온보딩 엔트리 화면으로 자동 이동합니다.
    */
   useEffect(() => {
     const checkLoginStatus = async () => {
       await loadTokens();
-      if (useAuthStore.getState().accessToken) {
-        navigation.replace('OnboardingEntry');
-      }
       setIsCheckingLogin(false);
+      if (useAuthStore.getState().accessToken) {
+        // 이미 로그인된 상태라면 스플래시 화면을 표시
+        setShowSplash(true);
+        // 2초 후에 온보딩 엔트리 화면으로 이동
+        setTimeout(() => {
+          navigation.replace('OnboardingEntry');
+        }, 2000);
+      } else {
+        // 로그인되지 않은 상태라면 로그인 화면을 표시
+      }
     };
 
     checkLoginStatus();
@@ -93,6 +103,7 @@ export default function SocialLoginScreen({ navigation }: Props) {
     }
   };
 
+  // 로딩 중 화면
   if (isCheckingLogin) {
     return (
       <View style={styles.loadingContainer}>
@@ -102,6 +113,19 @@ export default function SocialLoginScreen({ navigation }: Props) {
     );
   }
 
+  // 스플래시 화면
+  if (showSplash) {
+    return (
+      <View style={styles.splashContainer}>
+        <LogoIcon width={scale(171.11)} height={vs(56)} />
+        <Text style={styles.logoText}>
+          AR 네일 체험과 네일샵 예약을 한 번에
+        </Text>
+      </View>
+    );
+  }
+
+  // 소셜 로그인 화면
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -224,5 +248,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.small,
+  },
+  splashContainer: {
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    flex: 1,
+    justifyContent: 'center',
   },
 });

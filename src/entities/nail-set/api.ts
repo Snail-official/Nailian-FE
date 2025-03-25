@@ -2,6 +2,8 @@ import fetcher from '../../shared/api/fetcher';
 import {
   CreateNailSetRequest,
   CreateNailSetResponse,
+  DeleteNailSetRequest,
+  DeleteNailSetResponse,
   GetNailFeedRequest,
   GetNailSetDetailRequest,
   GetSimilarNailSetsRequest,
@@ -9,6 +11,8 @@ import {
   NailSetCollectionResponse,
   NailSetDetailResponse,
   PaginationRequest,
+  SaveNailSetRequest,
+  SaveNailSetResponse,
   SimilarNailSetsResponse,
   UserNailSetsResponse,
 } from '../../shared/api/types';
@@ -100,4 +104,33 @@ export const fetchSimilarNailSets = async ({
   fetcher({
     endpoint: `/nail-sets/${nailSetId}/similar`,
     query: { style: style.id, page, size },
+  });
+
+/**
+ * 네일 세트 ID로 사용자 보관함에 저장하는 함수
+ *
+ * @param {SaveNailSetRequest} data - 저장할 네일 세트 ID
+ * @returns {Promise<SaveNailSetResponse>} 저장된 네일 세트 정보 반환
+ */
+export const saveUserNailSet = async ({
+  nailSetId,
+}: SaveNailSetRequest): Promise<SaveNailSetResponse> =>
+  fetcher({
+    endpoint: '/users/me/nail-sets/save',
+    method: 'POST',
+    body: { nailSetId },
+  });
+
+/**
+ * 네일 세트 ID로 사용자 보관함에서 삭제하는 함수
+ *
+ * @param {number} nailSetId - 삭제할 네일 세트 ID
+ * @returns {Promise<DeleteNailSetResponse>} 삭제 결과 메시지 반환
+ */
+export const deleteUserNailSet = async ({
+  nailSetId,
+}: DeleteNailSetRequest): Promise<DeleteNailSetResponse> =>
+  fetcher({
+    endpoint: `/users/me/nail-sets/${nailSetId}`,
+    method: 'DELETE',
   });

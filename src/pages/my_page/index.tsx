@@ -7,18 +7,24 @@ import {
   Image,
   ScrollView,
   SafeAreaView,
+  Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
-import { fetchUserProfile, logoutFromService } from '~/entities/user/api';
+import {
+  fetchUserProfile,
+  logoutFromService,
+  deleteUser,
+} from '~/entities/user/api';
 import { fetchUserNailSets } from '~/entities/nail-set/api';
 import { TabBarFooter } from '~/shared/ui/TabBar';
 import Modal from '~/shared/ui/Modal';
 import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
 import UnsubscribeIcon from '~/shared/assets/icons/ic_unsubscribe.svg';
 import { useAuthStore } from '~/shared/store/authStore';
+import { toast } from '~/shared/lib/toast';
 
 const BookmarkBar = require('~/shared/assets/images/bookmark_bar.png');
 const ProfileImage = require('~/shared/assets/images/img_profile.png');
@@ -123,7 +129,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
    */
   const handleNailBookmarkPress = () => {
     navigation.navigate('NailSetListPage', {
-      styleId: 0, // 0은 북마크 모드를 의미합니다
+      styleId: -1, // 북마크 모드를 위한 특별한 값 사용
       styleName: '네일 보관함',
     });
   };
@@ -136,7 +142,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
    *
    * @param {string} menuType 선택된 메뉴 유형
    */
-  const handleMenuPress = (menuType: string) => {
+  const handleMenuPress = async (menuType: string) => {
     const urls: Record<string, string> = {
       '1:1 문의': 'https://example.com/inquiry',
       FAQ: 'https://example.com/faq',
@@ -144,10 +150,23 @@ function MyPageScreen({ navigation }: MyPageProps) {
     };
     // URL이 있으면 웹페이지로 이동
     if (urls[menuType]) {
-      // 여기에 웹뷰 네비게이션 로직 추가
-      console.log(`${menuType} 페이지로 이동: ${urls[menuType]}`);
+      try {
+        const url = urls[menuType];
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          console.error('URL을 열 수 없습니다:', url);
+          toast.showToast('브라우저를 열 수 없습니다', { position: 'bottom' });
+        }
+      } catch (error) {
+        console.error('링크 열기 오류:', error);
+        toast.showToast('링크를 여는 중 오류가 발생했습니다', {
+          position: 'bottom',
+        });
+      }
     } else {
-      console.log(`${menuType} 페이지로 이동`);
+      toast.showToast('링크 주소가 없습니다', { position: 'bottom' });
     }
   };
 
@@ -190,13 +209,18 @@ function MyPageScreen({ navigation }: MyPageProps) {
   /**
    * 회원 탈퇴 처리 함수
    *
-   * 회원 탈퇴 요청을 처리하는 함수입니다.
-   * 현재는 실제 API 연동 없이 콘솔 로그만 출력합니다.
+   * 회원 탈퇴 API를 호출하고 성공 시 로그인 화면으로 이동합니다.
    */
-  const handleUnsubscribe = () => {
-    // 실제 탈퇴 API가 없으므로 콘솔 로그만 출력
-    console.log('회원 탈퇴 처리');
-    setShowUnsubscribeModal(false);
+  const handleUnsubscribe = async () => {
+    try {
+      await deleteUser();
+      // 로컬에 저장된 인증 토큰 제거
+      await useAuthStore.getState().clearTokens();
+      setShowUnsubscribeModal(false);
+      navigation.replace('SocialLogin');
+    } catch (err) {
+      toast.showToast('회원 탈퇴에 실패했습니다', { position: 'bottom' });
+    }
   };
 
   return (
