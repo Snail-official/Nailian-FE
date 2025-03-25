@@ -61,6 +61,7 @@ interface NailSelectionProps {
  * - 필터 모달을 통한 네일 스타일 필터링
  * - 선택된 네일을 표시하는 그리드 뷰
  * - 선택된 네일 정보를 상위 컴포넌트로 전달
+ * - 필터 결과가 없을 때 empty view 표시 및 필터 초기화 기능
  *
  * @param {NailSelectionProps} props - 네일 선택 컴포넌트 속성
  * @returns {JSX.Element} 네일 선택 컴포넌트
@@ -99,6 +100,17 @@ export default function NailSelection({
 
     // 필터 적용
     setActiveFilters(filterValues);
+  }, []);
+
+  /**
+   * 필터 초기화 핸들러
+   * 현재 적용된 모든 필터를 제거하고 초기 상태로 돌아갑니다.
+   * NailGrid 컴포넌트의 empty view에서 "필터 초기화" 버튼 클릭 시 호출됩니다.
+   * 필터링 결과가 없을 때 사용자가 쉽게 필터를 초기화할 수 있도록 합니다.
+   */
+  const handleResetFilter = useCallback(() => {
+    // 필터 초기화
+    setActiveFilters({});
   }, []);
 
   // 손가락 버튼 클릭 핸들러
@@ -243,6 +255,7 @@ export default function NailSelection({
           selectedNailButton={selectedNailButton}
           isSelectingImage={isSelectingImage}
           fingerMap={FINGER_MAP}
+          onResetFilter={handleResetFilter}
         />
       </View>
 
