@@ -17,8 +17,9 @@ import { TabBarHeader } from '~/shared/ui/TabBar';
 import {
   fetchNailSetDetail,
   fetchSimilarNailSets,
-  createUserNailSet,
   fetchUserNailSets,
+  saveUserNailSet,
+  deleteUserNailSet,
 } from '~/entities/nail-set/api';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import TrashIcon from '~/shared/assets/icons/ic_trash.svg';
@@ -27,6 +28,7 @@ import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import Modal from '~/shared/ui/Modal';
 import { toast } from '~/shared/lib/toast';
 import { scale, vs } from '~/shared/lib/responsive';
+import { useLoadMore } from '~/shared/api/hooks';
 
 type NailSetDetailScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -99,11 +101,10 @@ function NailSetDetailPage() {
   const [similarNailSets, setSimilarNailSets] = useState<INailSet[]>([]);
   const [similarLoading, setSimilarLoading] = useState(false);
   const [similarError, setSimilarError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // 북마크 모드 여부 확인 (styleId가 0이면 북마크 모드)
-  const isBookmarkMode = styleId === 0;
+  // 북마크 모드 여부 확인 (styleName이 '네일 보관함'이면 북마크 모드)
+  const isBookmarkMode = styleName === '네일 보관함';
 
   // 네일 세트 상세 정보 가져오기
   const fetchNailSetInfo = useCallback(async () => {
@@ -128,6 +129,9 @@ function NailSetDetailPage() {
   const fetchNailSets = useCallback(
     async (pageToFetch = 1, refresh = false) => {
       if (!nailSetId) return;
+
+      // 새로고침이거나 더 불러올 데이터가 있거나 로딩 중이 아닐 때만 실행
+      if (!refresh && (similarLoading || !hasMore)) return;
 
       setSimilarLoading(true);
       setSimilarError(null);
@@ -167,15 +171,19 @@ function NailSetDetailPage() {
           // 새로고침이면 목록을 대체하고, 아니면 추가
           setSimilarNailSets(prev => (refresh ? data : [...prev, ...data]));
 
-          // 다음 페이지가 있는지 확인
-          setHasMore(pageInfo.currentPage < pageInfo.totalPages);
-          setPage(pageToFetch);
+          // 다음 페이지가 있는지 확인 - 페이지 총수 비교 또는 현재 받은 데이터 크기 확인
+          const hasNextPage = pageInfo.currentPage < pageInfo.totalPages;
+          const hasDataInCurrentPage = data.length > 0;
+
+          // 다음 페이지가 있고 현재 페이지에 데이터가 있는 경우에만 hasMore를 true로 설정
+          setHasMore(hasNextPage && hasDataInCurrentPage);
         } else {
           setSimilarError(
             isBookmarkMode
               ? '보관함의 다른 네일 세트를 불러오는데 실패했습니다.'
               : '유사한 네일 세트를 불러오는데 실패했습니다.',
           );
+          setHasMore(false); // 에러 발생 시 더 이상 로드하지 않음
         }
       } catch (err) {
         console.error(
@@ -189,25 +197,29 @@ function NailSetDetailPage() {
             ? '보관함의 다른 네일 세트를 불러오는데 실패했습니다.'
             : '유사한 네일 세트를 불러오는데 실패했습니다.',
         );
+        setHasMore(false); // 에러 발생 시 더 이상 로드하지 않음
       } finally {
         setSimilarLoading(false);
       }
     },
-    [styleId, nailSetId, styleName, isBookmarkMode],
+    [styleId, nailSetId, styleName, isBookmarkMode, similarLoading, hasMore],
   );
+
+  // useLoadMore 훅을 사용하여 무한 스크롤 처리
+  const { handleLoadMore, resetPage } = useLoadMore({
+    onLoad: page => fetchNailSets(page),
+    hasMore,
+    isLoading: similarLoading,
+  });
 
   // 컴포넌트 마운트 시 데이터 가져오기
   useEffect(() => {
     fetchNailSetInfo();
+    // 페이지 초기화 후 첫 페이지 데이터 로드 (refresh = true)
+    resetPage();
     fetchNailSets(1, true);
-  }, [fetchNailSetInfo, fetchNailSets]);
-
-  // 더 불러오기 함수
-  const handleLoadMore = useCallback(() => {
-    if (!similarLoading && hasMore) {
-      fetchNailSets(page + 1);
-    }
-  }, [similarLoading, hasMore, fetchNailSets, page]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * 네일 세트 아이템 클릭 핸들러
@@ -243,32 +255,20 @@ function NailSetDetailPage() {
       // 북마크 API 호출
       if (nailSet) {
         // 네일 세트를 보관함에 저장
-        /* TODO: 네일 세트 아이디 타입 수정 후 수정 필요 */
-        await createUserNailSet({
-          thumb: { id: nailSet.id as number },
-          index: { id: nailSet.id as number },
-          middle: { id: nailSet.id as number },
-          ring: { id: nailSet.id as number },
-          pinky: { id: nailSet.id as number },
-        });
+        await saveUserNailSet({ nailSetId });
         // 성공적으로 저장되면 북마크 상태 업데이트 및 토스트 메시지 표시
         setIsBookmarked(true);
         toast.showToast('보관함에 저장되었습니다');
-        console.log(
-          '네일 세트가 보관함에 성공적으로 저장되었습니다:',
-          nailSetId,
-        );
       }
     } catch (err) {
       console.error('Failed to save to bookmark', err);
       // 이미 저장된 네일인 경우 (HTTP 409 Conflict) 다른 메시지 표시
-      if (err instanceof Error && err.message.includes('500')) {
+      if (err instanceof Error && err.message.includes('409')) {
+        setIsBookmarked(true);
         toast.showToast('이미 저장된 네일입니다');
       } else {
         toast.showToast('보관함에 저장되었습니다');
       }
-      // API 오류 발생해도 북마크 상태는 true로 설정 (아이콘 숨김 처리)
-      setIsBookmarked(true);
     }
   }, [nailSet, nailSetId]);
 
@@ -295,8 +295,8 @@ function NailSetDetailPage() {
   const handleDeleteBookmark = useCallback(async () => {
     try {
       if (!nailSetId) return;
-      // 백엔드 API 구현 전까지는 콘솔 로그만 출력
-      console.log('네일 세트 삭제:', nailSetId);
+      // 네일 세트 삭제 API 호출
+      await deleteUserNailSet({ nailSetId });
       toast.showToast('보관함에서 삭제되었습니다');
       // 모달 닫기
       setShowDeleteModal(false);

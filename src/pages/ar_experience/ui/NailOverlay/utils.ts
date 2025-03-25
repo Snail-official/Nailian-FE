@@ -1,4 +1,4 @@
-import { INail } from '~/shared/types/nail-set';
+import { Shape } from '~/shared/api/types';
 import {
   BASE_NAIL_POSITIONS,
   NailPosition,
@@ -13,15 +13,16 @@ import {
  * 쉐입이 지정되지 않은 경우 기본값으로 'ROUND'를 사용합니다.
  *
  * @param {string} fingerType - 손가락 타입 (thumb, index, middle, ring, pinky)
- * @param {INail} nail - 네일 정보
+ * @param {Object} nail - 네일 정보 (id와 imageUrl 포함)
  * @returns {NailPosition} 조정된 네일 위치 및 크기
  */
 export function getNailPositionByShape(
   fingerType: string,
-  nail: INail,
+  nail: { id: number; imageUrl: string; shape?: string },
 ): NailPosition {
   const basePosition = BASE_NAIL_POSITIONS[fingerType];
-  const shape = nail.shape || 'ROUND';
+  // 기본값으로 'ROUND' 사용하고 Shape 타입으로 캐스팅
+  const shape = (nail.shape || 'ROUND') as Shape;
 
   // 쉐입별 크기 비율 가져오기
   const sizeRatio = SHAPE_SIZE_RATIO[shape];

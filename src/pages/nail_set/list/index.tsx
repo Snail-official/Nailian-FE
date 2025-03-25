@@ -16,6 +16,7 @@ import { colors } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import { fetchNailSetFeed, fetchUserNailSets } from '~/entities/nail-set/api';
+import { useLoadMore } from '~/shared/api/hooks';
 import NailSet from '~/features/nail-set/ui/NailSet';
 import EmptyView from './ui/EmptyView';
 
@@ -52,11 +53,10 @@ function NailSetListPage() {
   const navigation = useNavigation<NailSetListScreenNavigationProp>();
   const route = useRoute<NailSetListScreenRouteProp>();
   const { styleId, styleName } = route.params;
-  const isBookmarkMode = styleId === 0;
+  const isBookmarkMode = styleName === '네일 보관함';
 
   // 상태 관리
   const [nailSets, setNailSets] = useState<INailSet[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -130,6 +130,13 @@ function NailSetListPage() {
     [isLoading, hasMoreData, styleId, styleName, pageSize, isBookmarkMode],
   );
 
+  // useLoadMore 훅을 사용하여 무한 스크롤 처리
+  const { handleLoadMore, resetPage } = useLoadMore({
+    onLoad: page => fetchNailSets(page),
+    hasMore: hasMoreData,
+    isLoading,
+  });
+
   /**
    * 북마크 상태 가져오기 (일반 스타일 모드일 때만)
    *
@@ -140,7 +147,7 @@ function NailSetListPage() {
    */
   const fetchBookmarkStatus = useCallback(async () => {
     // 북마크 모드에서는 호출하지 않음
-    if (styleId === 0) return;
+    if (styleName === '네일 보관함') return;
 
     try {
       const response = await fetchUserNailSets({ page: 1, size: 100 });
@@ -150,7 +157,7 @@ function NailSetListPage() {
     } catch (err) {
       console.error('북마크 상태 불러오기 실패:', err);
     }
-  }, [styleId]);
+  }, [styleName]);
 
   /**
    * 컴포넌트 마운트 시 데이터 로드
@@ -159,26 +166,13 @@ function NailSetListPage() {
    * 북마크 상태도 함께 로드합니다.
    */
   useEffect(() => {
-    setCurrentPage(1);
     setHasMoreData(true);
     setDataFetched(false); // 데이터 로드 시작 시 초기화
+    resetPage(); // 페이지 초기화
     fetchNailSets(1, true);
     fetchBookmarkStatus();
-  }, [fetchNailSets, fetchBookmarkStatus]);
-
-  /**
-   * 스크롤 끝에 도달했을 때 추가 데이터 로드
-   *
-   * 무한 스크롤 기능을 위해 사용자가 목록의 끝에 도달하면
-   * 다음 페이지의 데이터를 자동으로 로드합니다.
-   */
-  const handleLoadMore = () => {
-    if (!isLoading && hasMoreData) {
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      fetchNailSets(nextPage);
-    }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * 네일 세트 아이템 클릭 핸들러
