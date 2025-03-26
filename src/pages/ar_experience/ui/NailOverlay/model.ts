@@ -24,11 +24,11 @@ interface NailSetWithShape {
  * 현재는 모든 손가락에 'ROUND' 쉐입을 적용합니다.
  */
 export const DEFAULT_NAIL_SHAPES = {
-  thumb: 'ALMOND' as Shape,
-  index: 'ALMOND' as Shape,
-  middle: 'ALMOND' as Shape,
-  ring: 'ALMOND' as Shape,
-  pinky: 'ALMOND' as Shape,
+  thumb: 'ROUND' as Shape,
+  index: 'ROUND' as Shape,
+  middle: 'ROUND' as Shape,
+  ring: 'ROUND' as Shape,
+  pinky: 'ROUND' as Shape,
 } as const;
 
 /**

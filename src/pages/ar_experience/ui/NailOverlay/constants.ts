@@ -84,7 +84,7 @@ export const BASE_NAIL_POSITIONS: Record<string, NailPosition> = {
   },
   // 약지손가락
   ring: {
-    x: scale(116.7),
+    x: scale(117),
     y: scale(33),
     width: scale(47),
     height: scale(33),

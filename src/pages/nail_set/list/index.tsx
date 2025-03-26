@@ -7,7 +7,12 @@ import {
   ActivityIndicator,
   Text,
 } from 'react-native';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import {
+  RouteProp,
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { INailSet } from '~/shared/types/nail-set';
@@ -173,6 +178,28 @@ function NailSetListPage() {
     fetchBookmarkStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /**
+   * 화면에 포커스가 올 때마다 데이터 새로고침
+   * 네일 세트 삭제 후 돌아올 때 데이터 갱신을 위함
+   */
+  useFocusEffect(
+    useCallback(() => {
+      // 초기 로드가 이미 완료된 후에만 리로드 실행
+      if (dataFetched) {
+        // 화면에 다시 포커스가 왔을 때 데이터 리프레시
+        setHasMoreData(true);
+        setDataFetched(false);
+        resetPage();
+        fetchNailSets(1, true);
+        fetchBookmarkStatus();
+      }
+
+      return () => {
+        // 클린업 함수 (필요 시)
+      };
+    }, [dataFetched, resetPage, fetchNailSets, fetchBookmarkStatus]),
+  );
 
   /**
    * 네일 세트 아이템 클릭 핸들러

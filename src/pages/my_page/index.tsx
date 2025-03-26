@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
+import { useFocusEffect } from '@react-navigation/native';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import {
@@ -49,42 +50,50 @@ interface MyPageProps {
 function MyPageScreen({ navigation }: MyPageProps) {
   const [nickname, setNickname] = useState<string>('');
   const [bookmarkCount, setBookmarkCount] = useState<number>(0);
-  const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
-  const [showUnsubscribeModal, setShowUnsubscribeModal] =
-    useState<boolean>(false);
+  const [currentModal, setCurrentModal] = useState<
+    'none' | 'logout' | 'unsubscribe'
+  >('none');
 
   /**
-   * 사용자 프로필 데이터 및 네일셋 정보 로드
-   *
-   * 컴포넌트 마운트 시 실행되며, 사용자 프로필 정보와
-   * 보관함에 저장된 네일셋 개수를 가져옵니다.
+   * 사용자 데이터를 가져오는 함수
+   */
+  const fetchUserData = useCallback(async () => {
+    try {
+      // 프로필 가져오기
+      const profileResponse = await fetchUserProfile();
+      if (profileResponse.data?.nickname) {
+        setNickname(profileResponse.data.nickname);
+      }
+
+      // 네일셋 정보 가져오기
+      const setsResponse = await fetchUserNailSets({ page: 1, size: 10 });
+      if (setsResponse.data) {
+        setBookmarkCount(setsResponse.data.pageInfo.totalElements);
+      }
+    } catch (err) {
+      console.error('데이터 불러오기 실패:', err);
+    }
+  }, []);
+
+  /**
+   * 컴포넌트 마운트 시 데이터 로드
    */
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 프로필 가져오기
-        const profileResponse = await fetchUserProfile();
-        if (profileResponse.data?.nickname) {
-          setNickname(profileResponse.data.nickname);
-        }
+    fetchUserData();
+  }, [fetchUserData]);
 
-        // 네일셋 정보 가져오기
-        const setsResponse = await fetchUserNailSets({ page: 1, size: 10 });
-        if (setsResponse.data) {
-          setBookmarkCount(setsResponse.data.pageInfo.totalElements);
-        }
-      } catch (err) {
-        console.error('데이터 불러오기 실패:', err);
-      }
-    };
-
-    fetchData();
-
-    // 컴포넌트 언마운트 시 정리 함수 추가
-    return () => {
-      // 진행 중인 작업 취소 등 필요한 정리 작업 수행
-    };
-  }, []);
+  /**
+   * 화면에 포커스 될 때마다 데이터 다시 로드
+   * 네일 보관함에서 항목 삭제 후 돌아올 때 갱신하기 위함
+   */
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+      return () => {
+        // 클린업 함수 (필요 시)
+      };
+    }, [fetchUserData]),
+  );
 
   /**
    * 로그아웃 모달 표시 함수
@@ -92,16 +101,16 @@ function MyPageScreen({ navigation }: MyPageProps) {
    * 로그아웃 버튼 클릭 시 확인 모달을 표시합니다.
    */
   const handleLogoutButtonPress = () => {
-    setShowLogoutModal(true);
+    setCurrentModal('logout');
   };
 
   /**
-   * 로그아웃 취소 함수
+   * 모달 닫기 함수
    *
-   * 로그아웃 모달에서 취소 버튼 클릭 시 모달을 닫습니다.
+   * 모든 모달을 닫고 상태를 초기화합니다.
    */
-  const handleLogoutCancel = () => {
-    setShowLogoutModal(false);
+  const closeModal = () => {
+    setCurrentModal('none');
   };
 
   /**
@@ -115,10 +124,12 @@ function MyPageScreen({ navigation }: MyPageProps) {
       await logoutFromService();
       // 로컬에 저장된 인증 토큰 제거
       await useAuthStore.getState().clearTokens();
-      setShowLogoutModal(false);
+      closeModal();
       navigation.replace('SocialLogin');
     } catch (err) {
       console.error('로그아웃 실패:', err);
+      // 에러 발생해도 모달은 닫기
+      closeModal();
     }
   };
 
@@ -194,16 +205,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
    * 탈퇴하기 버튼 클릭 시 확인 모달을 표시합니다.
    */
   const handleUnsubscribeButtonPress = () => {
-    setShowUnsubscribeModal(true);
-  };
-
-  /**
-   * 회원 탈퇴 취소 함수
-   *
-   * 회원 탈퇴 모달에서 취소 버튼 클릭 시 모달을 닫습니다.
-   */
-  const handleUnsubscribeCancel = () => {
-    setShowUnsubscribeModal(false);
+    setCurrentModal('unsubscribe');
   };
 
   /**
@@ -216,10 +218,42 @@ function MyPageScreen({ navigation }: MyPageProps) {
       await deleteUser();
       // 로컬에 저장된 인증 토큰 제거
       await useAuthStore.getState().clearTokens();
-      setShowUnsubscribeModal(false);
+      closeModal();
       navigation.replace('SocialLogin');
     } catch (err) {
       toast.showToast('회원 탈퇴에 실패했습니다', { position: 'bottom' });
+      // 에러 발생해도 모달은 닫기
+      closeModal();
+    }
+  };
+
+  // 모달 렌더링 함수
+  const renderModal = () => {
+    switch (currentModal) {
+      case 'logout':
+        return (
+          <Modal
+            title="로그아웃하시겠어요?"
+            description=" "
+            confirmText="로그아웃"
+            cancelText="돌아가기"
+            onConfirm={handleLogout}
+            onCancel={closeModal}
+          />
+        );
+      case 'unsubscribe':
+        return (
+          <Modal
+            title="정말 탈퇴하시겠어요?"
+            description="소중한 정보가 모두 사라져요"
+            confirmText="탈퇴하기"
+            cancelText="돌아가기"
+            onConfirm={handleUnsubscribe}
+            onCancel={closeModal}
+          />
+        );
+      default:
+        return null;
     }
   };
 
@@ -345,29 +379,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
         </View>
       </SafeAreaView>
 
-      {/* 로그아웃 모달 */}
-      {showLogoutModal && (
-        <Modal
-          title="로그아웃하시겠어요?"
-          description=" "
-          confirmText="로그아웃"
-          cancelText="돌아가기"
-          onConfirm={handleLogout}
-          onCancel={handleLogoutCancel}
-        />
-      )}
-
-      {/* 탈퇴 모달 */}
-      {showUnsubscribeModal && (
-        <Modal
-          title="정말 탈퇴하시겠어요?"
-          description="소중한 정보가 모두 사라져요"
-          confirmText="탈퇴하기"
-          cancelText="돌아가기"
-          onConfirm={handleUnsubscribe}
-          onCancel={handleUnsubscribeCancel}
-        />
-      )}
+      {/* 모달 렌더링 */}
+      {renderModal()}
     </>
   );
 }
