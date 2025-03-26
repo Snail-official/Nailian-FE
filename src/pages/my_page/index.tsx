@@ -164,24 +164,6 @@ function MyPageScreen({ navigation }: MyPageProps) {
   };
 
   /**
-   * 탭 선택 핸들러
-   *
-   * 하단 탭바에서 탭 선택 시 해당 화면으로 이동합니다.
-   *
-   * @param {'home' | 'ar_experience' | 'my_page'} tab 선택된 탭
-   */
-  const handleTabPress = (tab: 'home' | 'ar_experience' | 'my_page') => {
-    if (tab === 'my_page') return; // 이미 마이 페이지이므로 아무 작업도 하지 않음
-
-    if (tab === 'home') {
-      navigation.navigate('MainHome');
-    } else if (tab === 'ar_experience') {
-      // AR 체험 페이지로 이동
-      navigation.navigate('ARExperiencePage');
-    }
-  };
-
-  /**
    * 회원 탈퇴 모달 표시 함수
    *
    * 탈퇴하기 버튼 클릭 시 확인 모달을 표시합니다.
@@ -356,7 +338,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
             </ScrollView>
           </View>
           <View style={styles.tabBarContainer}>
-            <TabBarFooter activeTab="my_page" onTabPress={handleTabPress} />
+            <TabBarFooter activeTab="my_page" />
           </View>
         </View>
       </SafeAreaView>
