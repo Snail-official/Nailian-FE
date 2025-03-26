@@ -254,7 +254,7 @@ export default function ARExperiencePage() {
             enableContentPanningGesture={true}
             enableHandlePanningGesture={true}
             enableOverDrag={false}
-            maxDynamicContentSize={Math.min(780, height * 0.9)}
+            maxDynamicContentSize={Math.min(780, height * 0.8)}
             backgroundStyle={styles.bottomSheetBackground}
             contentContainerStyle={styles.contentContainer}
             enableBackdrop={true}

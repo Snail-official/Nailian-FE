@@ -20,7 +20,10 @@ import {
   BottomSheetBackdropProps,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 /**
  * 필터 항목 유형 (카테고리, 색상, 쉐입)
@@ -96,6 +99,9 @@ function FilterModal({
   onApply,
   initialValues = {},
 }: FilterModalProps) {
+  // 안전 영역 인셋 가져오기
+  const insets = useSafeAreaInsets();
+
   // 바텀시트 모달 ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
@@ -407,7 +413,12 @@ function FilterModal({
         </BottomSheetScrollView>
 
         {/* 적용하기 버튼 */}
-        <View style={styles.buttonContainer}>
+        <View
+          style={[
+            styles.buttonContainer,
+            { paddingBottom: insets.bottom + vs(16) },
+          ]}
+        >
           <Button
             variant="secondaryMedium"
             onPress={handleApply}
@@ -430,7 +441,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     alignItems: 'center',
-    bottom: vs(16),
+    bottom: 0,
     left: 0,
     paddingHorizontal: scale(20),
     position: 'absolute',
