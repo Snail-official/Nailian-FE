@@ -65,7 +65,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
   });
 
   const nickname = userProfile?.data?.nickname || '네일조아';
-  const bookmarkCount = nailSets?.data?.pageInfo.totalElements || 0;
+  const bookmarkCount = nailSets?.data?.pageInfo?.totalElements || 0;
 
   /**
    * 화면에 포커스 될 때마다 데이터 다시 로드
