@@ -74,9 +74,10 @@ const nailHandlers = [
         );
       }
 
-      const simplifiedNails = filteredNails.map(({ id, imageUrl }) => ({
+      const simplifiedNails = filteredNails.map(({ id, imageUrl, shape }) => ({
         id,
         imageUrl,
+        shape,
       }));
 
       const paginatedResponse = createPaginatedResponse(
