@@ -25,6 +25,8 @@ import { scale, vs } from '~/shared/lib/responsive';
 import { createUserNailSet } from '~/entities/nail-set/api';
 import { toast } from '~/shared/lib/toast';
 import { CreateNailSetRequest, Shape } from '~/shared/api/types';
+import { RootStackParamList } from '~/shared/types/navigation';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기
@@ -97,7 +99,7 @@ export default function ARExperiencePage() {
       // 모든 손가락에 네일팁이 선택된 경우, 추가 로직 실행
       navigation.navigate('ARCameraPage');
     }
-  }, [isNailSetComplete]);
+  }, [isNailSetComplete, navigation]);
 
   /**
    * 북마크 버튼 클릭 핸들러

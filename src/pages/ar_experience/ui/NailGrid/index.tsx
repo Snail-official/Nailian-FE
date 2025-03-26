@@ -8,16 +8,13 @@ import {
   FlatList,
   NativeSyntheticEvent,
   NativeScrollEvent,
-  Text,
 } from 'react-native';
-import { colors, typography } from '~/shared/styles/design';
-import { INail, INailSet } from '~/shared/types/nail-set';
-import { NailListResponse } from '~/shared/api/types';
+import { colors } from '~/shared/styles/design';
+import { NailListResponse, Shape } from '~/shared/api/types';
 import { fetchNails } from '~/entities/nail-tip/api';
 import { useLoadMore } from '~/shared/api/hooks';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { scale, vs } from '~/shared/lib/responsive';
-import Button from '~/shared/ui/Button';
 import { NailSet, FingerType } from '~/pages/ar_experience';
 import { FilterValues } from '../FilterModal';
 
@@ -42,10 +39,6 @@ interface NailGridProps {
    * 손가락 타입과 인덱스 매핑
    */
   fingerMap: Array<{ index: number; type: string }>;
-  /**
-   * 필터 초기화 콜백 함수
-   */
-  onResetFilter?: () => void;
 }
 
 /**
@@ -60,7 +53,6 @@ interface NailGridProps {
  * - 필터 조건에 따른 네일 디자인 필터링
  * - 네일 선택 시 상위 컴포넌트에 선택 정보 전달
  * - 로딩 상태 및 에러 상태 처리
- * - 필터 결과가 없을 때 empty view 표시 및 필터 초기화 기능 제공
  *
  * @param {NailGridProps} props - 네일 그리드 컴포넌트 속성
  * @returns {JSX.Element} 네일 그리드 컴포넌트
@@ -71,7 +63,6 @@ export function NailGrid({
   selectedNailButton = null,
   isSelectingImage = false,
   fingerMap,
-  onResetFilter,
 }: NailGridProps) {
   // 기본 데이터 상태
   const [nails, setNails] = useState<
@@ -126,7 +117,8 @@ export function NailGrid({
         setIsLoading(false);
       }
     },
-    [isLoading, hasMore, activeFilters], // 실제 필요한 의존성 명시
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeFilters], // isLoading과 hasMore 의존성 제거
   );
 
   // useLoadMore 훅을 사용하여 무한 스크롤 처리
@@ -149,7 +141,8 @@ export function NailGrid({
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [activeFilters, loadNailImages, resetPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFilters, resetPage]); // loadNailImages 의존성 제거
 
   // 이미지를 네일 세트에 추가하는 함수
   const addImageToNailSet = useCallback(
@@ -219,32 +212,24 @@ export function NailGrid({
     [],
   );
 
-  /**
-   * 필터링된 결과가 없을 때 표시되는 empty view와 필터 초기화 버튼
-   *
-   * 필터 조건에 맞는 네일 이미지가 없을 때 사용자에게 안내 메시지를 제공하고
-   * 필터를 초기화할 수 있는 버튼을 제공합니다.
-   */
-  const renderEmptyView = useCallback(() => {
-    if (isLoading) return null;
+  // 스크롤 이벤트 핸들러 - 쓰로틀링 적용
+  const onScrollEndHandler = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const { layoutMeasurement, contentOffset, contentSize } =
+        event.nativeEvent;
 
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>조건에 맞는 네일이 없어요</Text>
-        <Button
-          variant="chip_black"
-          onPress={() => {
-            // 필터 초기화 로직
-            if (onResetFilter) {
-              onResetFilter();
-            }
-          }}
-        >
-          <Text style={styles.resetButtonText}>필터 초기화</Text>
-        </Button>
-      </View>
-    );
-  }, [isLoading, onResetFilter]);
+      // 스크롤이 하단에 도달했는지 확인 (bottom threshold: 0.8)
+      const paddingToBottom = 0.8;
+      const isCloseToBottom =
+        layoutMeasurement.height + contentOffset.y >=
+        contentSize.height * paddingToBottom;
+
+      if (isCloseToBottom) {
+        handleLoadMore();
+      }
+    },
+    [handleLoadMore],
+  );
 
   return (
     <BottomSheetScrollView
@@ -253,33 +238,25 @@ export function NailGrid({
       contentContainerStyle={styles.scrollViewContent}
       bounces={false}
       showsVerticalScrollIndicator={true}
-      onScroll={handleLoadMore}
+      onScroll={onScrollEndHandler}
       overScrollMode="never"
       directionalLockEnabled={true}
       disableScrollViewPanResponder={false}
     >
-      {/* 조건부 렌더링: 데이터가 없을 때때 empty view 표시 */}
-      {nails.length === 0 && !isLoading ? (
-        // 필터링 결과가 없을 때 empty view 표시
-        renderEmptyView()
-      ) : (
-        // 네일 이미지 그리드 리스트 - 데이터가 있을 때만 표시
-        <FlatList
-          data={nails}
-          renderItem={renderNailItem}
-          keyExtractor={(item, index) => `nail-${item.id}-${index}`}
-          numColumns={3}
-          columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={styles.flatListContent}
-          scrollEnabled={false}
-          ListFooterComponent={renderFooter}
-          ItemSeparatorComponent={ItemSeparator}
-          initialNumToRender={12}
-          removeClippedSubviews={false}
-        />
-      )}
-      {/* 로딩 인디케이터 표시 - 로딩 중일 때만 보임 */}
-      {isLoading && renderFooter()}
+      {/* 네일 그리드 */}
+      <FlatList
+        data={nails}
+        renderItem={renderNailItem}
+        keyExtractor={(item, index) => `nail-${item.id}-${index}`}
+        numColumns={3}
+        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={styles.flatListContent}
+        scrollEnabled={false}
+        ListFooterComponent={renderFooter}
+        ItemSeparatorComponent={ItemSeparator}
+        initialNumToRender={12}
+        removeClippedSubviews={false}
+      />
     </BottomSheetScrollView>
   );
 }
@@ -293,19 +270,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    flex: 1,
-    height: scale(300),
-    justifyContent: 'center',
-    paddingHorizontal: scale(20),
-  },
-  emptyText: {
-    ...typography.body2_SB,
-    color: colors.gray500,
-    marginBottom: vs(12),
-    textAlign: 'center',
   },
   flatListContent: {
     alignItems: 'flex-start',
@@ -327,10 +291,6 @@ const styles = StyleSheet.create({
     height: scale(104),
     overflow: 'hidden',
     width: scale(104),
-  },
-  resetButtonText: {
-    ...typography.body4_M,
-    color: colors.white,
   },
   scrollViewContent: {
     paddingBottom: vs(40),

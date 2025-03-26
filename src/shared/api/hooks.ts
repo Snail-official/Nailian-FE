@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 /**
  * 더 불러오기 구현을 위한 옵션 인터페이스
@@ -63,6 +63,7 @@ export function useLoadMore({
 }: LoadMoreOptions) {
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [isEndReached, setIsEndReached] = useState<boolean>(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * 스크롤 끝에 도달했을 때 추가 데이터를 로드하는 핸들러
@@ -75,14 +76,23 @@ export function useLoadMore({
     // 엔드리치 플래그 설정
     setIsEndReached(true);
 
-    // 다음 페이지 로드
-    const nextPage = currentPage + 1;
-    setCurrentPage(nextPage);
-    onLoad(nextPage);
+    // 이전 타이머가 있으면 제거
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
 
-    // 디바운싱: 지정된 시간 후에 플래그 초기화
-    setTimeout(() => {
+    // 디바운싱 적용: 지정된 시간 후에 다음 페이지 로드
+    timerRef.current = setTimeout(() => {
+      // 타임아웃 시점에 다시 상태 체크
+      if (!isLoading && hasMore) {
+        const nextPage = currentPage + 1;
+        setCurrentPage(nextPage);
+        onLoad(nextPage);
+      }
+
+      // 플래그 초기화
       setIsEndReached(false);
+      timerRef.current = null;
     }, debounceTime);
   }, [currentPage, isLoading, hasMore, isEndReached, onLoad, debounceTime]);
 
@@ -91,9 +101,25 @@ export function useLoadMore({
    * 필터 변경 등으로 데이터를 처음부터 다시 로드할 때 사용
    */
   const resetPage = useCallback(() => {
+    // 진행 중인 타이머가 있다면 취소
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
     setCurrentPage(initialPage);
     setIsEndReached(false);
   }, [initialPage]);
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(
+    () => () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    },
+    [],
+  );
 
   return {
     currentPage,

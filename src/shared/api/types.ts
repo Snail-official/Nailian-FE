@@ -114,6 +114,7 @@ export type NailListResponse = ApiResponse<
   PaginatedResponse<{
     id: number;
     imageUrl: string;
+    shape: Shape;
   }>
 >;
 
