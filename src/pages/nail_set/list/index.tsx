@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   FlatList,
@@ -14,6 +14,7 @@ import {
   useFocusEffect,
 } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { INailSet } from '~/shared/types/nail-set';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,7 +22,6 @@ import { colors } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import { fetchNailSetFeed, fetchUserNailSets } from '~/entities/nail-set/api';
-import { useLoadMore } from '~/shared/api/hooks';
 import NailSet from '~/features/nail-set/ui/NailSet';
 import EmptyView from './ui/EmptyView';
 
@@ -34,6 +34,7 @@ const NAIL_SET_WIDTH = scale(160);
 const HORIZONTAL_SPACING = scale(12);
 /** 두 네일 세트의 총 너비 (두 컴포넌트 + 간격) */
 const TOTAL_NAIL_SETS_WIDTH = NAIL_SET_WIDTH * 2 + HORIZONTAL_SPACING;
+const PAGE_SIZE = 10;
 
 type NailSetListScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -60,145 +61,57 @@ function NailSetListPage() {
   const { styleId, styleName } = route.params;
   const isBookmarkMode = styleName === '네일 보관함';
 
-  // 상태 관리
-  const [nailSets, setNailSets] = useState<INailSet[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMoreData, setHasMoreData] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [bookmarkedNailIds, setBookmarkedNailIds] = useState<number[]>([]);
-  const [dataFetched, setDataFetched] = useState(false); // 데이터 로드 완료 여부
-  const pageSize = 10;
-
-  /**
-   * 네일 세트 데이터 가져오기
-   *
-   * @param {number} page 가져올 페이지 번호
-   * @param {boolean} reset 기존 데이터 초기화 여부
-   * @returns {Promise<void>}
-   */
-  const fetchNailSets = useCallback(
-    async (page: number, reset: boolean = false) => {
-      // 이미 로딩 중이거나 더 불러올 데이터가 없으면 중단
-      if (isLoading || (!hasMoreData && !reset)) return;
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        let response;
-
-        if (isBookmarkMode) {
-          // 북마크 모드일 때 북마크된 네일 세트 목록 가져오기
-          response = await fetchUserNailSets({
-            page,
-            size: pageSize,
-          });
-        } else {
-          // 스타일별 네일 세트 조회
-          response = await fetchNailSetFeed({
-            style: { id: styleId, name: styleName },
-            page,
-            size: pageSize,
-          });
-        }
-
-        if (response.data) {
-          // 페이지네이션 응답에서 데이터 배열 추출
-          const newNailSets = response.data.content || [];
-
-          // 데이터 설정 (초기화 또는 추가)
-          if (reset) {
-            setNailSets(newNailSets);
-          } else {
-            setNailSets(prev => [...prev, ...newNailSets]);
-          }
-
-          // 북마크 페이지일 경우 모든 아이템이 북마크된 상태
-          if (isBookmarkMode) {
-            setBookmarkedNailIds(newNailSets.map((item: INailSet) => item.id));
-          }
-
-          // 더 불러올 데이터가 있는지 확인
-          setHasMoreData(newNailSets.length === pageSize);
-        }
-
-        // 데이터 로드 완료 표시
-        setDataFetched(true);
-      } catch (err) {
-        console.error('네일 세트 피드 불러오기 실패:', err);
-        setError('데이터를 불러오는데 실패했습니다.');
-        setDataFetched(true); // 에러가 나도 로드 시도는 완료됨
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [isLoading, hasMoreData, styleId, styleName, pageSize, isBookmarkMode],
-  );
-
-  // useLoadMore 훅을 사용하여 무한 스크롤 처리
-  const { handleLoadMore, resetPage } = useLoadMore({
-    onLoad: page => fetchNailSets(page),
-    hasMore: hasMoreData,
-    isLoading,
+  // 북마크 상태를 위한 쿼리
+  const { data: bookmarkData } = useQuery({
+    queryKey: ['bookmarkStatus'],
+    queryFn: () => fetchUserNailSets({ page: 1, size: 100 }),
+    enabled: !isBookmarkMode,
   });
 
-  /**
-   * 북마크 상태 가져오기 (일반 스타일 모드일 때만)
-   *
-   * 현재 사용자가 북마크한 네일 세트의 ID 목록을 가져와
-   * 각 네일 세트의 북마크 상태를 표시하기 위한 함수입니다.
-   *
-   * @returns {Promise<void>}
-   */
-  const fetchBookmarkStatus = useCallback(async () => {
-    // 북마크 모드에서는 호출하지 않음
-    if (styleName === '네일 보관함') return;
+  const bookmarkedNailIds =
+    bookmarkData?.data?.content?.map(item => item.id) || [];
 
-    try {
-      const response = await fetchUserNailSets({ page: 1, size: 100 });
-      if (response.data?.content) {
-        setBookmarkedNailIds(response.data.content.map(item => item.id));
+  // 무한 스크롤을 위한 쿼리
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ['nailSets', styleId, styleName],
+    queryFn: async ({ pageParam = 1 }) => {
+      if (isBookmarkMode) {
+        return fetchUserNailSets({
+          page: pageParam,
+          size: PAGE_SIZE,
+        });
       }
-    } catch (err) {
-      console.error('북마크 상태 불러오기 실패:', err);
-    }
-  }, [styleName]);
+      return fetchNailSetFeed({
+        style: { id: styleId, name: styleName },
+        page: pageParam,
+        size: PAGE_SIZE,
+      });
+    },
+    getNextPageParam: lastPage => {
+      const totalPages = lastPage.data?.pageInfo?.totalPages || 0;
+      const currentPage = lastPage.data?.pageInfo?.currentPage || 0;
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
+    initialPageParam: 1,
+  });
 
-  /**
-   * 컴포넌트 마운트 시 데이터 로드
-   *
-   * 컴포넌트가 마운트되면 첫 페이지 데이터를 가져오고
-   * 북마크 상태도 함께 로드합니다.
-   */
-  useEffect(() => {
-    setHasMoreData(true);
-    setDataFetched(false); // 데이터 로드 시작 시 초기화
-    resetPage(); // 페이지 초기화
-    fetchNailSets(1, true);
-    fetchBookmarkStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // 모든 페이지의 데이터를 하나의 배열로 합치기
+  const nailSets = data?.pages.flatMap(page => page.data?.content || []) || [];
 
-  /**
-   * 화면에 포커스가 올 때마다 데이터 새로고침
-   * 네일 세트 삭제 후 돌아올 때 데이터 갱신을 위함
-   */
+  // 화면에 포커스가 올 때마다 데이터 새로고침
   useFocusEffect(
     useCallback(() => {
-      // 초기 로드가 이미 완료된 후에만 리로드 실행
-      if (dataFetched) {
-        // 화면에 다시 포커스가 왔을 때 데이터 리프레시
-        setHasMoreData(true);
-        setDataFetched(false);
-        resetPage();
-        fetchNailSets(1, true);
-        fetchBookmarkStatus();
-      }
-
-      return () => {
-        // 클린업 함수 (필요 시)
-      };
-    }, [dataFetched, resetPage, fetchNailSets, fetchBookmarkStatus]),
+      refetch();
+    }, [refetch]),
   );
 
   /**
@@ -226,7 +139,7 @@ function NailSetListPage() {
    * @returns {JSX.Element | null} 로딩 표시기 또는 null
    */
   const renderFooter = () => {
-    if (!isLoading) return null;
+    if (!isFetchingNextPage) return null;
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="small" color={colors.purple500} />
@@ -270,12 +183,16 @@ function NailSetListPage() {
   /**
    * 에러 화면 표시
    */
-  if (error && nailSets.length === 0) {
+  if (isError && nailSets.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
         <TabBarHeader title={styleName} onBack={() => navigation.goBack()} />
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={styles.errorText}>
+            {error instanceof Error
+              ? error.message
+              : '데이터를 불러오는데 실패했습니다.'}
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -284,7 +201,7 @@ function NailSetListPage() {
   /**
    * 보관함이 비어있을 때 엠티 뷰 표시 (북마크 모드인 경우만)
    */
-  if (isBookmarkMode && dataFetched && nailSets.length === 0) {
+  if (isBookmarkMode && nailSets.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
         <TabBarHeader title={styleName} onBack={() => navigation.goBack()} />
@@ -310,7 +227,7 @@ function NailSetListPage() {
           showsVerticalScrollIndicator={false}
           removeClippedSubviews={false}
           contentContainerStyle={styles.listContent}
-          onEndReached={handleLoadMore}
+          onEndReached={() => hasNextPage && fetchNextPage()}
           onEndReachedThreshold={0.3}
           ListFooterComponent={renderFooter}
         />

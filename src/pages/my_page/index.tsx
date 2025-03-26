@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,6 +10,7 @@ import {
   Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQuery } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, typography } from '~/shared/styles/design';
@@ -48,39 +49,23 @@ interface MyPageProps {
  * @param {NativeStackNavigationProp} props.navigation 네비게이션 객체
  */
 function MyPageScreen({ navigation }: MyPageProps) {
-  const [nickname, setNickname] = useState<string>('');
-  const [bookmarkCount, setBookmarkCount] = useState<number>(0);
-  const [currentModal, setCurrentModal] = useState<
+  const [currentModal, setCurrentModal] = React.useState<
     'none' | 'logout' | 'unsubscribe'
   >('none');
 
-  /**
-   * 사용자 데이터를 가져오는 함수
-   */
-  const fetchUserData = useCallback(async () => {
-    try {
-      // 프로필 가져오기
-      const profileResponse = await fetchUserProfile();
-      if (profileResponse.data?.nickname) {
-        setNickname(profileResponse.data.nickname);
-      }
+  // React Query를 사용한 데이터 페칭
+  const { data: userProfile, refetch: refetchProfile } = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: fetchUserProfile,
+  });
 
-      // 네일셋 정보 가져오기
-      const setsResponse = await fetchUserNailSets({ page: 1, size: 10 });
-      if (setsResponse.data) {
-        setBookmarkCount(setsResponse.data.pageInfo.totalElements);
-      }
-    } catch (err) {
-      console.error('데이터 불러오기 실패:', err);
-    }
-  }, []);
+  const { data: nailSets, refetch: refetchNailSets } = useQuery({
+    queryKey: ['userNailSets'],
+    queryFn: () => fetchUserNailSets({ page: 1, size: 10 }),
+  });
 
-  /**
-   * 컴포넌트 마운트 시 데이터 로드
-   */
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
+  const nickname = userProfile?.data?.nickname || '네일조아';
+  const bookmarkCount = nailSets?.data?.pageInfo?.totalElements || 0;
 
   /**
    * 화면에 포커스 될 때마다 데이터 다시 로드
@@ -88,11 +73,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
    */
   useFocusEffect(
     useCallback(() => {
-      fetchUserData();
-      return () => {
-        // 클린업 함수 (필요 시)
-      };
-    }, [fetchUserData]),
+      refetchProfile();
+    }, [refetchProfile]),
   );
 
   /**
@@ -273,7 +255,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 <View style={styles.profileImageContainer}>
                   <Image source={ProfileImage} style={styles.profileImage} />
                 </View>
-                <Text style={styles.nickname}>{nickname || '네일조아'}</Text>
+                <Text style={styles.nickname}>{nickname}</Text>
               </View>
 
               {/* 구분선 */}

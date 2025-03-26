@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,6 +9,7 @@ import {
   Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQuery } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
@@ -43,9 +44,23 @@ type Props = {
  * @param {NativeStackNavigationProp} props.navigation 네비게이션 객체
  */
 function MainHomeScreen({ navigation }: Props) {
-  const [nickname, setNickname] = useState<string>('');
-  const [styleGroups, setStyleGroups] = useState<StyleGroup[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  // React Query를 사용한 데이터 페칭
+  const { data: userProfile } = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: fetchUserProfile,
+  });
+
+  const { data: styleGroups = [] } = useQuery({
+    queryKey: ['recommendedNailSets'],
+    queryFn: async () => {
+      const response = await fetchRecommendedNailSets();
+      return response.data || [];
+    },
+  });
+
+  const nickname = userProfile?.data?.nickname || '';
 
   /**
    * 탭 선택 핸들러
@@ -67,44 +82,6 @@ function MainHomeScreen({ navigation }: Props) {
     },
     [navigation],
   );
-
-  /**
-   * 사용자 프로필 정보 가져오기
-   *
-   * 컴포넌트 마운트 시 사용자 프로필 정보를 가져와 닉네임을 설정합니다.
-   */
-  useEffect(() => {
-    const getUserProfile = async () => {
-      try {
-        const response = await fetchUserProfile();
-        setNickname(response.data?.nickname || '');
-      } catch (err) {
-        console.error('사용자 정보 불러오기 실패:', err);
-      }
-    };
-
-    getUserProfile();
-  }, []);
-
-  /**
-   * 스타일 그룹 가져오기
-   *
-   * 컴포넌트 마운트 시 사용자 맞춤형 스타일 그룹 목록을 가져옵니다.
-   */
-  useEffect(() => {
-    const fetchStyleGroups = async () => {
-      try {
-        const response = await fetchRecommendedNailSets();
-        if (response.data) {
-          setStyleGroups(response.data);
-        }
-      } catch (err) {
-        console.error('추천 네일 세트 불러오기 실패:', err);
-      }
-    };
-
-    fetchStyleGroups();
-  }, []);
 
   /**
    * 배너 클릭 핸들러

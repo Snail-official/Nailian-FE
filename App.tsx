@@ -12,17 +12,20 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigation from './src/app/providers/navigation';
 import { ToastContainer } from './src/shared/ui/Toast';
 import useModelLoader from './src/features/model/useModelLoader';
+import { QueryProvider } from './src/app/providers/query';
 
 function App(): React.JSX.Element {
   useModelLoader();
 
   return (
-    <SafeAreaProvider>
-      <GestureHandlerRootView style={styles.container}>
-        <AppNavigation />
-        <ToastContainer />
-      </GestureHandlerRootView>
-    </SafeAreaProvider>
+    <QueryProvider>
+      <SafeAreaProvider>
+        <GestureHandlerRootView style={styles.container}>
+          <AppNavigation />
+          <ToastContainer />
+        </GestureHandlerRootView>
+      </SafeAreaProvider>
+    </QueryProvider>
   );
 }
 
