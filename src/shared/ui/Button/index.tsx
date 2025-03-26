@@ -48,6 +48,8 @@ export type ButtonVariant =
   | 'primaryLarge'
   | 'secondaryLarge'
   | 'secondarySmall'
+  | 'secondarySmallLeft'
+  | 'secondarySmallRight'
   | 'primaryMediumGradient'
   | 'secondaryMediumGradient'
   | 'kakaoMedium'
@@ -108,6 +110,25 @@ const BUTTON_STYLES: Record<
     enabledColor: colors.gray900,
     disabledColor: colors.gray100,
     textStyle: typography.body2_SB,
+    borderRadius: scale(8),
+  },
+  secondarySmallLeft: {
+    height: vs(44),
+    width: scale(144),
+    enabledColor: colors.gray100,
+    disabledColor: colors.gray100,
+    textStyle: typography.body2_SB,
+    borderRadius: scale(8),
+  },
+  secondarySmallRight: {
+    height: vs(44),
+    width: scale(144),
+    enabledColor: colors.gray900,
+    disabledColor: colors.gray900,
+    textStyle: {
+      ...typography.body2_SB,
+      color: colors.white,
+    },
     borderRadius: scale(8),
   },
   primaryMediumGradient: {
@@ -236,7 +257,8 @@ function Button({
       variant as Exclude<ButtonVariant, 'add_nail' | 'filter_content'>
     ];
   const isGradientVariant = variant.includes('Gradient');
-  const isSecondarySmall = variant === 'secondarySmall';
+  const isSecondarySmall =
+    variant === 'secondarySmallLeft' || variant === 'secondarySmallRight';
 
   // 기존 버튼 렌더링 로직
   const buttonContent = (

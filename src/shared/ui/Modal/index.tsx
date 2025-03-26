@@ -79,15 +79,15 @@ export default function Modal({
           </View>
           <View style={styles.buttonContainer}>
             <Button
-              variant="secondarySmall"
+              variant="secondarySmallLeft"
               onPress={onConfirm}
-              disabled={true}
+              disabled={false}
               loading={false}
             >
               <Text style={styles.cancelText}>{confirmText}</Text>
             </Button>
             <Button
-              variant="secondarySmall"
+              variant="secondarySmallRight"
               onPress={onCancel}
               disabled={false}
               loading={false}
