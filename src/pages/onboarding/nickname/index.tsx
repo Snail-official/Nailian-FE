@@ -9,6 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useMutation } from '@tanstack/react-query';
 import { updateNickname } from '~/entities/user/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 import { typography, colors } from '~/shared/styles/design';
@@ -28,7 +29,6 @@ import { toast } from '~/shared/lib/toast';
  */
 export default function OnboardingNicknameScreen() {
   const [nickname, setNickname] = useState('네일조아');
-  const [loading, setLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const { goToNextOnboardingStep } = useOnboardingNavigation();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -78,32 +78,35 @@ export default function OnboardingNicknameScreen() {
     setIsError(false); // 새로운 입력이 있을 때만 에러 상태 해제
   };
 
-  /**
-   * 닉네임 제출 핸들러
-   *
-   * 입력된 닉네임의 유효성을 검사하고, 유효하다면 서버에 저장합니다.
-   * 특수문자가 포함되어 있거나 중복된 닉네임인 경우 에러 토스트를 표시합니다.
-   */
-  const handleNicknameSubmit = async () => {
-    if (hasSpecialCharacters(nickname)) {
-      showErrorToast('특수기호는 입력할 수 없어요');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await updateNickname({ nickname: nickname.trim() });
+  // 닉네임 업데이트를 위한 뮤테이션
+  const { mutate: updateNicknameMutation, isPending: loading } = useMutation({
+    mutationFn: updateNickname,
+    onSuccess: () => {
       goToNextOnboardingStep();
-    } catch (error: unknown) {
+    },
+    onError: (error: unknown) => {
       console.error('닉네임 저장 실패:', error);
       const isDuplicate =
         error instanceof Error && error.message.includes('duplicate');
       showErrorToast(
         isDuplicate ? '중복된 닉네임이에요' : '닉네임 저장에 실패했어요',
       );
-    } finally {
-      setLoading(false);
+    },
+  });
+
+  /**
+   * 닉네임 제출 핸들러
+   *
+   * 입력된 닉네임의 유효성을 검사하고, 유효하다면 서버에 저장합니다.
+   * 특수문자가 포함되어 있거나 중복된 닉네임인 경우 에러 토스트를 표시합니다.
+   */
+  const handleNicknameSubmit = () => {
+    if (hasSpecialCharacters(nickname)) {
+      showErrorToast('특수기호는 입력할 수 없어요');
+      return;
     }
+
+    updateNicknameMutation({ nickname: nickname.trim() });
   };
 
   return (
