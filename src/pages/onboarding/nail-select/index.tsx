@@ -56,11 +56,11 @@ function ItemSeparator() {
 
 export default function NailSelectScreen() {
   const navigation = useOnboardingNavigation();
-  const queryClient = useQueryClient();
+
   const [selectedNails, setSelectedNails] = useState<number[]>([]);
 
   // 무한 스크롤을 위한 쿼리
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
     useInfiniteQuery({
       queryKey: ['nailPreferences'],
       queryFn: async ({ pageParam = 1 }) =>
@@ -75,6 +75,11 @@ export default function NailSelectScreen() {
       },
       initialPageParam: 1,
     });
+
+  // 에러가 있으면 throw
+  if (error) {
+    throw new Error('네일 데이터를 불러오는데 실패했습니다');
+  }
 
   // 선택한 네일 저장을 위한 뮤테이션
   const { mutate: savePreferences, isPending: submitLoading } = useMutation({
