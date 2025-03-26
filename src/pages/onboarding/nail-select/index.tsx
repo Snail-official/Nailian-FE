@@ -1,6 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   colors,
   typography,
@@ -16,7 +27,6 @@ import {
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 import Button from '~/shared/ui/Button';
 import { toast } from '~/shared/lib/toast';
-import { useLoadMore } from '~/shared/api/hooks';
 
 /**
  * 온보딩 네일 선택 화면
@@ -46,94 +56,34 @@ function ItemSeparator() {
 
 export default function NailSelectScreen() {
   const navigation = useOnboardingNavigation();
-  const [nails, setNails] = useState<NailItem[]>([]);
+  const queryClient = useQueryClient();
   const [selectedNails, setSelectedNails] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [submitLoading, setSubmitLoading] = useState(false);
 
-  // 네일 선택 토글 함수
-  const toggleNailSelection = useCallback((nailId: number) => {
-    setSelectedNails(prevSelected => {
-      if (prevSelected.includes(nailId)) {
-        // 이미 선택된 경우 제거
-        return prevSelected.filter(id => id !== nailId);
-      } else if (prevSelected.length < 10) {
-        // 최대 10개까지만 선택 가능
-        return [...prevSelected, nailId];
-      }
-      // 이미 10개 선택한 경우
-      toast.showToast('네일은 최대 10개까지만 선택할 수 있습니다.');
-      return prevSelected;
-    });
-  }, []);
-
-  // 네일 데이터 가져오기
-  const fetchNailData = useCallback(
-    async (page: number) => {
-      if (isLoading) return;
-
-      try {
-        setIsLoading(true);
-        const response = await fetchNailPreferences({
-          page,
+  // 무한 스크롤을 위한 쿼리
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteQuery({
+      queryKey: ['nailPreferences'],
+      queryFn: async ({ pageParam = 1 }) =>
+        fetchNailPreferences({
+          page: pageParam,
           size: 20,
-        });
+        }),
+      getNextPageParam: lastPage => {
+        const totalPages = lastPage.data?.pageInfo?.totalPages || 0;
+        const currentPage = lastPage.data?.pageInfo?.currentPage || 0;
+        return currentPage < totalPages ? currentPage + 1 : undefined;
+      },
+      initialPageParam: 1,
+    });
 
-        if (response.data?.content) {
-          // 응답 데이터 구조에 맞게 처리
-          const newNails = response.data.content.map(item => ({
-            id: item.id,
-            imageUrl: item.imageUrl,
-          }));
-
-          setNails(prev => (page === 1 ? newNails : [...prev, ...newNails]));
-
-          // 더 불러올 데이터가 있는지 확인
-          const hasNext =
-            response.data.pageInfo.currentPage <
-            response.data.pageInfo.totalPages;
-          setHasMore(hasNext);
-        }
-      } catch (error) {
-        console.error('네일 추천 목록 조회 실패', error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [isLoading],
-  );
-
-  // useLoadMore 훅 사용하여 무한 스크롤 처리
-  const { handleLoadMore, resetPage } = useLoadMore({
-    onLoad: page => fetchNailData(page),
-    hasMore,
-    isLoading,
-  });
-
-  // 초기 데이터 로드
-  useEffect(() => {
-    resetPage();
-    fetchNailData(1);
-  }, [fetchNailData, resetPage]);
-
-  const handleCompleteSelection = async () => {
-    if (selectedNails.length < 3) {
-      toast.showToast('최소 3개의 네일을 선택해주세요');
-      return;
-    }
-
-    try {
-      setSubmitLoading(true);
-
-      // 선택한 네일 취향 저장 API 호출
-      await saveNailPreferences({
-        preferences: selectedNails,
-      });
-
+  // 선택한 네일 저장을 위한 뮤테이션
+  const { mutate: savePreferences, isPending: submitLoading } = useMutation({
+    mutationFn: saveNailPreferences,
+    onSuccess: () => {
       // 성공 시 다음 온보딩 단계로 이동
       navigation.goToNextOnboardingStep();
-    } catch (error: unknown) {
+    },
+    onError: (error: unknown) => {
       console.error('네일 취향 저장 실패:', error);
 
       let errorMessage = '네일 취향 저장에 실패했습니다.';
@@ -150,12 +100,36 @@ export default function NailSelectScreen() {
             ?.data?.message || errorMessage;
       }
 
-      // 에러 메시지 표시
       toast.showToast(errorMessage);
-    } finally {
-      setSubmitLoading(false);
+    },
+  });
+
+  // 네일 선택 토글 함수
+  const toggleNailSelection = useCallback((nailId: number) => {
+    setSelectedNails(prevSelected => {
+      if (prevSelected.includes(nailId)) {
+        return prevSelected.filter(id => id !== nailId);
+      } else if (prevSelected.length < 10) {
+        return [...prevSelected, nailId];
+      }
+      toast.showToast('네일은 최대 10개까지만 선택할 수 있습니다.');
+      return prevSelected;
+    });
+  }, []);
+
+  const handleCompleteSelection = async () => {
+    if (selectedNails.length < 3) {
+      toast.showToast('최소 3개의 네일을 선택해주세요');
+      return;
     }
+
+    savePreferences({
+      preferences: selectedNails,
+    });
   };
+
+  // 모든 페이지의 데이터를 하나의 배열로 합치기
+  const nails = data?.pages.flatMap(page => page.data?.content || []) || [];
 
   /**
    * 개별 네일 이미지 렌더링 컴포넌트
@@ -198,9 +172,16 @@ export default function NailSelectScreen() {
             contentContainerStyle={styles.gridContainer}
             columnWrapperStyle={styles.row}
             ItemSeparatorComponent={ItemSeparator}
-            onEndReached={handleLoadMore}
+            onEndReached={() => hasNextPage && fetchNextPage()}
             onEndReachedThreshold={0.1}
             removeClippedSubviews={false}
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <View style={styles.loaderContainer}>
+                  <ActivityIndicator size="small" color={colors.purple500} />
+                </View>
+              ) : null
+            }
           />
         )}
 
@@ -240,6 +221,10 @@ const styles = StyleSheet.create({
     marginBottom: vs(28),
     paddingHorizontal: spacing.large,
     paddingTop: spacing.xlarge,
+  },
+  loaderContainer: {
+    alignItems: 'center',
+    marginVertical: vs(16),
   },
   nailItem: {
     height: scale(103),
