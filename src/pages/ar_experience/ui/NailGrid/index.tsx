@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,10 +9,10 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { colors } from '~/shared/styles/design';
 import { NailListResponse, Shape } from '~/shared/api/types';
 import { fetchNails } from '~/entities/nail-tip/api';
-import { useLoadMore } from '~/shared/api/hooks';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { scale, vs } from '~/shared/lib/responsive';
 import { NailSet, FingerType } from '~/pages/ar_experience';
@@ -64,12 +64,6 @@ export function NailGrid({
   isSelectingImage = false,
   fingerMap,
 }: NailGridProps) {
-  // 기본 데이터 상태
-  const [nails, setNails] = useState<
-    { id: number; imageUrl: string; shape?: Shape }[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const scrollViewRef =
     useRef<React.ComponentRef<typeof BottomSheetScrollView>>(null);
 
@@ -81,68 +75,40 @@ export function NailGrid({
     [fingerMap],
   );
 
-  // 네일 이미지 로드 함수 (필터 적용 지원)
-  const loadNailImages = useCallback(
-    async (page = 1, filters: FilterValues = activeFilters) => {
-      // 이미 로딩 중이거나 더 이상 데이터가 없으면 중단
-      if (isLoading) return;
-      if (page > 1 && !hasMore) return;
-
-      try {
-        setIsLoading(true);
-        const response: NailListResponse = await fetchNails({
-          page,
-          size: 24,
-          category: filters.category,
-          color: filters.color,
-          shape: filters.shape,
-        });
-
-        if (response.data) {
-          const newData =
-            response.data?.content.map(nail => ({
-              ...nail,
-              id: nail.id, // 이미 숫자형이므로 변환 불필요
-            })) ?? [];
-
-          setNails(prev => (page === 1 ? newData : [...prev, ...newData]));
-          setHasMore(
-            response.data.pageInfo.currentPage <
-              response.data.pageInfo.totalPages,
-          );
-        }
-      } catch (error) {
-        console.error('네일 목록 불러오기 실패:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [activeFilters], // isLoading과 hasMore 의존성 제거
-  );
-
-  // useLoadMore 훅을 사용하여 무한 스크롤 처리
-  const { handleLoadMore, resetPage } = useLoadMore({
-    onLoad: page => loadNailImages(page, activeFilters),
-    hasMore,
+  // 네일 이미지 무한 스크롤 쿼리
+  const {
+    data: nailData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['nails', activeFilters],
+    queryFn: async ({ pageParam = 1 }) =>
+      fetchNails({
+        page: pageParam,
+        size: 24,
+        category: activeFilters.category,
+        color: activeFilters.color,
+        shape: activeFilters.shape,
+      }),
+    getNextPageParam: lastPage => {
+      const totalPages = lastPage.data?.pageInfo?.totalPages || 0;
+      const currentPage = lastPage.data?.pageInfo?.currentPage || 0;
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
+    initialPageParam: 1,
   });
 
-  // 데이터 로드 트리거 - 초기 로드와 필터 변경 시
-  useEffect(() => {
-    // 페이지 초기화 및 데이터 로드
-    setNails([]);
-    setHasMore(true);
-    resetPage();
-
-    // 0ms 지연을 통해 상태 업데이트 완료 후 실행
-    const timer = setTimeout(() => {
-      loadNailImages(1, activeFilters);
-    }, 0);
-
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFilters, resetPage]); // loadNailImages 의존성 제거
+  // 모든 페이지의 데이터를 하나의 배열로 합치기
+  const nails =
+    nailData?.pages.flatMap(
+      page =>
+        page.data?.content.map(nail => ({
+          ...nail,
+          id: nail.id,
+        })) ?? [],
+    ) ?? [];
 
   // 이미지를 네일 세트에 추가하는 함수
   const addImageToNailSet = useCallback(
@@ -152,7 +118,6 @@ export function NailGrid({
     ) => {
       const fingerType = getFingerTypeByIndex(index);
 
-      // 네일 세트 업데이트 - 부모 컴포넌트의 콜백 직접 호출
       const updatedSet: Partial<NailSet> = {
         [fingerType]: {
           id: nailItem.id,
@@ -161,7 +126,6 @@ export function NailGrid({
         },
       };
 
-      // 바로 부모 컴포넌트에 업데이트된 상태 전달
       onNailSetChange?.(updatedSet);
     },
     [getFingerTypeByIndex, onNailSetChange],
@@ -170,7 +134,6 @@ export function NailGrid({
   // 그리드 네일 아이템 클릭 핸들러
   const handleNailItemClick = useCallback(
     (item: { id: number; imageUrl: string; shape?: Shape }) => {
-      // 이미지 선택 모드일 때: 버튼에 이미지 추가
       if (isSelectingImage && selectedNailButton !== null) {
         addImageToNailSet(selectedNailButton, item);
       }
@@ -198,13 +161,13 @@ export function NailGrid({
 
   // 리스트 Footer 렌더링 (로딩 표시)
   const renderFooter = useCallback(() => {
-    if (!isLoading) return null;
+    if (!isFetchingNextPage) return null;
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color={colors.purple500} />
       </View>
     );
-  }, [isLoading]);
+  }, [isFetchingNextPage]);
 
   // 아이템 구분선 컴포넌트
   const ItemSeparator = useCallback(
@@ -212,23 +175,22 @@ export function NailGrid({
     [],
   );
 
-  // 스크롤 이벤트 핸들러 - 쓰로틀링 적용
+  // 스크롤 이벤트 핸들러
   const onScrollEndHandler = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const { layoutMeasurement, contentOffset, contentSize } =
         event.nativeEvent;
 
-      // 스크롤이 하단에 도달했는지 확인 (bottom threshold: 0.8)
       const paddingToBottom = 0.8;
       const isCloseToBottom =
         layoutMeasurement.height + contentOffset.y >=
         contentSize.height * paddingToBottom;
 
-      if (isCloseToBottom) {
-        handleLoadMore();
+      if (isCloseToBottom && hasNextPage) {
+        fetchNextPage();
       }
     },
-    [handleLoadMore],
+    [fetchNextPage, hasNextPage],
   );
 
   return (
