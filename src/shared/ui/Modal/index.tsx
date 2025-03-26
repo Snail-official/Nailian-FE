@@ -1,5 +1,13 @@
-import React from 'react';
-import { View, Text, StyleSheet, Modal as RNModal } from 'react-native';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Modal as RNModal,
+  Pressable,
+  BackHandler,
+  Platform,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, typography, spacing } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
@@ -37,7 +45,7 @@ interface ModalProps {
  *   onCancel={handleClose}
  * />
  */
-export default function Modal({
+function Modal({
   title,
   description,
   cancelText,
@@ -47,56 +55,131 @@ export default function Modal({
 }: ModalProps) {
   const insets = useSafeAreaInsets();
 
+  // 기본 설정
+  const ANIMATION_DURATION = 300; // ms, RN Modal의 기본 애니메이션 지속 시간
+
+  // 모달 초기 props를 캐싱하여 일관성 유지
+  const initialProps = useRef({
+    title,
+    description,
+    cancelText,
+    confirmText,
+  }).current;
+
+  // 모달 가시성 상태
+  const [visible, setVisible] = useState(true);
+
+  // 이벤트 처리 중인지 플래그
+  const [isHandlingAction, setIsHandlingAction] = useState(false);
+
+  // 안전한 이벤트 핸들러 - 중복 실행 방지
+  const safelyHandleEvent = useCallback(
+    (handler: () => void) => {
+      if (isHandlingAction) return;
+      setIsHandlingAction(true);
+
+      // 모달 닫기 애니메이션 시작
+      setVisible(false);
+
+      // 애니메이션 완료 후 핸들러 실행
+      setTimeout(() => {
+        handler();
+      }, ANIMATION_DURATION);
+    },
+    [isHandlingAction, ANIMATION_DURATION],
+  );
+
+  // 안전한 취소 이벤트 처리
+  const handleCancelSafely = useCallback(() => {
+    safelyHandleEvent(onCancel);
+  }, [safelyHandleEvent, onCancel]);
+
+  // 안전한 확인 이벤트 처리
+  const handleConfirmSafely = useCallback(() => {
+    safelyHandleEvent(onConfirm);
+  }, [safelyHandleEvent, onConfirm]);
+
+  // 배경 탭 핸들러는 취소 핸들러와 동일하게 동작
+  const handleBackdropPress = useCallback(() => {
+    handleCancelSafely();
+  }, [handleCancelSafely]);
+
+  // 모달 내부 탭 시 이벤트 전파 중지
+  const stopPropagation = useCallback((e: React.SyntheticEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  // 백 핸들러 설정
+  useEffect(() => {
+    const backAction = () => {
+      if (visible) {
+        handleCancelSafely();
+        return true; // 이벤트 소비
+      }
+      return false; // 다른 핸들러로 전파
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, [visible, handleCancelSafely]);
+
   return (
     <RNModal
-      transparent={true}
-      visible={true}
+      transparent
+      visible={visible}
       animationType="fade"
-      onRequestClose={onCancel}
+      onRequestClose={handleCancelSafely}
+      // 안드로이드에서 모달이 하드웨어 백 버튼으로 닫히지 않도록 설정
+      hardwareAccelerated={Platform.OS === 'android'}
     >
-      <View
-        style={[
-          styles.overlay,
-          {
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
-            paddingLeft: insets.left,
-            paddingRight: insets.right,
-          },
-        ]}
-      >
-        <View style={styles.container}>
+      <Pressable style={styles.overlay} onPress={handleBackdropPress}>
+        <Pressable
+          style={[
+            styles.container,
+            {
+              marginTop: insets.top,
+              marginBottom: insets.bottom,
+              marginLeft: insets.left,
+              marginRight: insets.right,
+            },
+          ]}
+          onPress={stopPropagation}
+        >
           <View style={styles.content}>
             <ErrorIcon
               width={scale(20)}
               height={scale(20)}
               color={colors.gray650}
             />
-            <Text style={styles.title}>{title}</Text>
-            {description && description.length > 0 ? (
-              <Text style={styles.description}>{description}</Text>
+            <Text style={styles.title}>{initialProps.title}</Text>
+            {initialProps.description && initialProps.description.length > 0 ? (
+              <Text style={styles.description}>{initialProps.description}</Text>
             ) : null}
           </View>
           <View style={styles.buttonContainer}>
             <Button
               variant="secondarySmallLeft"
-              onPress={onConfirm}
-              disabled={false}
+              onPress={handleConfirmSafely}
+              disabled={isHandlingAction}
               loading={false}
             >
-              <Text style={styles.cancelText}>{confirmText}</Text>
+              <Text style={styles.cancelText}>{initialProps.confirmText}</Text>
             </Button>
             <Button
               variant="secondarySmallRight"
-              onPress={onCancel}
-              disabled={false}
+              onPress={handleCancelSafely}
+              disabled={isHandlingAction}
               loading={false}
             >
-              <Text style={styles.confirmText}>{cancelText}</Text>
+              <Text style={styles.confirmText}>{initialProps.cancelText}</Text>
             </Button>
           </View>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </RNModal>
   );
 }
@@ -154,3 +237,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+export default Modal;
