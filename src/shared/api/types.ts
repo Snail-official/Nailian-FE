@@ -414,3 +414,17 @@ export interface ExtendedResponse extends Response {
 export type ResponseInterceptor = (
   response: ExtendedResponse,
 ) => Promise<ExtendedResponse>;
+
+/**
+ * API 에러 클래스
+ */
+export class APIError extends Error {
+  constructor(
+    message: string,
+    public code: number,
+    public data?: unknown,
+  ) {
+    super(message);
+    this.name = 'APIError';
+  }
+}
