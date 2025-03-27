@@ -141,6 +141,11 @@ export type SaveNailPreferenceResponse = ApiResponse<null>;
 
 /* ─────────────────── 네일 세트 (Nail Sets) ─────────────────── */
 
+/** 추천 네일 세트 조회 요청 */
+export interface GetRecommendedNailSetsRequest {
+  limit?: number;
+}
+
 /** 네일 세트 ID로 저장 요청 */
 export interface SaveNailSetRequest {
   nailSetId: number;

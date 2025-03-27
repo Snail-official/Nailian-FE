@@ -6,6 +6,7 @@ import {
   DeleteNailSetResponse,
   GetNailFeedRequest,
   GetNailSetDetailRequest,
+  GetRecommendedNailSetsRequest,
   GetSimilarNailSetsRequest,
   NailFeedResponse,
   NailSetCollectionResponse,
@@ -20,11 +21,16 @@ import {
 /**
  * 추천 네일 세트 목록을 조회하는 함수
  *
+ * @param {GetRecommendedNailSetsRequest} params - 요청 파라미터
  * @returns {Promise<NailSetCollectionResponse>} 추천 네일 세트 목록 반환
  */
-export const fetchRecommendedNailSets =
-  async (): Promise<NailSetCollectionResponse> =>
-    fetcher({ endpoint: '/nail-sets/recommendations' });
+export const fetchRecommendedNailSets = async ({
+  limit = 10,
+}: GetRecommendedNailSetsRequest = {}): Promise<NailSetCollectionResponse> =>
+  fetcher({
+    endpoint: '/nail-sets/recommendations',
+    query: { limit },
+  });
 
 /**
  * 사용자 네일 세트 목록을 조회하는 함수
