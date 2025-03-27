@@ -18,15 +18,15 @@ interface ModalProps {
   /** 모달 제목 */
   title: string;
   /** 모달 설명 */
-  description: string;
+  description?: string;
   /** 취소 버튼 텍스트 */
   cancelText: string;
   /** 확인 버튼 텍스트 */
-  confirmText: string;
+  confirmText?: string;
   /** 취소 버튼 클릭 핸들러 */
   onCancel: () => void;
   /** 확인 버튼 클릭 핸들러 */
-  onConfirm: () => void;
+  onConfirm?: () => void;
 }
 
 /**
@@ -64,6 +64,8 @@ function Modal({
     description,
     cancelText,
     confirmText,
+    onCancel,
+    onConfirm,
   }).current;
 
   // 모달 가시성 상태
@@ -91,13 +93,17 @@ function Modal({
 
   // 안전한 취소 이벤트 처리
   const handleCancelSafely = useCallback(() => {
-    safelyHandleEvent(onCancel);
-  }, [safelyHandleEvent, onCancel]);
+    if (initialProps.onCancel) {
+      safelyHandleEvent(initialProps.onCancel);
+    }
+  }, [safelyHandleEvent, initialProps.onCancel]);
 
   // 안전한 확인 이벤트 처리
   const handleConfirmSafely = useCallback(() => {
-    safelyHandleEvent(onConfirm);
-  }, [safelyHandleEvent, onConfirm]);
+    if (initialProps.onConfirm) {
+      safelyHandleEvent(initialProps.onConfirm);
+    }
+  }, [safelyHandleEvent, initialProps.onConfirm]);
 
   // 배경 탭 핸들러는 취소 핸들러와 동일하게 동작
   const handleBackdropPress = useCallback(() => {
@@ -161,14 +167,18 @@ function Modal({
             ) : null}
           </View>
           <View style={styles.buttonContainer}>
-            <Button
-              variant="secondarySmallLeft"
-              onPress={handleConfirmSafely}
-              disabled={isHandlingAction}
-              loading={false}
-            >
-              <Text style={styles.cancelText}>{initialProps.confirmText}</Text>
-            </Button>
+            {onConfirm && confirmText && (
+              <Button
+                variant="secondarySmallLeft"
+                onPress={handleConfirmSafely}
+                disabled={isHandlingAction}
+                loading={false}
+              >
+                <Text style={styles.cancelText}>
+                  {initialProps.confirmText}
+                </Text>
+              </Button>
+            )}
             <Button
               variant="secondarySmallRight"
               onPress={handleCancelSafely}

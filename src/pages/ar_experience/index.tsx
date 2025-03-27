@@ -24,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import { scale, vs } from '~/shared/lib/responsive';
 import { createUserNailSet } from '~/entities/nail-set/api';
 import { toast } from '~/shared/lib/toast';
-import { CreateNailSetRequest, Shape } from '~/shared/api/types';
+import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import NailSelection from './ui/NailSelection';
@@ -128,15 +128,12 @@ export default function ARExperiencePage() {
       // 성공 시 메시지 표시
       toast.showToast('보관함에 저장되었습니다', { position: 'bottom' });
     } catch (error) {
-      console.error('북마크 에러:', error);
-
-      // 중복 에러 처리 (서버 응답에 따라 조건 변경 가능)
-      if (error instanceof Error && error.message.includes('409')) {
-        // HTTP 409 Conflict - 중복 오류
+      if (error instanceof APIError && error.code === 409) {
         toast.showToast('이미 저장된 아트입니다', { position: 'bottom' });
       } else {
-        // 기타 오류
-        toast.showToast('저장에 실패했습니다', { position: 'bottom' });
+        toast.showToast('저장에 실패했습니다', {
+          position: 'bottom',
+        });
       }
     }
   }, [currentNailSet, isNailSetComplete]);

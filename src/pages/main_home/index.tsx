@@ -47,12 +47,12 @@ function MainHomeScreen({ navigation }: Props) {
   const scrollViewRef = useRef<ScrollView>(null);
 
   // React Query를 사용한 데이터 페칭
-  const { data: userProfile } = useQuery({
+  const { data: userProfile, error: userProfileError } = useQuery({
     queryKey: ['userProfile'],
     queryFn: fetchUserProfile,
   });
 
-  const { data: styleGroups = [] } = useQuery({
+  const { data: styleGroups = [], error: styleGroupsError } = useQuery({
     queryKey: ['recommendedNailSets'],
     queryFn: async () => {
       const response = await fetchRecommendedNailSets();
@@ -162,6 +162,10 @@ function MainHomeScreen({ navigation }: Props) {
     },
     [navigation],
   );
+
+  if (userProfileError || styleGroupsError) {
+    throw new Error('데이터를 불러오는데 실패했습니다');
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>

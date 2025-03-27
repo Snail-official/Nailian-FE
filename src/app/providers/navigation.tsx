@@ -17,15 +17,27 @@ import NailSetListPage from '~/pages/nail_set/list';
 import NailSetDetailPage from '~/pages/nail_set/detail';
 import ARExperiencePage from '~/pages/ar_experience';
 import ARCameraPage from '~/pages/ar_camera';
+import ErrorBoundary from '~/pages/error';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-/**
+/* eslint-disable react/jsx-props-no-spreading */
+
+// ErrorBoundary로 컴포넌트를 감싸는 HOC
+function withErrorBoundary<P extends object>(
+  Component: React.ComponentType<P>,
+) {
+  return function WrappedComponent(props: P) {
+    return (
+      <ErrorBoundary>
+        <Component {...props} />
+      </ErrorBoundary>
+    );
+  };
+}
+
+/*
  * 앱 네비게이션 구조
- *
- * 온보딩 플로우:
- * - OnboardingLogin: 로그인 화면 (iOS/Android 플랫폼별 구현)
- * - OnboardingDefault: 네일 선택 화면
  */
 export default function AppNavigation() {
   return (
@@ -39,25 +51,46 @@ export default function AppNavigation() {
       }}
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="SocialLogin" component={SocialLoginScreen} />
+        <Stack.Screen
+          name="SocialLogin"
+          component={withErrorBoundary(SocialLoginScreen)}
+        />
         <Stack.Screen
           name="OnboardingEntry"
-          component={OnboardingEntryScreen}
+          component={withErrorBoundary(OnboardingEntryScreen)}
         />
         <Stack.Screen
           name="OnboardingNickname"
-          component={OnboardingNicknameScreen}
+          component={withErrorBoundary(OnboardingNicknameScreen)}
         />
         <Stack.Screen
           name="OnboardingPreferences"
-          component={NailSelectScreen}
+          component={withErrorBoundary(NailSelectScreen)}
         />
-        <Stack.Screen name="MainHome" component={MainHomeScreen} />
-        <Stack.Screen name="MyPage" component={MyPageScreen} />
-        <Stack.Screen name="NailSetListPage" component={NailSetListPage} />
-        <Stack.Screen name="NailSetDetailPage" component={NailSetDetailPage} />
-        <Stack.Screen name="ARExperiencePage" component={ARExperiencePage} />
-        <Stack.Screen name="ARCameraPage" component={ARCameraPage} />
+        <Stack.Screen
+          name="MainHome"
+          component={withErrorBoundary(MainHomeScreen)}
+        />
+        <Stack.Screen
+          name="MyPage"
+          component={withErrorBoundary(MyPageScreen)}
+        />
+        <Stack.Screen
+          name="NailSetListPage"
+          component={withErrorBoundary(NailSetListPage)}
+        />
+        <Stack.Screen
+          name="NailSetDetailPage"
+          component={withErrorBoundary(NailSetDetailPage)}
+        />
+        <Stack.Screen
+          name="ARExperiencePage"
+          component={withErrorBoundary(ARExperiencePage)}
+        />
+        <Stack.Screen
+          name="ARCameraPage"
+          component={withErrorBoundary(ARCameraPage)}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

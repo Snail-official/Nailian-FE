@@ -34,6 +34,8 @@ import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import Modal from '~/shared/ui/Modal';
 import { toast } from '~/shared/lib/toast';
 import { scale, vs } from '~/shared/lib/responsive';
+import { APIError } from '~/shared/api/types';
+import { useErrorStore } from '~/features/error/model/errorStore';
 
 type NailSetDetailScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -88,7 +90,7 @@ function RowSeparator() {
 function NailSetDetailPage() {
   const navigation = useNavigation<NailSetDetailScreenNavigationProp>();
   const route = useRoute<NailSetDetailScreenRouteProp>();
-  const queryClient = useQueryClient();
+  const errorStore = useErrorStore();
   const {
     nailSetId,
     styleId,
@@ -152,12 +154,11 @@ function NailSetDetailPage() {
       toast.showToast('보관함에 저장되었습니다');
     },
     onError: (error: unknown) => {
-      console.error('Failed to save to bookmark', error);
-      if (error instanceof Error && error.message.includes('409')) {
+      if (error instanceof APIError && error.code === 409) {
         setIsBookmarked(true);
         toast.showToast('이미 저장된 네일입니다');
       } else {
-        toast.showToast('보관함에 저장에 실패했습니다');
+        errorStore.showError('보관함 저장에 실패했습니다');
       }
     },
   });
@@ -171,8 +172,7 @@ function NailSetDetailPage() {
       navigation.goBack();
     },
     onError: () => {
-      console.error('보관함에서 삭제 실패');
-      toast.showToast('삭제 중 오류가 발생했습니다');
+      errorStore.showError('보관함에서 삭제 중 오류가 발생했습니다');
       setShowDeleteModal(false);
     },
   });

@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '@env';
 import { buildQueryString } from '../lib/query';
-import { RequestOptions, ExtendedResponse } from './types';
+import { RequestOptions, ExtendedResponse, APIError } from './types';
 import { requestInterceptors, responseInterceptors } from './interceptors';
 
 /**
@@ -15,7 +15,7 @@ import { requestInterceptors, responseInterceptors } from './interceptors';
  * @param {Record<string, unknown>} [options.body] - 요청 본문 (JSON 직렬화됨)
  * @param {number} [options.timeout=10000] - 요청 타임아웃 (기본값: 10초)
  * @returns {Promise<T>} API 응답 데이터 반환
- * @throws {Error} 응답이 실패하면 오류 발생
+ * @throws {APIError} 응답이 실패하면 API 에러 발생
  */
 const fetcher = async <T>({
   endpoint,
@@ -86,13 +86,35 @@ const fetcher = async <T>({
       Promise.resolve(response),
     );
 
-    if (!processedResponse.ok) {
-      throw new Error(`HTTP error! Status: ${processedResponse.status}`);
+    const data = await processedResponse.json();
+    console.log('data', data);
+
+    // API 응답 구조에 맞게 에러 처리
+    if (data.code < 200 || data.code >= 300) {
+      throw new APIError(data.message || 'API 요청 실패', data.code, data.data);
     }
 
-    return (await processedResponse.json()) as T;
+    return data as T;
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'API 요청 실패');
+    if (error instanceof Error && 'response' in error) {
+      const apiError = error as {
+        response?: {
+          data?: { message?: string; code?: number; data?: unknown };
+        };
+      };
+      throw new APIError(
+        apiError.response?.data?.message || 'API 요청 실패',
+        apiError.response?.data?.code || 500,
+      );
+    }
+    // 기타 에러
+    if (error instanceof APIError) {
+      throw error;
+    }
+    throw new APIError(
+      error instanceof Error ? error.message : 'API 요청 실패',
+      500,
+    );
   } finally {
     clearTimeout(timeoutId);
   }
