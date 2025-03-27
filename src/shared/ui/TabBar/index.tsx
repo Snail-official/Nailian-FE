@@ -6,14 +6,26 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SvgProps } from 'react-native-svg';
 import { colors, typography, spacing } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import HomeIcon from '~/shared/assets/icons/ic_home.svg';
 import BackIcon from '~/shared/assets/icons/ic_arrow_left.svg';
 import ArIcon from '~/shared/assets/icons/ic_ar.svg';
 import ProfileIcon from '~/shared/assets/icons/ic_my.svg';
+import type { RootStackParamList } from '~/shared/types/navigation';
 
 type TabType = 'home' | 'ar_experience' | 'my_page';
+type TabRoute = 'MainHome' | 'ARExperiencePage' | 'MyPage';
+
+interface TabData {
+  id: TabType;
+  label: string;
+  Icon: React.FC<SvgProps>;
+  route: TabRoute;
+}
 
 interface TabBarHeaderProps {
   title: string;
@@ -23,27 +35,31 @@ interface TabBarHeaderProps {
 
 interface TabBarFooterProps {
   activeTab: TabType;
-  onTabPress: (tab: TabType) => void;
 }
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 // 탭 데이터 정의
-const TAB_DATA = [
+const TAB_DATA: TabData[] = [
   {
     id: 'home',
     label: '홈',
     Icon: HomeIcon,
+    route: 'MainHome',
   },
   {
     id: 'ar_experience',
     label: 'AR 체험',
     Icon: ArIcon,
+    route: 'ARExperiencePage',
   },
   {
     id: 'my_page',
     label: '마이',
     Icon: ProfileIcon,
+    route: 'MyPage',
   },
-] as const;
+];
 
 /**
  * 탭바 컴포넌트
@@ -60,12 +76,8 @@ const TAB_DATA = [
  * />
  *
  * // 푸터 사용
- * <TabBarFooter
- *   activeTab="home"
- *   onTabPress={(tab) => handleTabPress(tab)}
- * />
+ * <TabBarFooter activeTab="home" />
  */
-
 export function TabBarHeader({
   title,
   onBack,
@@ -88,7 +100,16 @@ export function TabBarHeader({
   );
 }
 
-export function TabBarFooter({ activeTab, onTabPress }: TabBarFooterProps) {
+export function TabBarFooter({ activeTab }: TabBarFooterProps) {
+  const navigation = useNavigation<NavigationProp>();
+
+  const handleTabPress = (tab: TabType) => {
+    const tabData = TAB_DATA.find(t => t.id === tab);
+    if (tabData && tabData.id !== activeTab) {
+      navigation.navigate(tabData.route);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.footerContainer}>
       <View style={styles.footer}>
@@ -96,7 +117,7 @@ export function TabBarFooter({ activeTab, onTabPress }: TabBarFooterProps) {
           <TouchableOpacity
             key={id}
             style={styles.tabItem}
-            onPress={() => onTabPress(id as TabType)}
+            onPress={() => handleTabPress(id)}
           >
             <Icon
               width={scale(24)}

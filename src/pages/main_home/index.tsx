@@ -20,7 +20,7 @@ import { TabBarFooter } from '~/shared/ui/TabBar';
 import { toast } from '~/shared/lib/toast';
 import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
-import { NailSet, StyleGroup, StyleInfo, Banner as BannerType } from './types';
+import { NailSet, StyleInfo, Banner as BannerType } from './types';
 
 const { width } = Dimensions.get('window');
 const BANNER_WIDTH = scale(331);
@@ -61,27 +61,6 @@ function MainHomeScreen({ navigation }: Props) {
   });
 
   const nickname = userProfile?.data?.nickname || '';
-
-  /**
-   * 탭 선택 핸들러
-   *
-   * 하단 탭바에서 탭 선택 시 해당 화면으로 이동합니다.
-   *
-   * @param {'home' | 'ar_experience' | 'my_page'} tab 선택된 탭
-   */
-  const handleTabPress = useCallback(
-    (tab: 'home' | 'ar_experience' | 'my_page') => {
-      if (tab === 'home') return; // 이미 홈 화면이므로 아무 작업도 하지 않음
-
-      if (tab === 'my_page') {
-        navigation.navigate('MyPage');
-      } else if (tab === 'ar_experience') {
-        // AR 체험 페이지로 이동
-        navigation.navigate('ARExperiencePage');
-      }
-    },
-    [navigation],
-  );
 
   /**
    * 배너 클릭 핸들러
@@ -232,7 +211,7 @@ function MainHomeScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.tabBarContainer}>
-          <TabBarFooter activeTab="home" onTabPress={handleTabPress} />
+          <TabBarFooter activeTab="home" />
         </View>
       </View>
     </SafeAreaView>
