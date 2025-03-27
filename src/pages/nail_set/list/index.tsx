@@ -59,6 +59,7 @@ function NailSetListPage() {
   const navigation = useNavigation<NailSetListScreenNavigationProp>();
   const route = useRoute<NailSetListScreenRouteProp>();
   const { styleId, styleName } = route.params;
+  console.log('styleName', styleName);
   const isBookmarkMode = styleName === '네일 보관함';
 
   // 북마크 상태를 위한 쿼리

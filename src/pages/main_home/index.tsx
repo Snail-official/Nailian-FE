@@ -111,7 +111,7 @@ function MainHomeScreen({ navigation }: Props) {
       // 스타일 정보 설정 및 네일 세트 리스트 페이지로 이동
       navigation.navigate('NailSetListPage', {
         styleId,
-        styleName,
+        styleName: `${styleName}네일`,
       });
     },
     [navigation],
@@ -135,7 +135,7 @@ function MainHomeScreen({ navigation }: Props) {
       navigation.navigate('NailSetDetailPage', {
         nailSetId: nailSet.id,
         styleId: validStyleId,
-        styleName: styleInfo.name || '추천 네일',
+        styleName: `${styleInfo.name}네일` || '추천 네일',
         isBookmarked: false, // 북마크 상태는 상세 페이지에서 관리
       });
     },
