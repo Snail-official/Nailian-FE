@@ -186,6 +186,7 @@ const nailHandlers = [
    * 추천 네일 세트 조회 API
    *
    * @endpoint GET /nail-sets/recommendations
+   * @request {limit?} 반환할 네일 세트의 최대 개수 (기본값: 10)
    * @response {NailSetCollectionResponse} 추천 네일 세트 목록 반환
    * @returns 성공 시 추천 네일 세트 목록, 실패 시 오류 응답
    */
@@ -197,6 +198,9 @@ const nailHandlers = [
     if (authResult instanceof HttpResponse) {
       return authResult;
     }
+
+    const url = new URL(request.url);
+    const limit = Number(url.searchParams.get('limit')) || 10;
 
     const recommendNailStyle = ['SIMPLE', 'TREND', 'WEDDING'];
 
@@ -297,6 +301,16 @@ const nailHandlers = [
           });
         }
       });
+    });
+
+    Object.keys(groupedNailSets).forEach(style => {
+      // limit 파라미터에 따라 각 스타일별 네일 세트 수 제한
+      if (groupedNailSets[style].nailSets.length > limit) {
+        groupedNailSets[style].nailSets = groupedNailSets[style].nailSets.slice(
+          0,
+          limit,
+        );
+      }
     });
 
     const response: NailSetCollectionResponse = {
