@@ -69,7 +69,7 @@ function RecommendedNailSets({
             }
           >
             <Text style={styles.styleTitle}>
-              {styleGroup.style.name} 보러가기
+              {styleGroup.style.name}네일 보러가기
             </Text>
             <ArrowRightIcon width={scale(24)} height={scale(24)} />
           </TouchableOpacity>

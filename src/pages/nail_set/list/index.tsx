@@ -61,16 +61,6 @@ function NailSetListPage() {
   const { styleId, styleName } = route.params;
   const isBookmarkMode = styleName === '네일 보관함';
 
-  // 북마크 상태를 위한 쿼리
-  const { data: bookmarkData } = useQuery({
-    queryKey: ['bookmarkStatus'],
-    queryFn: () => fetchUserNailSets({ page: 1, size: 100 }),
-    enabled: !isBookmarkMode,
-  });
-
-  const bookmarkedNailIds =
-    bookmarkData?.data?.content?.map(item => item.id) || [];
-
   // 무한 스크롤을 위한 쿼리
   const {
     data,
@@ -118,7 +108,6 @@ function NailSetListPage() {
    * 네일 세트 아이템 클릭 핸들러
    *
    * 네일 세트 클릭 시 해당 네일 세트의 상세 페이지로 이동합니다.
-   * 북마크 상태 정보도 함께 전달합니다.
    *
    * @param {INailSet} nailSet 선택된 네일 세트 데이터
    */
@@ -127,7 +116,6 @@ function NailSetListPage() {
       nailSetId: nailSet.id,
       styleId,
       styleName,
-      isBookmarked: bookmarkedNailIds.includes(nailSet.id),
     });
   };
 

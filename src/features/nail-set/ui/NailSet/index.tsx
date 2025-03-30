@@ -76,37 +76,42 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
     {
       id: 1,
       name: 'thumb',
-      width: scale(70),
-      height: scale(68),
-      margin: 0,
+      width: scale(80),
+      height: scale(78),
+      x: scale(-17),
+      y: scale(11.3),
     },
     {
       id: 2,
       name: 'index',
-      width: scale(50),
-      height: scale(60),
-      margin: scale(-28),
+      width: scale(65),
+      height: scale(64),
+      x: scale(20),
+      y: scale(23),
     },
     {
       id: 3,
       name: 'middle',
-      width: scale(55),
+      width: scale(65),
       height: scale(64),
-      margin: scale(-24),
+      x: scale(45),
+      y: scale(23),
     },
     {
       id: 4,
       name: 'ring',
-      width: scale(50),
-      height: scale(60),
-      margin: scale(-24),
+      width: scale(65),
+      height: scale(64),
+      x: scale(70),
+      y: scale(23),
     },
     {
       id: 5,
       name: 'pinky',
-      width: scale(45),
-      height: scale(54),
-      margin: scale(-22),
+      width: scale(65),
+      height: scale(64),
+      x: scale(95),
+      y: scale(23),
     },
   ];
 
@@ -115,7 +120,8 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
     ...nail,
     width: Math.round(nail.width * scaleFactor),
     height: Math.round(nail.height * scaleFactor),
-    margin: Math.round(nail.margin * scaleFactor),
+    x: Math.round(nail.x * scaleFactor),
+    y: Math.round(nail.y * scaleFactor),
   }));
 
   // 이미지 소스 가져오기
@@ -147,11 +153,19 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <View style={styles.nailsRow}>
+      <View style={styles.nailsContainer}>
         {nails.map(nail => (
           <View
             key={nail.id}
-            style={[styles.nailContainer, { marginLeft: nail.margin }]}
+            style={[
+              styles.nailContainer,
+              {
+                height: scale(nail.height),
+                left: scale(nail.x),
+                top: scale(nail.y),
+                width: scale(nail.width),
+              },
+            ]}
           >
             <Image
               source={getImageSource(nail.name)}
@@ -182,12 +196,12 @@ const styles = StyleSheet.create({
   },
   nailContainer: {
     alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  nailsRow: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
     justifyContent: 'center',
+    position: 'absolute',
+  },
+  nailsContainer: {
+    height: '100%',
+    position: 'relative',
     width: '100%',
   },
   smallContainer: {
