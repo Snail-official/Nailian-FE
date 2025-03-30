@@ -9,12 +9,7 @@ import {
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  useQuery,
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { INailSet } from '~/shared/types/nail-set';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,7 +22,6 @@ import {
   saveUserNailSet,
   deleteUserNailSet,
 } from '~/entities/nail-set/api';
-import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import TrashIcon from '~/shared/assets/icons/ic_trash.svg';
 import NailSet from '~/features/nail-set/ui/NailSet';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
@@ -91,14 +85,8 @@ function NailSetDetailPage() {
   const navigation = useNavigation<NailSetDetailScreenNavigationProp>();
   const route = useRoute<NailSetDetailScreenRouteProp>();
   const errorStore = useErrorStore();
-  const {
-    nailSetId,
-    styleId,
-    styleName,
-    isBookmarked: initialBookmarkState = false,
-  } = route.params;
+  const { nailSetId, styleId, styleName } = route.params;
 
-  const [isBookmarked, setIsBookmarked] = useState(initialBookmarkState);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // 북마크 모드 여부 확인
@@ -150,12 +138,10 @@ function NailSetDetailPage() {
   const { mutate: saveBookmark, isPending: saveLoading } = useMutation({
     mutationFn: saveUserNailSet,
     onSuccess: () => {
-      setIsBookmarked(true);
       toast.showToast('보관함에 저장되었습니다');
     },
     onError: (error: unknown) => {
       if (error instanceof APIError && error.code === 409) {
-        setIsBookmarked(true);
         toast.showToast('이미 저장된 네일입니다');
       } else {
         errorStore.showError('보관함 저장에 실패했습니다');
@@ -272,17 +258,6 @@ function NailSetDetailPage() {
                 color={colors.gray600}
               />
             </TouchableOpacity>
-          ) : !isBookmarked ? (
-            <TouchableOpacity
-              style={styles.bookmarkIconButton}
-              onPress={handleBookmarkToggle}
-            >
-              <BookmarkIcon
-                width={scale(19)}
-                height={scale(18.5)}
-                color={colors.gray600}
-              />
-            </TouchableOpacity>
           ) : null
         }
       />
@@ -301,11 +276,6 @@ function NailSetDetailPage() {
               onPress={handleBookmarkToggle}
             >
               <View style={styles.buttonContent}>
-                <BookmarkIcon
-                  width={scale(16)}
-                  height={scale(16)}
-                  color={colors.white}
-                />
                 <Text style={styles.bookmarkButtonText}>보관함에 저장</Text>
               </View>
             </TouchableOpacity>
@@ -389,11 +359,6 @@ const styles = StyleSheet.create({
   bookmarkButtonText: {
     ...typography.body2_SB,
     color: colors.white,
-    marginLeft: scale(6),
-  },
-  bookmarkIconButton: {
-    paddingHorizontal: scale(16),
-    paddingVertical: scale(8),
   },
   buttonContent: {
     alignItems: 'center',
