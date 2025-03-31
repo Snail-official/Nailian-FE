@@ -71,7 +71,7 @@ import Accelerate
       }
       
       // 모델 미리 로드
-      private func preloadModel() {
+      func preloadModel(completion: ((Bool) -> Void)? = nil) {
           DispatchQueue.global(qos: .background).async {
               do {
                   let config = MLModelConfiguration()
@@ -80,6 +80,7 @@ import Accelerate
                   // 로컬에 모델 파일이 있는지 확인
                   guard let modelURL = self.localModelURL() else {
                       self.modelLoaded = false
+                      completion?(false)
                       return
                   }
                   
@@ -88,9 +89,10 @@ import Accelerate
                   
                   self.model = try MLModel(contentsOf: compiledModelURL, configuration: config)
                   self.modelLoaded = true
+                  completion?(true)
               } catch {
                   self.modelLoaded = false
-                  print("모델 로드 실패: \(error.localizedDescription)")
+                  completion?(false)
               }
           }
       }
