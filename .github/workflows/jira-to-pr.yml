@@ -34,7 +34,7 @@ jobs:
               | if .type == "bulletList" then
                   .content[] | "- " + (.content[].content[].text // empty)
                 elif .type == "paragraph" then
-                  .content[] | if .type == "hardBreak" then "<br/>" else .text // empty end
+                  .content[] |.text // empty
                 else
                   empty
                 end
