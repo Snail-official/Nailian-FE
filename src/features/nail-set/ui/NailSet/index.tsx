@@ -78,7 +78,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       name: 'thumb',
       width: scale(80),
       height: scale(78),
-      x: scale(-15),
+      x: scale(-16),
       y: scale(6.3),
     },
     {
@@ -86,7 +86,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       name: 'index',
       width: scale(65),
       height: scale(64),
-      x: scale(20),
+      x: scale(19),
       y: scale(18),
     },
     {
@@ -94,7 +94,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       name: 'middle',
       width: scale(65),
       height: scale(64),
-      x: scale(45),
+      x: scale(44),
       y: scale(18),
     },
     {
@@ -102,7 +102,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       name: 'ring',
       width: scale(65),
       height: scale(64),
-      x: scale(70),
+      x: scale(69),
       y: scale(18),
     },
     {
@@ -110,7 +110,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       name: 'pinky',
       width: scale(65),
       height: scale(64),
-      x: scale(95),
+      x: scale(94),
       y: scale(18),
     },
   ];
