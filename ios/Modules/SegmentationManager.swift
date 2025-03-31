@@ -19,7 +19,6 @@ import Accelerate
 
     private override init() {
         super.init()
-        preloadModel()
     }
     
   // 로컬에 다운로드된 모델 URL 확인
