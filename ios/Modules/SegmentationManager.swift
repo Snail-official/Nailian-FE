@@ -71,7 +71,7 @@ import Accelerate
       }
       
       // 모델 미리 로드
-      func preloadModel(completion: ((Bool) -> Void)? = nil) {
+      func loadSegmentationModel(completion: ((Bool) -> Void)? = nil) {
           DispatchQueue.global(qos: .background).async {
               do {
                   let config = MLModelConfiguration()
