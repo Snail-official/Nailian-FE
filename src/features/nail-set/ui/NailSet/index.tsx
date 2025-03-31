@@ -78,8 +78,8 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       name: 'thumb',
       width: scale(80),
       height: scale(78),
-      x: scale(-17),
-      y: scale(11.3),
+      x: scale(-15),
+      y: scale(6.3),
     },
     {
       id: 2,
@@ -87,7 +87,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       width: scale(65),
       height: scale(64),
       x: scale(20),
-      y: scale(23),
+      y: scale(18),
     },
     {
       id: 3,
@@ -95,7 +95,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       width: scale(65),
       height: scale(64),
       x: scale(45),
-      y: scale(23),
+      y: scale(18),
     },
     {
       id: 4,
@@ -103,7 +103,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       width: scale(65),
       height: scale(64),
       x: scale(70),
-      y: scale(23),
+      y: scale(18),
     },
     {
       id: 5,
@@ -111,7 +111,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
       width: scale(65),
       height: scale(64),
       x: scale(95),
-      y: scale(23),
+      y: scale(18),
     },
   ];
 
