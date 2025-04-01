@@ -63,7 +63,7 @@ export default function NailSelectScreen() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
     useInfiniteQuery({
       queryKey: ['nailPreferences'],
-      queryFn: async ({ pageParam = 1 }) =>
+      queryFn: async ({ pageParam = 0 }) =>
         fetchNailPreferences({
           page: pageParam,
           size: 20,
@@ -71,9 +71,9 @@ export default function NailSelectScreen() {
       getNextPageParam: lastPage => {
         const totalPages = lastPage.data?.pageInfo?.totalPages || 0;
         const currentPage = lastPage.data?.pageInfo?.currentPage || 0;
-        return currentPage < totalPages ? currentPage + 1 : undefined;
+        return currentPage < totalPages - 1 ? currentPage + 1 : undefined;
       },
-      initialPageParam: 1,
+      initialPageParam: 0,
     });
 
   // 에러가 있으면 throw
