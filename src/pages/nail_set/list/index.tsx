@@ -73,7 +73,7 @@ function NailSetListPage() {
     refetch,
   } = useInfiniteQuery({
     queryKey: ['nailSets', styleId, styleName],
-    queryFn: async ({ pageParam = 1 }) => {
+    queryFn: async ({ pageParam = 0 }) => {
       if (isBookmarkMode) {
         return fetchUserNailSets({
           page: pageParam,
@@ -89,9 +89,9 @@ function NailSetListPage() {
     getNextPageParam: lastPage => {
       const totalPages = lastPage.data?.pageInfo?.totalPages || 0;
       const currentPage = lastPage.data?.pageInfo?.currentPage || 0;
-      return currentPage < totalPages ? currentPage + 1 : undefined;
+      return currentPage < totalPages - 1 ? currentPage + 1 : undefined;
     },
-    initialPageParam: 1,
+    initialPageParam: 0,
   });
 
   // 모든 페이지의 데이터를 하나의 배열로 합치기

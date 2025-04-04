@@ -39,7 +39,7 @@ export const fetchRecommendedNailSets = async ({
  * @returns {Promise<UserNailSetsResponse>} 사용자 네일 세트 목록 반환
  */
 export const fetchUserNailSets = async ({
-  page = 1,
+  page = 0,
   size = 10,
 }: PaginationRequest): Promise<UserNailSetsResponse> =>
   fetcher({
@@ -74,7 +74,7 @@ export const createUserNailSet = async ({
  */
 export const fetchNailSetFeed = async ({
   style,
-  page = 1,
+  page = 0,
   size = 9,
 }: GetNailFeedRequest): Promise<NailFeedResponse> =>
   fetcher({
@@ -104,7 +104,7 @@ export const fetchNailSetDetail = async ({
 export const fetchSimilarNailSets = async ({
   nailSetId,
   style,
-  page = 1,
+  page = 0,
   size = 9,
 }: GetSimilarNailSetsRequest): Promise<SimilarNailSetsResponse> =>
   fetcher({
