@@ -135,6 +135,22 @@ class ModelManager: RCTEventEmitter {
                 try FileManager.default.moveItem(at: tempLocalUrl, to: zipFilePath)
                 try self.extractModel(zipFilePath: zipFilePath, modelType: modelType)
                 try FileManager.default.removeItem(at: zipFilePath)
+                
+                // 모델 프리로드
+                if modelType == "segmentation" {
+                    let semaphore = DispatchSemaphore(value: 0)
+                    var segmentationSuccess = false
+                    
+                    DispatchQueue.global(qos: .background).async {
+                        SegmentationManager.shared.loadSegmentationModel { result in
+                            segmentationSuccess = result
+                            semaphore.signal()
+                        }
+                    }
+                    
+                    _ = semaphore.wait(timeout: .now() + 30.0)
+                }
+                
                 self.sendEvent(withName: "ModelDownloadComplete", body: ["modelType": modelType, "success": true])
                 resolver(true)
             } catch {

@@ -19,7 +19,6 @@ import Accelerate
 
     private override init() {
         super.init()
-        preloadModel()
     }
     
   // 로컬에 다운로드된 모델 URL 확인
@@ -72,7 +71,7 @@ import Accelerate
       }
       
       // 모델 미리 로드
-      private func preloadModel() {
+      func loadSegmentationModel(completion: ((Bool) -> Void)? = nil) {
           DispatchQueue.global(qos: .background).async {
               do {
                   let config = MLModelConfiguration()
@@ -81,6 +80,7 @@ import Accelerate
                   // 로컬에 모델 파일이 있는지 확인
                   guard let modelURL = self.localModelURL() else {
                       self.modelLoaded = false
+                      completion?(false)
                       return
                   }
                   
@@ -89,9 +89,10 @@ import Accelerate
                   
                   self.model = try MLModel(contentsOf: compiledModelURL, configuration: config)
                   self.modelLoaded = true
+                  completion?(true)
               } catch {
                   self.modelLoaded = false
-                  print("모델 로드 실패: \(error.localizedDescription)")
+                  completion?(false)
               }
           }
       }
