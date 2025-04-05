@@ -53,6 +53,22 @@ export type KakaoAuthResponse = ApiResponse<{
   refreshToken: string;
 }>;
 
+/** Apple 로그인 요청 */
+export interface AppleAuthRequest {
+  identityToken: string;
+  authorizationCode: string;
+  user: {
+    name: string;
+    email: string;
+  };
+}
+
+/** Apple 로그인 응답 */
+export type AppleAuthResponse = ApiResponse<{
+  accessToken: string;
+  refreshToken: string;
+}>;
+
 /** 액세스 토큰 재발급 요청 */
 export interface TokenReissueRequest {
   refreshToken: string;
