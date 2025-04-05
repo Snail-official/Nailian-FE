@@ -11,9 +11,26 @@ import {
   UpdateNicknameResponse,
   UserMeResponse,
   DeleteUserResponse,
-  ApiResponse,
+  AppleAuthRequest,
+  AppleAuthResponse,
 } from '../../shared/api/types';
-import { useAuthStore } from '../../shared/store/authStore';
+
+/**
+ * Apple 로그인 API 호출
+ *
+ * @param {AppleAuthRequest} data - Apple 인증 정보
+ * @returns {Promise<AppleAuthResponse>} 서비스 액세스 토큰 & 리프레시 토큰 반환
+ */
+export const loginWithApple = ({
+  identityToken,
+  authorizationCode,
+  user,
+}: AppleAuthRequest): Promise<AppleAuthResponse> =>
+  fetcher({
+    endpoint: '/auth/apple',
+    method: 'POST',
+    body: { identityToken, authorizationCode, user },
+  });
 
 /**
  * 카카오 로그인 API 호출
