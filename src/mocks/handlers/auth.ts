@@ -7,6 +7,8 @@ import {
   KakaoAuthResponse,
   TokenReissueRequest,
   TokenReissueResponse,
+  AppleAuthRequest,
+  AppleAuthResponse,
 } from '../../shared/api/types';
 import { generateToken } from '../utils/auth';
 
@@ -19,6 +21,58 @@ import { generateToken } from '../utils/auth';
 const findUserById = (userId: number) => users.find(user => user.id === userId);
 
 const authHandlers = [
+  /**
+   * Apple 로그인 API
+   *
+   * @endpoint POST /auth/apple
+   * @request {AppleAuthRequest} Apple 인증 정보
+   * @response {AppleAuthResponse} 서비스 액세스 토큰 & 리프레시 토큰
+   * @returns 성공 시 토큰 반환, 실패 시 오류 응답
+   */
+  http.post(`${API_BASE_URL}/auth/apple`, async ({ request }) => {
+    try {
+      const { identityToken, authorizationCode, user } =
+        (await request.json()) as AppleAuthRequest;
+
+      if (!identityToken || !authorizationCode) {
+        return createErrorResponse('Apple 인증 정보가 필요합니다.', 400);
+      }
+
+      const userId = 1;
+      const existingUser = findUserById(userId);
+      if (!existingUser) {
+        return createErrorResponse('사용자를 찾을 수 없습니다.', 404);
+      }
+
+      const { token: serviceAccessToken, expiresAt } = generateToken(
+        'mocked-access-token',
+      );
+      const { token: serviceRefreshToken } = generateToken(
+        'mocked-refresh-token',
+      );
+
+      // 액세스 토큰 저장
+      existingUser.accessToken = serviceAccessToken;
+      // 토큰 만료 시간 저장
+      existingUser.tokenExpiresAt = expiresAt;
+      // 리프레시 토큰 저장
+      existingUser.refreshToken = serviceRefreshToken;
+
+      const response: AppleAuthResponse = {
+        code: 200,
+        message: 'Apple 로그인 성공',
+        data: {
+          accessToken: serviceAccessToken,
+          refreshToken: serviceRefreshToken,
+        },
+      };
+
+      return createSuccessResponse(response.data, '로그인 성공');
+    } catch (error) {
+      return createErrorResponse('서버 오류가 발생했습니다.', 500);
+    }
+  }),
+
   /**
    * 카카오 로그인 API
    *

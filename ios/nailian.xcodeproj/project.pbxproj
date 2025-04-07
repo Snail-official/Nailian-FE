@@ -68,6 +68,7 @@
 		C58AFF360BBE4F84A816AC89 /* Pretendard-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-SemiBold.ttf"; path = "../src/shared/assets/fonts/Pretendard-SemiBold.ttf"; sourceTree = "<group>"; };
 		C8D7FE748B344A429ACD3F64 /* Pretendard-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-ExtraBold.ttf"; path = "../src/shared/assets/fonts/Pretendard-ExtraBold.ttf"; sourceTree = "<group>"; };
 		CB4F9DE9ABA54B6093085640 /* Pretendard-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Medium.ttf"; path = "../src/shared/assets/fonts/Pretendard-Medium.ttf"; sourceTree = "<group>"; };
+		E1112B902DA009390021E94C /* nailian.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = nailian.entitlements; path = nailian/nailian.entitlements; sourceTree = "<group>"; };
 		E16EA9A02D7815BF0056AA4B /* libRNKeychain.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNKeychain.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1E0C2642D8C157B0053273B /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		E1E0C2652D8C157B0053273B /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
@@ -81,23 +82,11 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E14D84192D8D7C6E00EDD138 /* Modules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
 			path = Modules;
 			sourceTree = "<group>";
 		};
 		E1D033572D8E8DB900C244AD /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
 			path = Models;
 			sourceTree = "<group>";
 		};
@@ -147,6 +136,7 @@
 		13B07FAE1A68108700A75B9A /* nailian */ = {
 			isa = PBXGroup;
 			children = (
+				E1112B902DA009390021E94C /* nailian.entitlements */,
 				E1D033572D8E8DB900C244AD /* Models */,
 				E14D84192D8D7C6E00EDD138 /* Modules */,
 				E1E0C2642D8C157B0053273B /* Debug.xcconfig */,
@@ -302,7 +292,6 @@
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "nailian" */;
-			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -310,6 +299,7 @@
 				Base,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -568,8 +558,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = nailian/nailian.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = U8C7YGRNGL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = nailian/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -584,6 +575,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = nailian.app;
 				PRODUCT_NAME = nailian;
 				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -598,8 +590,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = nailian/nailian.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = U8C7YGRNGL;
 				INFOPLIST_FILE = nailian/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -613,6 +606,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = nailian.app;
 				PRODUCT_NAME = nailian;
 				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -691,10 +685,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -765,10 +756,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

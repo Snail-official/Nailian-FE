@@ -21,9 +21,10 @@ import { scale, vs, ms } from '~/shared/lib/responsive';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { login } from '@react-native-seoul/kakao-login';
-import { loginWithKakao } from '~/entities/user/api';
+import { loginWithKakao, loginWithApple } from '~/entities/user/api';
 import { useAuthStore } from '~/shared/store/authStore';
 import Button from '~/shared/ui/Button';
+import { appleAuth } from '@invertase/react-native-apple-authentication';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'SocialLogin'>;
@@ -51,6 +52,7 @@ export default function SocialLoginScreen({ navigation }: Props) {
   const { loadTokens, setTokens } = useAuthStore();
   const [isCheckingLogin, setIsCheckingLogin] = useState(true);
   const [showSplash, setShowSplash] = useState(false);
+  const [isAppleAuthSupported, setIsAppleAuthSupported] = useState(false);
 
   /**
    * 로그인 상태 확인
@@ -76,6 +78,16 @@ export default function SocialLoginScreen({ navigation }: Props) {
     checkLoginStatus();
   }, [navigation, loadTokens]);
 
+  useEffect(() => {
+    // Apple 로그인 지원 여부 확인
+    const checkAppleAuthSupport = async () => {
+      const supported = await appleAuth.isSupported;
+      setIsAppleAuthSupported(supported);
+    };
+
+    checkAppleAuthSupport();
+  }, []);
+
   /**
    * 카카오 로그인 처리
    * 카카오 SDK를 통해 로그인 후, 받은 토큰으로 백엔드 서버에 인증하고
@@ -100,6 +112,38 @@ export default function SocialLoginScreen({ navigation }: Props) {
       navigation.replace('OnboardingEntry');
     } catch (error) {
       console.error('카카오 로그인 실패:', error);
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    try {
+      // Apple 로그인 요청
+      const appleAuthResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+      });
+
+      // 서버에 Apple 로그인 요청
+      const response = await loginWithApple({
+        identityToken: appleAuthResponse.identityToken!,
+        authorizationCode: appleAuthResponse.authorizationCode!,
+        user: {
+          name: appleAuthResponse.fullName?.givenName
+            ? `${appleAuthResponse.fullName.givenName} ${appleAuthResponse.fullName.familyName || ''}`.trim()
+            : '',
+          email: appleAuthResponse.email || '',
+        },
+      });
+
+      if (response.code === 200 && response.data) {
+        // 로그인 성공 처리
+        await setTokens(response.data.accessToken, response.data.refreshToken);
+        navigation.replace('OnboardingEntry');
+      } else {
+        console.error('Apple 로그인 실패:', response.message);
+      }
+    } catch (error) {
+      console.error('Apple 로그인 오류:', error);
     }
   };
 
@@ -140,10 +184,10 @@ export default function SocialLoginScreen({ navigation }: Props) {
 
         <View style={styles.buttonContainer}>
           {/* 플랫폼별 로그인 버튼 */}
-          {Platform.OS === 'ios' ? (
+          {Platform.OS === 'ios' && isAppleAuthSupported ? (
             <Button
               variant="appleMedium"
-              onPress={() => {}}
+              onPress={handleAppleLogin}
               disabled={false}
               loading={false}
             >
