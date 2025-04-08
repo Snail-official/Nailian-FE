@@ -47,7 +47,7 @@
 		00E356EE1AD99517003FC87E /* nailianTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = nailianTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* nailianTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = nailianTests.m; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* nailian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nailian.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* Nailian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nailian.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = nailian/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = nailian/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = nailian/Images.xcassets; sourceTree = "<group>"; };
@@ -195,7 +195,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* nailian.app */,
+				13B07F961A680F5B00A75B9A /* Nailian.app */,
 				00E356EE1AD99517003FC87E /* nailianTests.xctest */,
 			);
 			name = Products;
@@ -274,7 +274,7 @@
 			);
 			name = nailian;
 			productName = nailian;
-			productReference = 13B07F961A680F5B00A75B9A /* nailian.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* Nailian.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -580,7 +580,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = nailian.app;
-				PRODUCT_NAME = nailian;
+				PRODUCT_NAME = Nailian;
 				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -611,7 +611,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = nailian.app;
-				PRODUCT_NAME = nailian;
+				PRODUCT_NAME = Nailian;
 				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
