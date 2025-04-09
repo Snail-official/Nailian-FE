@@ -23,7 +23,7 @@ interface NailGridProps {
   /**
    * 현재 네일 세트가 변경될 때 호출되는 콜백 함수
    */
-  onNailSetChange?: (nailSet: Partial<NailSet>) => void;
+  onNailSetChange?: (nailSet: NailSetUpdate) => void;
   /**
    * 활성화된 필터 값
    */
@@ -41,6 +41,11 @@ interface NailGridProps {
    */
   fingerMap: Array<{ index: number; type: string }>;
   onResetFilter?: () => void;
+}
+
+// 네일셋 변경 시 전달되는 임시 타입
+interface NailSetUpdate extends Partial<NailSet> {
+  nextFingerIndex?: number;
 }
 
 /**
@@ -121,17 +126,24 @@ export function NailGrid({
     ) => {
       const fingerType = getFingerTypeByIndex(index);
 
-      const updatedSet: Partial<NailSet> = {
+      // 현재 선택된 손가락에 네일을 추가하고, 다음 손가락을 선택하는 정보를 한 번에 전달
+      const currentIndex = fingerMap.findIndex(item => item.index === index);
+      const nextFinger = fingerMap[currentIndex + 1];
+      const shouldSelectNextFinger =
+        nextFinger && currentIndex < fingerMap.length - 1;
+
+      const updatedSet: NailSetUpdate = {
         [fingerType]: {
           id: nailItem.id,
           imageUrl: nailItem.imageUrl,
           shape: nailItem.shape,
         },
+        ...(shouldSelectNextFinger && { nextFingerIndex: nextFinger.index }),
       };
 
       onNailSetChange?.(updatedSet);
     },
-    [getFingerTypeByIndex, onNailSetChange],
+    [getFingerTypeByIndex, onNailSetChange, fingerMap],
   );
 
   // 그리드 네일 아이템 클릭 핸들러

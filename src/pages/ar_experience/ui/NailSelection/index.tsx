@@ -35,6 +35,10 @@ interface NailSelectionProps {
    */
   onNailSetChange: (nailSet: NailSet) => void;
 }
+// 네일셋 변경 시 전달되는 임시 타입
+interface NailSetUpdate extends Partial<NailSet> {
+  nextFingerIndex?: number;
+}
 
 /**
  * 네일 선택 컴포넌트
@@ -133,6 +137,26 @@ export default function NailSelection({
     [currentNailSet, onNailSetChange],
   );
 
+  // 네일셋 변경 핸들러
+  const handleNailSetChange = useCallback(
+    (partialNailSet: NailSetUpdate) => {
+      // 현재 네일셋과 새로운 변경사항을 병합
+      const updatedNailSet = { ...currentNailSet, ...partialNailSet };
+
+      // 다음 손가락 인덱스가 있으면 해당 손가락 선택
+      if (partialNailSet.nextFingerIndex !== undefined) {
+        setSelectedNailButton(partialNailSet.nextFingerIndex);
+        setIsSelectingImage(true);
+      } else {
+        setSelectedNailButton(null);
+        setIsSelectingImage(false);
+      }
+
+      onNailSetChange(updatedNailSet);
+    },
+    [currentNailSet, onNailSetChange],
+  );
+
   // 네일 버튼 렌더링
   const renderNailButtons = useCallback(
     () =>
@@ -205,28 +229,7 @@ export default function NailSelection({
       {/* 네일 그리드 (스크롤 영역) */}
       <View style={styles.gridContainer}>
         <NailGrid
-          onNailSetChange={(partialNailSet: Partial<NailSet>) => {
-            // 부분적으로 업데이트된 네일셋이 전달됨
-            // 현재 네일셋과 병합하여 전체 네일셋 업데이트
-
-            // 현재 네일셋 복사
-            const updatedNailSet = { ...currentNailSet };
-
-            // partialNailSet의 모든 키에 대해 업데이트 적용
-            Object.keys(partialNailSet).forEach(key => {
-              const fingerType = key as keyof NailSet;
-              if (partialNailSet[fingerType]) {
-                updatedNailSet[fingerType] = partialNailSet[fingerType];
-              }
-            });
-
-            // 부모 컴포넌트로 업데이트된 네일셋 전달
-            onNailSetChange(updatedNailSet);
-
-            // 네일 선택 후 선택 모드 해제
-            setIsSelectingImage(false);
-            setSelectedNailButton(null);
-          }}
+          onNailSetChange={handleNailSetChange}
           activeFilters={activeFilters}
           selectedNailButton={selectedNailButton}
           isSelectingImage={isSelectingImage}
