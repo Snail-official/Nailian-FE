@@ -199,10 +199,13 @@ export default function ARExperiencePage() {
             title=""
             onBack={handleGoBack}
             rightContent={
-              <TouchableOpacity onPress={handleBookmark}>
+              <TouchableOpacity
+                onPress={handleBookmark}
+                style={styles.bookmarkContainer}
+              >
                 <BookmarkIcon
-                  width={scale(24)}
-                  height={scale(24)}
+                  width={scale(19)}
+                  height={scale(19)}
                   color={colors.gray600}
                 />
               </TouchableOpacity>
@@ -273,6 +276,12 @@ const styles = StyleSheet.create({
   arButtonContainer: {
     alignItems: 'center',
     marginTop: vs(18),
+  },
+  bookmarkContainer: {
+    alignItems: 'center',
+    height: scale(24),
+    justifyContent: 'center',
+    width: scale(24),
   },
   bottomSheetBackground: {
     backgroundColor: colors.white,
