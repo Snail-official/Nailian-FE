@@ -5,7 +5,6 @@ import {
   ScrollView,
   SafeAreaView,
   Text,
-  Dimensions,
   Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -149,7 +148,6 @@ function MainHomeScreen({ navigation }: Props) {
           <ScrollView
             ref={scrollViewRef}
             style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
             removeClippedSubviews={false}
             showsVerticalScrollIndicator={false}
             bounces={false}
@@ -222,21 +220,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   footer: {
-    alignItems: 'center',
-    backgroundColor: colors.gray50,
-    flexDirection: 'row',
-    marginTop: vs(20),
-    paddingBottom: vs(20),
-    paddingLeft: scale(26),
-    paddingRight: scale(167),
-    paddingTop: vs(25),
-    width: '100%',
+    marginLeft: scale(26),
+    marginTop: vs(25),
   },
   footerNotice: {
-    marginTop: vs(8),
+    marginBottom: vs(28),
+    marginTop: vs(14),
   },
   footerSection: {
-    marginBottom: vs(10),
+    backgroundColor: colors.gray50,
+    height: vs(140),
+    marginBottom: vs(27),
     width: '100%',
   },
   footerText: {
@@ -270,10 +264,6 @@ const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: colors.white,
     flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 0,
-    paddingBottom: vs(54),
   },
   scrollView: {
     flex: 1,
