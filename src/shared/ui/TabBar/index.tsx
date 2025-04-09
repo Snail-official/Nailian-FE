@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...typography.title2_SB,
-    color: colors.gray900,
+    color: colors.gray850,
     textAlign: 'center',
   },
   rightContent: {

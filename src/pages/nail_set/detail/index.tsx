@@ -30,6 +30,7 @@ import { toast } from '~/shared/lib/toast';
 import { scale, vs } from '~/shared/lib/responsive';
 import { APIError } from '~/shared/api/types';
 import { useErrorStore } from '~/features/error/model/errorStore';
+import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 
 type NailSetDetailScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -276,6 +277,11 @@ function NailSetDetailPage() {
               onPress={handleBookmarkToggle}
             >
               <View style={styles.buttonContent}>
+                <BookmarkIcon
+                  width={scale(15)}
+                  height={scale(15)}
+                  color={colors.white}
+                />
                 <Text style={styles.bookmarkButtonText}>보관함에 저장</Text>
               </View>
             </TouchableOpacity>
@@ -349,23 +355,22 @@ function NailSetDetailPage() {
 
 const styles = StyleSheet.create({
   bookmarkButton: {
+    alignItems: 'center',
     backgroundColor: colors.gray900,
     borderRadius: scale(4),
-    height: scale(45),
-    paddingHorizontal: scale(12),
+    height: vs(33),
     paddingVertical: scale(6),
-    width: scale(144),
+    width: scale(122),
   },
   bookmarkButtonText: {
     ...typography.body2_SB,
     color: colors.white,
+    marginLeft: scale(6),
   },
   buttonContent: {
     alignItems: 'center',
+    display: 'flex',
     flexDirection: 'row',
-    height: '100%',
-    justifyContent: 'center',
-    width: '100%',
   },
   buttonsContainer: {
     alignItems: 'center',
@@ -419,7 +424,7 @@ const styles = StyleSheet.create({
   },
   nailSetItem: {
     marginBottom: vs(12),
-    width: '48%', // 약간의 간격을 두기 위해 48%로 설정
+    width: '48%',
   },
   nailSetList: {
     paddingBottom: vs(20),
@@ -447,7 +452,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   similarSectionContainer: {
-    marginTop: vs(55),
+    marginTop: vs(49),
     width: '100%',
   },
   similarSectionTitle: {
