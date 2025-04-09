@@ -163,7 +163,7 @@ export default function SocialLoginScreen({ navigation }: Props) {
       <View style={styles.splashContainer}>
         <LogoIcon width={scale(171.11)} height={vs(56)} />
         <Text style={styles.logoText}>
-          AR 네일 체험과 네일샵 예약을 한 번에
+          내 손에 직접 입혀보고 찾는 나만의 네일
         </Text>
       </View>
     );
@@ -177,7 +177,7 @@ export default function SocialLoginScreen({ navigation }: Props) {
           <View style={styles.logoContainer}>
             <LogoIcon width={scale(171.11)} height={vs(56)} />
             <Text style={styles.logoText}>
-              AR 네일 체험과 네일샵 예약을 한 번에
+              내 손에 직접 입혀보고 찾는 나만의 네일
             </Text>
           </View>
         </View>
