@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   nickname: {
-    ...typography.title1_SB,
+    ...typography.body1_B,
     color: colors.gray850,
     textAlign: 'center',
   },

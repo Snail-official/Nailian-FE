@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentArea: {
-    backgroundColor: colors.gray50,
+    backgroundColor: colors.white,
     flex: 1,
     paddingTop: vs(8),
   },
