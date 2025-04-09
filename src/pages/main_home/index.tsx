@@ -22,10 +22,6 @@ import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
 import { NailSet, StyleInfo, Banner as BannerType } from './types';
 
-const { width } = Dimensions.get('window');
-const BANNER_WIDTH = scale(331);
-const LEFT_MARGIN = (width - BANNER_WIDTH) / 2;
-
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MainHome'>;
 };
@@ -183,7 +179,6 @@ function MainHomeScreen({ navigation }: Props) {
 
               {/* 추천 네일 세트 목록 */}
               <RecommendedNailSets
-                leftMargin={LEFT_MARGIN}
                 styleGroups={styleGroups}
                 onStylePress={handleStylePress}
                 onNailSetPress={handleNailSetPress}
@@ -265,7 +260,7 @@ const styles = StyleSheet.create({
   },
   recommendationContainer: {
     marginTop: vs(28),
-    paddingHorizontal: LEFT_MARGIN,
+    paddingHorizontal: scale(22),
   },
   recommendationText: {
     ...typography.head2_B,

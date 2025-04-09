@@ -14,7 +14,6 @@ import NailSetComponent from '~/features/nail-set/ui/NailSet';
 import { NailSet, StyleGroup, StyleInfo } from '../types';
 
 interface RecommendedNailSetsProps {
-  leftMargin: number;
   styleGroups: StyleGroup[];
   onStylePress: (styleId: number, styleName: string) => void;
   onNailSetPress: (nailSet: NailSet, style: StyleInfo) => void;
@@ -53,7 +52,6 @@ const createRenderItem = (
   };
 
 function RecommendedNailSets({
-  leftMargin,
   styleGroups,
   onStylePress,
   onNailSetPress,
@@ -63,7 +61,7 @@ function RecommendedNailSets({
       {styleGroups.map((styleGroup: StyleGroup) => (
         <View key={`style-${styleGroup.style.id}`} style={styles.styleSection}>
           <TouchableOpacity
-            style={[styles.styleHeader, { paddingHorizontal: leftMargin }]}
+            style={styles.styleHeader}
             onPress={() =>
               onStylePress(styleGroup.style.id, styleGroup.style.name)
             }
@@ -85,10 +83,7 @@ function RecommendedNailSets({
             keyExtractor={item => `nail-set-${item.id}`}
             showsHorizontalScrollIndicator={false}
             removeClippedSubviews={false}
-            contentContainerStyle={[
-              styles.nailSetList,
-              { paddingLeft: leftMargin },
-            ]}
+            contentContainerStyle={styles.nailSetList}
             ItemSeparatorComponent={NailSetSeparator}
           />
         </View>
@@ -100,6 +95,8 @@ function RecommendedNailSets({
 const styles = StyleSheet.create({
   container: {
     marginBottom: vs(28),
+    marginLeft: scale(26),
+    marginRight: scale(16),
     marginTop: vs(26),
   },
   nailSetItem: {
