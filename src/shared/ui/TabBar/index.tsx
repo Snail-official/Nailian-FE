@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   footer: {
     backgroundColor: colors.white,
     flexDirection: 'row',
-    height: vs(74),
+    height: vs(42),
     justifyContent: 'center',
     width: '100%',
   },
@@ -195,12 +195,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     position: 'absolute',
-    right: scale(16),
+    right: scale(22),
     top: 0,
   },
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: vs(10),
     paddingVertical: spacing.small,
     width: scale(120),
   },

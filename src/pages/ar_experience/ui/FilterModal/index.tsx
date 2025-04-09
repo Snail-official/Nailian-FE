@@ -482,7 +482,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: scale(12),
-    marginTop: vs(8),
     width: '100%',
   },
   filterItemsContainer: {
@@ -500,8 +499,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: vs(80),
-    paddingHorizontal: scale(20),
-    paddingTop: vs(24),
+    paddingTop: vs(4),
   },
   tab: {
     alignItems: 'center',

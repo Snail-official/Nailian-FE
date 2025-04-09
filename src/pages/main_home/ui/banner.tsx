@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   paginationContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: vs(12),
+    marginTop: vs(8),
   },
   paginationDot: {
     backgroundColor: colors.gray200,

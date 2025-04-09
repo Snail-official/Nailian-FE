@@ -341,6 +341,7 @@ const styles = StyleSheet.create({
   subTitle: {
     ...typography.body4_M,
     color: colors.gray500,
+    marginTop: vs(4),
   },
   titleContainer: {
     marginLeft: scale(22),
