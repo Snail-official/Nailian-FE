@@ -24,6 +24,7 @@ import {
   fetchNailPreferences,
   saveNailPreferences,
 } from '~/entities/nail-preference/api';
+import { fetchNails } from '~/entities/nail-tip/api';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 import Button from '~/shared/ui/Button';
 import { toast } from '~/shared/lib/toast';
@@ -62,9 +63,9 @@ export default function NailSelectScreen() {
   // 무한 스크롤을 위한 쿼리
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
     useInfiniteQuery({
-      queryKey: ['nailPreferences'],
+      queryKey: ['nails'],
       queryFn: async ({ pageParam = 0 }) =>
-        fetchNailPreferences({
+        fetchNails({
           page: pageParam,
           size: 20,
         }),
