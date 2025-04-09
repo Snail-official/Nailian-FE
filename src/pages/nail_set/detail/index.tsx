@@ -42,17 +42,6 @@ type NailSetDetailScreenNavigationProp =
   NativeStackNavigationProp<RootStackParamList>;
 
 /**
- * 행 구분선 컴포넌트
- *
- * 유사한 네일 세트 목록에서 각 행 사이의 간격을 제공하는 구분선 컴포넌트입니다.
- *
- * @returns {JSX.Element} 구분선 뷰 컴포넌트
- */
-function RowSeparator() {
-  return <View style={styles.rowSeparator} />;
-}
-
-/**
  * 네일 세트 상세 페이지
  * 네일 세트의 상세 정보와 유사한 네일 세트 목록을 보여줍니다.
  *
@@ -138,7 +127,7 @@ function NailSetDetailPage() {
   });
 
   // 북마크 저장 뮤테이션
-  const { mutate: saveBookmark, isPending: saveLoading } = useMutation({
+  const { mutate: saveBookmark } = useMutation({
     mutationFn: saveUserNailSet,
     onSuccess: () => {
       toast.showToast('보관함에 저장되었습니다.', {
@@ -155,7 +144,7 @@ function NailSetDetailPage() {
   });
 
   // 북마크 삭제 뮤테이션
-  const { mutate: deleteBookmark, isPending: deleteLoading } = useMutation({
+  const { mutate: deleteBookmark } = useMutation({
     mutationFn: deleteUserNailSet,
     onSuccess: () => {
       toast.showToast('삭제되었습니다', {
@@ -461,9 +450,6 @@ const styles = StyleSheet.create({
   noDataText: {
     ...typography.body2_SB,
     color: colors.gray400,
-  },
-  rowSeparator: {
-    height: vs(12),
   },
   scrollViewContentContainer: {
     alignItems: 'center',
