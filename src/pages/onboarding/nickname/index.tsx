@@ -117,8 +117,11 @@ export default function OnboardingNicknameScreen() {
       >
         <View style={styles.content}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>반가워요!</Text>
-            <Text style={styles.title}>어떤 이름으로 불러드릴까요?</Text>
+            <Text style={styles.title}>
+              반가워요!
+              {'\n'}
+              어떤 이름으로 불러드릴까요?
+            </Text>
           </View>
           <TextInput
             style={[styles.input, isError && styles.inputError]}
@@ -141,7 +144,13 @@ export default function OnboardingNicknameScreen() {
             </Text>
           </View>
         </View>
-        <View style={styles.bottomButtonContainer}>
+        <View
+          style={
+            isKeyboardVisible
+              ? { ...styles.bottomButtonContainer, paddingBottom: vs(0) }
+              : styles.bottomButtonContainer
+          }
+        >
           <Button
             variant={isKeyboardVisible ? 'primaryLarge' : 'primaryMedium'}
             onPress={handleNicknameSubmit}
@@ -206,10 +215,9 @@ const styles = StyleSheet.create({
   title: {
     ...typography.head1_B,
     color: colors.gray850,
-    marginBottom: vs(8),
   },
   titleContainer: {
-    marginBottom: vs(38),
+    marginBottom: vs(34),
     marginTop: vs(48),
   },
 });
