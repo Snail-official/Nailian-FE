@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   Platform,
   BackHandler,
 } from 'react-native';
@@ -13,7 +12,6 @@ import { TabBarHeader } from '~/shared/ui/TabBar';
 import Button from '~/shared/ui/Button';
 import { scale, vs } from '~/shared/lib/responsive';
 import { Category, Color, Shape } from '~/shared/api/types';
-import ListItem from '~/shared/ui/List';
 import {
   BottomSheetModal,
   BottomSheetBackdrop,
@@ -24,6 +22,11 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+
+// 필터 탭 컴포넌트 import
+import CategoryFilterTab from './ui/CategoryFilterTab';
+import ColorFilterTab from './ui/ColorFilterTab';
+import ShapeFilterTab from './ui/ShapeFilterTab';
 
 /**
  * 필터 항목 유형 (카테고리, 색상, 쉐입)
@@ -142,111 +145,46 @@ function FilterModal({
     return () => backHandler.remove();
   }, [visible]);
 
-  // 필터 항목 데이터 - API 타입에 맞춤
-  const filterItems = useCallback(
-    () => ({
-      category: [
-        {
-          id: 'ONE_COLOR',
-          name: '원컬러',
-          image: Image.resolveAssetSource(
-            require('~/shared/assets/images/onecolor_nukki.png'),
-          ).uri,
-        },
-        {
-          id: 'FRENCH',
-          name: '프렌치',
-          image: Image.resolveAssetSource(
-            require('~/shared/assets/images/french_nukki.png'),
-          ).uri,
-        },
-        {
-          id: 'GRADIENT',
-          name: '그라데이션',
-          image: Image.resolveAssetSource(
-            require('~/shared/assets/images/gradient_nukki.png'),
-          ).uri,
-        },
-        {
-          id: 'ART',
-          name: '아트',
-          image: Image.resolveAssetSource(
-            require('~/shared/assets/images/art_nukki.png'),
-          ).uri,
-        },
-      ],
-      color: [
-        { id: 'WHITE', name: '화이트', color: colors.white },
-        { id: 'BLACK', name: '블랙', color: colors.gray900 },
-        { id: 'BEIGE', name: '베이지', color: '#F7EDD1' },
-        { id: 'PINK', name: '핑크', color: '#FFBBD3' },
-        { id: 'YELLOW', name: '옐로우', color: '#FFF53A' },
-        { id: 'GREEN', name: '그린', color: '#CDFB90' },
-        { id: 'BLUE', name: '블루', color: '#CADCFF' },
-        { id: 'SILVER', name: '실버', color: '#EAEAEA' },
-      ],
-      shape: [
-        {
-          id: 'SQUARE',
-          name: '스퀘어',
-          image: Image.resolveAssetSource(
-            require('~/shared/assets/images/img_square.png'),
-          ).uri,
-        },
-        {
-          id: 'ROUND',
-          name: '라운드',
-          image: Image.resolveAssetSource(
-            require('~/shared/assets/images/img_round.png'),
-          ).uri,
-        },
-        {
-          id: 'ALMOND',
-          name: '아몬드',
-          image: Image.resolveAssetSource(
-            require('~/shared/assets/images/img_almond.png'),
-          ).uri,
-        },
-        {
-          id: 'BALLERINA',
-          name: '발레리나',
-          image: Image.resolveAssetSource(
-            require('~/shared/assets/images/img_ballet.png'),
-          ).uri,
-        },
-        {
-          id: 'STILETTO',
-          name: '스틸레토',
-          image: Image.resolveAssetSource(
-            require('~/shared/assets/images/img_still.png'),
-          ).uri,
-        },
-      ],
-    }),
-    [],
-  );
-
   // 탭 변경 핸들러
   const handleTabChange = useCallback((tab: FilterTabType) => {
     setActiveTab(tab);
   }, []);
 
-  // 필터 항목 선택 핸들러
-  const handleItemSelect = useCallback(
-    (type: FilterTabType, itemId: string) => {
-      setSelectedValues(prev => {
-        // 이미 선택된 항목을 다시 클릭하면 선택 해제
-        if (prev[type] === itemId) {
-          const newValues = { ...prev };
-          delete newValues[type];
-          return newValues;
-        }
-        // 새 항목 선택
-        return { ...prev, [type]: itemId };
-      });
-    },
-    [],
-  );
+  // 카테고리 선택 핸들러
+  const handleCategorySelect = useCallback((category: Category | undefined) => {
+    setSelectedValues(prev => {
+      if (category === undefined) {
+        const newValues = { ...prev };
+        delete newValues.category;
+        return newValues;
+      }
+      return { ...prev, category };
+    });
+  }, []);
+
+  // 색상 선택 핸들러
+  const handleColorSelect = useCallback((color: Color | undefined) => {
+    setSelectedValues(prev => {
+      if (color === undefined) {
+        const newValues = { ...prev };
+        delete newValues.color;
+        return newValues;
+      }
+      return { ...prev, color };
+    });
+  }, []);
+
+  // 모양 선택 핸들러
+  const handleShapeSelect = useCallback((shape: Shape | undefined) => {
+    setSelectedValues(prev => {
+      if (shape === undefined) {
+        const newValues = { ...prev };
+        delete newValues.shape;
+        return newValues;
+      }
+      return { ...prev, shape };
+    });
+  }, []);
 
   // 필터 적용 핸들러
   const handleApply = useCallback(() => {
@@ -301,61 +239,42 @@ function FilterModal({
     );
   }, [initialValues, selectedValues]);
 
-  // 선택된 필터 항목 렌더링
-  const renderFilterItems = useCallback(() => {
-    const items = filterItems()[activeTab];
-
-    if (activeTab === 'color') {
-      return (
-        <View style={styles.filterItemsContainer}>
-          {items.map(item => (
-            <ListItem
-              key={item.id}
-              content={
-                <View style={styles.colorItemContent}>
-                  <View
-                    style={[
-                      styles.colorCircle,
-                      // @ts-expect-error color 속성은 색상 항목에만 존재
-                      { backgroundColor: item.color },
-                    ]}
-                  />
-                  <Text
-                    style={[
-                      styles.colorItemText,
-                      selectedValues.color === item.id &&
-                        styles.colorItemTextSelected,
-                    ]}
-                  >
-                    {item.name}
-                  </Text>
-                </View>
-              }
-              selected={selectedValues.color === item.id}
-              onPress={() => handleItemSelect('color', item.id)}
-            />
-          ))}
-        </View>
-      );
-    }
-
-    // 카테고리와 쉐입 필터는 FilterContentButton 사용
-    return (
-      <View style={styles.filterContentContainer}>
-        {items.map(item => (
-          <Button
-            key={item.id}
-            variant="filter_content"
-            onPress={() => handleItemSelect(activeTab, item.id)}
-            isSelected={selectedValues[activeTab] === item.id}
-            // @ts-expect-error image 속성은 카테고리와 쉐입 항목에만 존재
-            imageSource={{ uri: item.image }}
-            label={item.name}
+  // 현재 활성화된 탭에 따라 필터 컴포넌트 렌더링
+  const renderActiveTabContent = useCallback(() => {
+    switch (activeTab) {
+      case 'category':
+        return (
+          <CategoryFilterTab
+            selectedCategory={selectedValues.category}
+            onSelectCategory={handleCategorySelect}
           />
-        ))}
-      </View>
-    );
-  }, [activeTab, filterItems, handleItemSelect, selectedValues]);
+        );
+      case 'color':
+        return (
+          <ColorFilterTab
+            selectedColor={selectedValues.color}
+            onSelectColor={handleColorSelect}
+          />
+        );
+      case 'shape':
+        return (
+          <ShapeFilterTab
+            selectedShape={selectedValues.shape}
+            onSelectShape={handleShapeSelect}
+          />
+        );
+      default:
+        return null;
+    }
+  }, [
+    activeTab,
+    selectedValues.category,
+    selectedValues.color,
+    selectedValues.shape,
+    handleCategorySelect,
+    handleColorSelect,
+    handleShapeSelect,
+  ]);
 
   return (
     <BottomSheetModal
@@ -395,7 +314,12 @@ function FilterModal({
                       ? '색상'
                       : '쉐입'}
                 </Text>
-                {activeTab === tab && <View style={styles.tabIndicator} />}
+                <View
+                  style={[
+                    styles.tabIndicator,
+                    activeTab !== tab && styles.inactiveTabIndicator,
+                  ]}
+                />
               </View>
             </TouchableOpacity>
           ))}
@@ -409,7 +333,7 @@ function FilterModal({
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
         >
-          {renderFilterItems()}
+          {renderActiveTabContent()}
         </BottomSheetScrollView>
 
         {/* 적용하기 버튼 */}
@@ -447,51 +371,20 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
   },
-  colorCircle: {
-    borderColor: colors.gray100,
-    borderRadius: scale(10),
-    borderWidth: 1,
-    height: scale(20),
-    marginRight: scale(10),
-    width: scale(20),
-  },
-  colorItemContent: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    width: '100%',
-  },
-  colorItemText: {
-    ...typography.body2_SB,
-    color: colors.gray700,
-  },
-  colorItemTextSelected: {
-    ...typography.body2_SB,
-    color: colors.purple500,
-  },
   content: {
     flex: 1,
   },
   divider: {
     backgroundColor: colors.gray100,
     height: 1,
+    marginBottom: vs(10),
     width: '100%',
   },
-  filterContentContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: scale(12),
-    width: '100%',
-  },
-  filterItemsContainer: {
-    alignItems: 'flex-start',
-    width: '100%',
+  inactiveTabIndicator: {
+    backgroundColor: colors.white,
   },
   modalBackground: {
     backgroundColor: colors.white,
-    borderTopLeftRadius: scale(30),
-    borderTopRightRadius: scale(30),
   },
   modalContent: {
     flex: 1,
@@ -513,7 +406,7 @@ const styles = StyleSheet.create({
     height: vs(35),
     justifyContent: 'space-around',
     marginTop: vs(18),
-    paddingHorizontal: scale(20),
+    paddingHorizontal: scale(31),
     width: '100%',
   },
   tabIndicator: {
@@ -531,7 +424,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     ...typography.body2_SB,
-    color: colors.gray400,
+    color: colors.gray850,
     textAlign: 'center',
   },
 });
