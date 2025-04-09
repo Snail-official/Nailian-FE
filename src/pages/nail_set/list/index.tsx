@@ -23,7 +23,7 @@ import { scale, vs } from '~/shared/lib/responsive';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import { fetchNailSetFeed, fetchUserNailSets } from '~/entities/nail-set/api';
 import NailSet from '~/features/nail-set/ui/NailSet';
-import EmptyView from './ui/EmptyView';
+import EmptyView from '~/shared/ui/EmptyView';
 
 /**
  * 네일 세트 UI 레이아웃 상수
@@ -193,7 +193,11 @@ function NailSetListPage() {
     return (
       <SafeAreaView style={styles.container}>
         <TabBarHeader title={styleName} onBack={() => navigation.goBack()} />
-        <EmptyView />
+        <EmptyView
+          message="저장된 아트가 없어요"
+          buttonText="아트 둘러보기"
+          navigateTo={{ screen: 'MainHome' }}
+        />
       </SafeAreaView>
     );
   }
