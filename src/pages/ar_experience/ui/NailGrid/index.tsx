@@ -16,6 +16,7 @@ import { fetchNails } from '~/entities/nail-tip/api';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { scale, vs } from '~/shared/lib/responsive';
 import { NailSet, FingerType } from '~/pages/ar_experience';
+import EmptyView from '~/shared/ui/EmptyView';
 import { FilterValues } from '../FilterModal';
 
 interface NailGridProps {
@@ -39,6 +40,7 @@ interface NailGridProps {
    * 손가락 타입과 인덱스 매핑
    */
   fingerMap: Array<{ index: number; type: string }>;
+  onResetFilter?: () => void;
 }
 
 /**
@@ -63,6 +65,7 @@ export function NailGrid({
   selectedNailButton = null,
   isSelectingImage = false,
   fingerMap,
+  onResetFilter,
 }: NailGridProps) {
   const scrollViewRef =
     useRef<React.ComponentRef<typeof BottomSheetScrollView>>(null);
@@ -205,20 +208,29 @@ export function NailGrid({
       directionalLockEnabled={true}
       disableScrollViewPanResponder={false}
     >
-      {/* 네일 그리드 */}
-      <FlatList
-        data={nails}
-        renderItem={renderNailItem}
-        keyExtractor={(item, index) => `nail-${item.id}-${index}`}
-        numColumns={3}
-        columnWrapperStyle={styles.columnWrapper}
-        contentContainerStyle={styles.flatListContent}
-        scrollEnabled={false}
-        ListFooterComponent={renderFooter}
-        ItemSeparatorComponent={ItemSeparator}
-        initialNumToRender={12}
-        removeClippedSubviews={false}
-      />
+      {!isLoading && nails.length === 0 ? (
+        <View style={styles.emptyViewWrapper}>
+          <EmptyView
+            message="조건에 맞는 네일이 없어요."
+            buttonText="필터 초기화"
+            onButtonPress={onResetFilter}
+          />
+        </View>
+      ) : (
+        <FlatList
+          data={nails}
+          renderItem={renderNailItem}
+          keyExtractor={(item, index) => `nail-${item.id}-${index}`}
+          numColumns={3}
+          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={styles.flatListContent}
+          scrollEnabled={false}
+          ListFooterComponent={renderFooter}
+          ItemSeparatorComponent={ItemSeparator}
+          initialNumToRender={12}
+          removeClippedSubviews={false}
+        />
+      )}
     </BottomSheetScrollView>
   );
 }
@@ -232,6 +244,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+  },
+  emptyViewWrapper: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
   },
   flatListContent: {
     alignItems: 'flex-start',
