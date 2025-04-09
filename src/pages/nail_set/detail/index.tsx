@@ -139,11 +139,13 @@ function NailSetDetailPage() {
   const { mutate: saveBookmark, isPending: saveLoading } = useMutation({
     mutationFn: saveUserNailSet,
     onSuccess: () => {
-      toast.showToast('보관함에 저장되었습니다');
+      toast.showToast('보관함에 저장되었습니다.', {
+        iconType: 'check',
+      });
     },
     onError: (error: unknown) => {
       if (error instanceof APIError && error.code === 409) {
-        toast.showToast('이미 저장된 네일입니다');
+        toast.showToast('이미 저장된 네일입니다.');
       } else {
         errorStore.showError('보관함 저장에 실패했습니다');
       }
@@ -154,7 +156,9 @@ function NailSetDetailPage() {
   const { mutate: deleteBookmark, isPending: deleteLoading } = useMutation({
     mutationFn: deleteUserNailSet,
     onSuccess: () => {
-      toast.showToast('보관함에서 삭제되었습니다');
+      toast.showToast('삭제되었습니다', {
+        position: 'bottom',
+      });
       setShowDeleteModal(false);
       navigation.goBack();
     },
