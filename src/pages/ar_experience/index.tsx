@@ -334,10 +334,10 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
   },
   indicator: {
-    backgroundColor: colors.gray400,
+    backgroundColor: colors.gray200,
     borderRadius: 100,
-    height: vs(5),
-    width: scale(60),
+    height: vs(4),
+    width: scale(44),
   },
   mainTitle: {
     ...typography.head2_B,
