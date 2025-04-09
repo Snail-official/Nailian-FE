@@ -71,7 +71,11 @@ function RecommendedNailSets({
             <Text style={styles.styleTitle}>
               {styleGroup.style.name}네일 보러가기
             </Text>
-            <ArrowRightIcon width={scale(24)} height={scale(24)} />
+            <ArrowRightIcon
+              width={scale(24)}
+              height={scale(24)}
+              color={colors.gray400}
+            />
           </TouchableOpacity>
 
           <FlatList
