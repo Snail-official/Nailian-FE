@@ -1,11 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  FlatList,
+  ScrollView,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -212,16 +214,33 @@ function NailSetDetailPage() {
     navigation.navigate('ARExperiencePage');
   }, [navigation]);
 
-  const renderNailSetItem = useCallback(
-    (props: { item: INailSet }) => (
-      <TouchableOpacity
-        style={styles.nailSetItem}
-        onPress={() => handleSimilarNailSetPress(props.item)}
-      >
-        <NailSet nailImages={props.item} />
-      </TouchableOpacity>
-    ),
-    [handleSimilarNailSetPress],
+  // 스크롤 이벤트 처리를 위한 상태
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
+
+  // 스크롤이 하단에 도달했을 때 다음 페이지 로드
+  useEffect(() => {
+    if (isScrolledToBottom && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isScrolledToBottom, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // 스크롤 이벤트 핸들러
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const { layoutMeasurement, contentOffset, contentSize } =
+        event.nativeEvent;
+      const paddingToBottom = 20;
+      const isCloseToBottom =
+        layoutMeasurement.height + contentOffset.y >=
+        contentSize.height - paddingToBottom;
+
+      if (isCloseToBottom) {
+        setIsScrolledToBottom(true);
+      } else {
+        setIsScrolledToBottom(false);
+      }
+    },
+    [],
   );
 
   // 로딩 중 화면
@@ -267,7 +286,13 @@ function NailSetDetailPage() {
         }
       />
 
-      <View style={styles.contentContainer}>
+      <ScrollView
+        style={styles.contentContainer}
+        contentContainerStyle={styles.scrollViewContentContainer}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.nailSetContainer}>
           <NailSet nailImages={nailSet.data} size="large" />
         </View>
@@ -319,29 +344,27 @@ function NailSetDetailPage() {
               </Text>
             </View>
           ) : (
-            <FlatList
-              numColumns={2}
-              data={similarNailSets}
-              renderItem={renderNailSetItem}
-              keyExtractor={item => `similar-nail-set-${item.id}`}
-              showsVerticalScrollIndicator={false}
-              removeClippedSubviews={false}
-              contentContainerStyle={styles.nailSetList}
-              columnWrapperStyle={styles.columnWrapper}
-              ItemSeparatorComponent={RowSeparator}
-              onEndReached={() => hasNextPage && fetchNextPage()}
-              onEndReachedThreshold={0.5}
-              ListFooterComponent={
-                isFetchingNextPage ? (
-                  <View style={styles.footerLoading}>
-                    <ActivityIndicator size="small" color={colors.purple500} />
-                  </View>
-                ) : null
-              }
-            />
+            <View style={styles.nailSetList}>
+              <View style={styles.nailSetGrid}>
+                {similarNailSets.map(item => (
+                  <TouchableOpacity
+                    key={`similar-nail-set-${item.id}`}
+                    style={styles.nailSetItem}
+                    onPress={() => handleSimilarNailSetPress(item)}
+                  >
+                    <NailSet nailImages={item} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {isFetchingNextPage && (
+                <View style={styles.footerLoading}>
+                  <ActivityIndicator size="small" color={colors.purple500} />
+                </View>
+              )}
+            </View>
           )}
         </View>
-      </View>
+      </ScrollView>
 
       {showDeleteModal && (
         <Modal
@@ -383,16 +406,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: vs(24),
   },
-  columnWrapper: {
-    justifyContent: 'space-between',
-    width: '100%',
-  },
   container: {
     backgroundColor: colors.white,
     flex: 1,
   },
   contentContainer: {
-    alignItems: 'center',
     flex: 1,
     paddingTop: vs(12),
   },
@@ -426,6 +444,12 @@ const styles = StyleSheet.create({
     marginBottom: vs(24),
     width: '100%',
   },
+  nailSetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
   nailSetItem: {
     marginBottom: vs(12),
     width: '48%',
@@ -440,6 +464,10 @@ const styles = StyleSheet.create({
   },
   rowSeparator: {
     height: vs(12),
+  },
+  scrollViewContentContainer: {
+    alignItems: 'center',
+    paddingBottom: vs(20),
   },
   similarErrorContainer: {
     alignItems: 'center',
