@@ -87,8 +87,16 @@ export function TabBarHeader({
     <View style={styles.headerContainer}>
       <View style={styles.header}>
         {onBack && (
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <BackIcon width={scale(48)} height={scale(48)} />
+          <TouchableOpacity
+            onPress={onBack}
+            style={styles.backButton}
+            activeOpacity={1}
+          >
+            <BackIcon
+              width={scale(48)}
+              height={scale(48)}
+              color={colors.gray900}
+            />
           </TouchableOpacity>
         )}
         <Text style={styles.headerTitle}>{title}</Text>
@@ -118,6 +126,7 @@ export function TabBarFooter({ activeTab }: TabBarFooterProps) {
             key={id}
             style={styles.tabItem}
             onPress={() => handleTabPress(id)}
+            activeOpacity={1}
           >
             <Icon
               width={scale(24)}

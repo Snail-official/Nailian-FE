@@ -88,6 +88,7 @@ function NailAddButton({
       style={buttonStyles}
       onPress={onPress}
       disabled={disabled}
+      activeOpacity={1}
     >
       {hasImage ? (
         <View style={styles.imageContainer}>
@@ -106,6 +107,7 @@ function NailAddButton({
                 bottom: scale(3),
                 left: scale(8),
               }}
+              activeOpacity={1}
             >
               <DeleteIcon width={scale(20)} height={scale(20)} />
             </TouchableOpacity>

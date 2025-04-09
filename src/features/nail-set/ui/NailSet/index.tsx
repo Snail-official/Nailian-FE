@@ -151,7 +151,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
         style,
       ]}
       onPress={onPress}
-      activeOpacity={0.8}
+      activeOpacity={1}
     >
       <View style={styles.nailsContainer}>
         {nails.map(nail => (

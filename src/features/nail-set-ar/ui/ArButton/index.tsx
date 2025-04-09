@@ -48,6 +48,7 @@ export default function ArButton({
       style={[styles.container, style]}
       onPress={onPress}
       disabled={disabled}
+      activeOpacity={1}
     >
       <View style={styles.content}>
         <ArIcon width={scale(26)} height={scale(26)} color={colors.white} />

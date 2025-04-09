@@ -280,6 +280,7 @@ function Button({
       ]}
       disabled={disabled}
       onPress={onPress}
+      activeOpacity={1}
     >
       {loading ? (
         <Text style={[styles.text, variantStyle.textStyle]}>저장 중...</Text>

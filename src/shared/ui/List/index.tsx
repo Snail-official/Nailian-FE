@@ -36,7 +36,11 @@ export default function ListItem({
   onPress,
 }: ListItemProps) {
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={onPress}
+      activeOpacity={1}
+    >
       <View style={styles.contentContainer}>{content}</View>
       <View style={styles.checkContainer}>
         {selected && (

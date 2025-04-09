@@ -96,6 +96,7 @@ function Banner({ onBannerPress }: BannerProps) {
             key={banner.id}
             onPress={() => handleBannerPress(banner as BannerType)}
             style={styles.bannerItem}
+            activeOpacity={1}
           >
             <Image
               source={{ uri: banner.imageUrl }}

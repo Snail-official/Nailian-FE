@@ -198,7 +198,7 @@ export default function NailSelection({
           <TouchableOpacity
             style={styles.filterButton}
             onPress={handleFilterClick}
-            activeOpacity={0.7}
+            activeOpacity={1}
           >
             <View style={styles.filterButtonContent}>
               <FilterIcon

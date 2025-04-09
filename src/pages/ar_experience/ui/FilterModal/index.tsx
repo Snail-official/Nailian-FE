@@ -300,6 +300,7 @@ function FilterModal({
               key={tab}
               style={styles.tab}
               onPress={() => handleTabChange(tab)}
+              activeOpacity={1}
             >
               <View style={styles.tabItemContainer}>
                 <Text

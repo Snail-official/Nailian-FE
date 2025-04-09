@@ -148,7 +148,7 @@ function NailSetListPage() {
     <TouchableOpacity
       style={styles.nailSetItem}
       onPress={() => handleNailSetPress(item)}
-      activeOpacity={0.8}
+      activeOpacity={1}
     >
       <NailSet nailImages={item} />
     </TouchableOpacity>

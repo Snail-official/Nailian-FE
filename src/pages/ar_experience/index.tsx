@@ -202,6 +202,7 @@ export default function ARExperiencePage() {
               <TouchableOpacity
                 onPress={handleBookmark}
                 style={styles.bookmarkContainer}
+                activeOpacity={1}
               >
                 <BookmarkIcon
                   width={scale(19)}

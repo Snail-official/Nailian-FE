@@ -34,7 +34,7 @@ const NailItem = memo(({ nailSet, styleInfo, onPress }: NailItemProps) => (
   <TouchableOpacity
     style={styles.nailSetItem}
     onPress={() => onPress(nailSet, styleInfo)}
-    activeOpacity={0.7}
+    activeOpacity={1}
   >
     <NailSetComponent nailImages={nailSet} />
   </TouchableOpacity>
@@ -65,6 +65,7 @@ function RecommendedNailSets({
             onPress={() =>
               onStylePress(styleGroup.style.id, styleGroup.style.name)
             }
+            activeOpacity={1}
           >
             <Text style={styles.styleTitle}>
               {styleGroup.style.name}네일 보러가기

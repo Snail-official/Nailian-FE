@@ -264,6 +264,7 @@ function NailSetDetailPage() {
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={handleDeleteBookmarkPress}
+              activeOpacity={1}
             >
               <TrashIcon
                 width={scale(24)}
@@ -293,6 +294,7 @@ function NailSetDetailPage() {
             <TouchableOpacity
               style={styles.bookmarkButton}
               onPress={handleBookmarkToggle}
+              activeOpacity={1}
             >
               <View style={styles.buttonContent}>
                 <BookmarkIcon
@@ -340,6 +342,7 @@ function NailSetDetailPage() {
                     key={`similar-nail-set-${item.id}`}
                     style={styles.nailSetItem}
                     onPress={() => handleSimilarNailSetPress(item)}
+                    activeOpacity={1}
                   >
                     <NailSet nailImages={item} />
                   </TouchableOpacity>

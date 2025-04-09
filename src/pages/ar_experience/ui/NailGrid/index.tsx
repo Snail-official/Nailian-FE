@@ -147,7 +147,7 @@ export function NailGrid({
       <TouchableOpacity
         style={styles.nailItem}
         onPress={() => handleNailItemClick(props.item)}
-        activeOpacity={0.7}
+        activeOpacity={1}
       >
         <Image
           source={{ uri: props.item.imageUrl }}
