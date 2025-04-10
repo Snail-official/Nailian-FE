@@ -71,30 +71,6 @@ export default function NailSelection({
   );
   const [isSelectingImage, setIsSelectingImage] = useState(false);
 
-  // 네일셋 업데이트 핸들러
-  const handleNailSetChange = useCallback(
-    (partialNailSet: Partial<NailSet>) => {
-      // 현재 네일셋 복사
-      const updatedNailSet = { ...currentNailSet };
-
-      // partialNailSet의 모든 키에 대해 업데이트 적용
-      Object.keys(partialNailSet).forEach(key => {
-        const fingerType = key as keyof NailSet;
-        if (partialNailSet[fingerType]) {
-          updatedNailSet[fingerType] = partialNailSet[fingerType];
-        }
-      });
-
-      // 부모 컴포넌트로 업데이트된 네일셋 전달
-      onNailSetChange(updatedNailSet);
-
-      // 네일 선택 후 선택 모드 해제
-      setIsSelectingImage(false);
-      setSelectedNailButton(null);
-    },
-    [currentNailSet, onNailSetChange],
-  );
-
   // 필터 버튼 클릭 핸들러
   const handleFilterClick = useCallback(() => {
     // 필터 모달 열기
