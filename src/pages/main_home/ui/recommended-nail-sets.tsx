@@ -14,7 +14,6 @@ import NailSetComponent from '~/features/nail-set/ui/NailSet';
 import { NailSet, StyleGroup, StyleInfo } from '../types';
 
 interface RecommendedNailSetsProps {
-  leftMargin: number;
   styleGroups: StyleGroup[];
   onStylePress: (styleId: number, styleName: string) => void;
   onNailSetPress: (nailSet: NailSet, style: StyleInfo) => void;
@@ -35,7 +34,7 @@ const NailItem = memo(({ nailSet, styleInfo, onPress }: NailItemProps) => (
   <TouchableOpacity
     style={styles.nailSetItem}
     onPress={() => onPress(nailSet, styleInfo)}
-    activeOpacity={0.7}
+    activeOpacity={1}
   >
     <NailSetComponent nailImages={nailSet} />
   </TouchableOpacity>
@@ -53,7 +52,6 @@ const createRenderItem = (
   };
 
 function RecommendedNailSets({
-  leftMargin,
   styleGroups,
   onStylePress,
   onNailSetPress,
@@ -63,15 +61,20 @@ function RecommendedNailSets({
       {styleGroups.map((styleGroup: StyleGroup) => (
         <View key={`style-${styleGroup.style.id}`} style={styles.styleSection}>
           <TouchableOpacity
-            style={[styles.styleHeader, { paddingHorizontal: leftMargin }]}
+            style={styles.styleHeader}
             onPress={() =>
               onStylePress(styleGroup.style.id, styleGroup.style.name)
             }
+            activeOpacity={1}
           >
             <Text style={styles.styleTitle}>
               {styleGroup.style.name}네일 보러가기
             </Text>
-            <ArrowRightIcon width={scale(24)} height={scale(24)} />
+            <ArrowRightIcon
+              width={scale(24)}
+              height={scale(24)}
+              color={colors.gray400}
+            />
           </TouchableOpacity>
 
           <FlatList
@@ -81,10 +84,7 @@ function RecommendedNailSets({
             keyExtractor={item => `nail-set-${item.id}`}
             showsHorizontalScrollIndicator={false}
             removeClippedSubviews={false}
-            contentContainerStyle={[
-              styles.nailSetList,
-              { paddingLeft: leftMargin },
-            ]}
+            contentContainerStyle={styles.nailSetList}
             ItemSeparatorComponent={NailSetSeparator}
           />
         </View>
@@ -96,6 +96,8 @@ function RecommendedNailSets({
 const styles = StyleSheet.create({
   container: {
     marginBottom: vs(28),
+    marginLeft: scale(26),
+    marginRight: scale(16),
     marginTop: vs(26),
   },
   nailSetItem: {

@@ -52,6 +52,7 @@ export default function NailItem({
     <TouchableOpacity
       onPress={onSelect}
       style={componentStyles.nailItem.container}
+      activeOpacity={1}
     >
       <Image source={source} style={componentStyles.nailItem.image} />
       {isSelected && (

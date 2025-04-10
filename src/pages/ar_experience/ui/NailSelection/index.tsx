@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import Button from '~/shared/ui/Button';
@@ -71,6 +71,30 @@ export default function NailSelection({
   );
   const [isSelectingImage, setIsSelectingImage] = useState(false);
 
+  // 네일셋 업데이트 핸들러
+  const handleNailSetChange = useCallback(
+    (partialNailSet: Partial<NailSet>) => {
+      // 현재 네일셋 복사
+      const updatedNailSet = { ...currentNailSet };
+
+      // partialNailSet의 모든 키에 대해 업데이트 적용
+      Object.keys(partialNailSet).forEach(key => {
+        const fingerType = key as keyof NailSet;
+        if (partialNailSet[fingerType]) {
+          updatedNailSet[fingerType] = partialNailSet[fingerType];
+        }
+      });
+
+      // 부모 컴포넌트로 업데이트된 네일셋 전달
+      onNailSetChange(updatedNailSet);
+
+      // 네일 선택 후 선택 모드 해제
+      setIsSelectingImage(false);
+      setSelectedNailButton(null);
+    },
+    [currentNailSet, onNailSetChange],
+  );
+
   // 필터 버튼 클릭 핸들러
   const handleFilterClick = useCallback(() => {
     // 필터 모달 열기
@@ -90,17 +114,6 @@ export default function NailSelection({
 
     // 필터 적용
     setActiveFilters(filterValues);
-  }, []);
-
-  /**
-   * 필터 초기화 핸들러
-   * 현재 적용된 모든 필터를 제거하고 초기 상태로 돌아갑니다.
-   * NailGrid 컴포넌트의 empty view에서 "필터 초기화" 버튼 클릭 시 호출됩니다.
-   * 필터링 결과가 없을 때 사용자가 쉽게 필터를 초기화할 수 있도록 합니다.
-   */
-  const handleResetFilter = useCallback(() => {
-    // 필터 초기화
-    setActiveFilters({});
   }, []);
 
   // 손가락 버튼 클릭 핸들러
@@ -209,7 +222,7 @@ export default function NailSelection({
           <TouchableOpacity
             style={styles.filterButton}
             onPress={handleFilterClick}
-            activeOpacity={0.7}
+            activeOpacity={1}
           >
             <View style={styles.filterButtonContent}>
               <FilterIcon
@@ -226,6 +239,13 @@ export default function NailSelection({
         </View>
       </View>
 
+      {/* 그래디언트 이미지 */}
+      <Image
+        source={require('~/shared/assets/images/filter_modal_gradient.png')}
+        style={styles.gradientImage}
+        resizeMode="cover"
+      />
+
       {/* 네일 그리드 (스크롤 영역) */}
       <View style={styles.gridContainer}>
         <NailGrid
@@ -234,7 +254,6 @@ export default function NailSelection({
           selectedNailButton={selectedNailButton}
           isSelectingImage={isSelectingImage}
           fingerMap={FINGER_MAP}
-          onResetFilter={handleResetFilter}
         />
       </View>
 
@@ -283,6 +302,7 @@ const styles = StyleSheet.create({
     marginBottom: vs(12),
     marginTop: vs(20),
     paddingRight: scale(22),
+    zIndex: 2,
   },
   filterText: {
     ...typography.body2_SB,
@@ -291,9 +311,17 @@ const styles = StyleSheet.create({
   fixedHeader: {
     paddingHorizontal: 0,
   },
+  gradientImage: {
+    height: scale(188),
+    position: 'absolute',
+    top: 0,
+    width: scale(375),
+    zIndex: 1,
+  },
   gridContainer: {
     flex: 1,
     paddingHorizontal: 0,
+    zIndex: 0,
   },
   nailButtonsContainer: {
     flexDirection: 'row',
@@ -301,5 +329,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     paddingLeft: scale(22),
     paddingRight: scale(22),
+    zIndex: 2,
   },
 });

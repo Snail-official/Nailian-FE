@@ -247,6 +247,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
               <TouchableOpacity
                 style={styles.bookmarkContainer}
                 onPress={handleNailBookmarkPress}
+                activeOpacity={1}
               >
                 <View style={styles.bookmarkContent}>
                   <Text style={styles.bookmarkTitle}>네일 보관함</Text>
@@ -272,6 +273,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => handleMenuPress('1:1 문의')}
+                  activeOpacity={1}
                 >
                   <Text style={styles.menuText}>1:1 문의</Text>
                   <ArrowRightIcon
@@ -285,6 +287,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => handleMenuPress('FAQ')}
+                  activeOpacity={1}
                 >
                   <Text style={styles.menuText}>FAQ</Text>
                   <ArrowRightIcon
@@ -298,6 +301,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => handleMenuPress('약관 및 정책')}
+                  activeOpacity={1}
                 >
                   <Text style={styles.menuText}>약관 및 정책</Text>
                   <ArrowRightIcon
@@ -311,6 +315,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 <TouchableOpacity
                   style={styles.menuItem}
                   onPress={handleLogoutButtonPress}
+                  activeOpacity={1}
                 >
                   <Text style={styles.menuText}>로그아웃</Text>
                   <ArrowRightIcon
@@ -325,6 +330,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
                   <TouchableOpacity
                     style={styles.unsubscribeButton}
                     onPress={handleUnsubscribeButtonPress}
+                    activeOpacity={1}
                   >
                     <Text style={styles.unsubscribeText}>탈퇴하기</Text>
                     <UnsubscribeIcon
@@ -426,7 +432,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   nickname: {
-    ...typography.title1_SB,
+    ...typography.body1_B,
     color: colors.gray850,
     textAlign: 'center',
   },

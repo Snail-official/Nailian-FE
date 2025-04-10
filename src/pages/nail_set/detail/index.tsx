@@ -1,11 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  FlatList,
+  ScrollView,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -30,6 +32,7 @@ import { toast } from '~/shared/lib/toast';
 import { scale, vs } from '~/shared/lib/responsive';
 import { APIError } from '~/shared/api/types';
 import { useErrorStore } from '~/features/error/model/errorStore';
+import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 
 type NailSetDetailScreenRouteProp = RouteProp<
   RootStackParamList,
@@ -37,17 +40,6 @@ type NailSetDetailScreenRouteProp = RouteProp<
 >;
 type NailSetDetailScreenNavigationProp =
   NativeStackNavigationProp<RootStackParamList>;
-
-/**
- * 행 구분선 컴포넌트
- *
- * 유사한 네일 세트 목록에서 각 행 사이의 간격을 제공하는 구분선 컴포넌트입니다.
- *
- * @returns {JSX.Element} 구분선 뷰 컴포넌트
- */
-function RowSeparator() {
-  return <View style={styles.rowSeparator} />;
-}
 
 /**
  * 네일 세트 상세 페이지
@@ -135,14 +127,16 @@ function NailSetDetailPage() {
   });
 
   // 북마크 저장 뮤테이션
-  const { mutate: saveBookmark, isPending: saveLoading } = useMutation({
+  const { mutate: saveBookmark } = useMutation({
     mutationFn: saveUserNailSet,
     onSuccess: () => {
-      toast.showToast('보관함에 저장되었습니다');
+      toast.showToast('보관함에 저장되었습니다.', {
+        iconType: 'check',
+      });
     },
     onError: (error: unknown) => {
       if (error instanceof APIError && error.code === 409) {
-        toast.showToast('이미 저장된 네일입니다');
+        toast.showToast('이미 저장된 네일입니다.');
       } else {
         errorStore.showError('보관함 저장에 실패했습니다');
       }
@@ -150,10 +144,12 @@ function NailSetDetailPage() {
   });
 
   // 북마크 삭제 뮤테이션
-  const { mutate: deleteBookmark, isPending: deleteLoading } = useMutation({
+  const { mutate: deleteBookmark } = useMutation({
     mutationFn: deleteUserNailSet,
     onSuccess: () => {
-      toast.showToast('보관함에서 삭제되었습니다');
+      toast.showToast('삭제되었습니다', {
+        position: 'bottom',
+      });
       setShowDeleteModal(false);
       navigation.goBack();
     },
@@ -207,16 +203,33 @@ function NailSetDetailPage() {
     navigation.navigate('ARExperiencePage');
   }, [navigation]);
 
-  const renderNailSetItem = useCallback(
-    (props: { item: INailSet }) => (
-      <TouchableOpacity
-        style={styles.nailSetItem}
-        onPress={() => handleSimilarNailSetPress(props.item)}
-      >
-        <NailSet nailImages={props.item} />
-      </TouchableOpacity>
-    ),
-    [handleSimilarNailSetPress],
+  // 스크롤 이벤트 처리를 위한 상태
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
+
+  // 스크롤이 하단에 도달했을 때 다음 페이지 로드
+  useEffect(() => {
+    if (isScrolledToBottom && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isScrolledToBottom, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // 스크롤 이벤트 핸들러
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const { layoutMeasurement, contentOffset, contentSize } =
+        event.nativeEvent;
+      const paddingToBottom = 20;
+      const isCloseToBottom =
+        layoutMeasurement.height + contentOffset.y >=
+        contentSize.height - paddingToBottom;
+
+      if (isCloseToBottom) {
+        setIsScrolledToBottom(true);
+      } else {
+        setIsScrolledToBottom(false);
+      }
+    },
+    [],
   );
 
   // 로딩 중 화면
@@ -251,6 +264,7 @@ function NailSetDetailPage() {
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={handleDeleteBookmarkPress}
+              activeOpacity={1}
             >
               <TrashIcon
                 width={scale(24)}
@@ -262,7 +276,13 @@ function NailSetDetailPage() {
         }
       />
 
-      <View style={styles.contentContainer}>
+      <ScrollView
+        style={styles.contentContainer}
+        contentContainerStyle={styles.scrollViewContentContainer}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.nailSetContainer}>
           <NailSet nailImages={nailSet.data} size="large" />
         </View>
@@ -274,8 +294,14 @@ function NailSetDetailPage() {
             <TouchableOpacity
               style={styles.bookmarkButton}
               onPress={handleBookmarkToggle}
+              activeOpacity={1}
             >
               <View style={styles.buttonContent}>
+                <BookmarkIcon
+                  width={scale(15)}
+                  height={scale(15)}
+                  color={colors.white}
+                />
                 <Text style={styles.bookmarkButtonText}>보관함에 저장</Text>
               </View>
             </TouchableOpacity>
@@ -309,29 +335,28 @@ function NailSetDetailPage() {
               </Text>
             </View>
           ) : (
-            <FlatList
-              numColumns={2}
-              data={similarNailSets}
-              renderItem={renderNailSetItem}
-              keyExtractor={item => `similar-nail-set-${item.id}`}
-              showsVerticalScrollIndicator={false}
-              removeClippedSubviews={false}
-              contentContainerStyle={styles.nailSetList}
-              columnWrapperStyle={styles.columnWrapper}
-              ItemSeparatorComponent={RowSeparator}
-              onEndReached={() => hasNextPage && fetchNextPage()}
-              onEndReachedThreshold={0.5}
-              ListFooterComponent={
-                isFetchingNextPage ? (
-                  <View style={styles.footerLoading}>
-                    <ActivityIndicator size="small" color={colors.purple500} />
-                  </View>
-                ) : null
-              }
-            />
+            <View style={styles.nailSetList}>
+              <View style={styles.nailSetGrid}>
+                {similarNailSets.map(item => (
+                  <TouchableOpacity
+                    key={`similar-nail-set-${item.id}`}
+                    style={styles.nailSetItem}
+                    onPress={() => handleSimilarNailSetPress(item)}
+                    activeOpacity={1}
+                  >
+                    <NailSet nailImages={item} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {isFetchingNextPage && (
+                <View style={styles.footerLoading}>
+                  <ActivityIndicator size="small" color={colors.purple500} />
+                </View>
+              )}
+            </View>
           )}
         </View>
-      </View>
+      </ScrollView>
 
       {showDeleteModal && (
         <Modal
@@ -349,23 +374,22 @@ function NailSetDetailPage() {
 
 const styles = StyleSheet.create({
   bookmarkButton: {
+    alignItems: 'center',
     backgroundColor: colors.gray900,
     borderRadius: scale(4),
-    height: scale(45),
-    paddingHorizontal: scale(12),
+    height: vs(33),
     paddingVertical: scale(6),
-    width: scale(144),
+    width: scale(122),
   },
   bookmarkButtonText: {
     ...typography.body2_SB,
     color: colors.white,
+    marginLeft: scale(6),
   },
   buttonContent: {
     alignItems: 'center',
+    display: 'flex',
     flexDirection: 'row',
-    height: '100%',
-    justifyContent: 'center',
-    width: '100%',
   },
   buttonsContainer: {
     alignItems: 'center',
@@ -374,16 +398,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: vs(24),
   },
-  columnWrapper: {
-    justifyContent: 'space-between',
-    width: '100%',
-  },
   container: {
     backgroundColor: colors.white,
     flex: 1,
   },
   contentContainer: {
-    alignItems: 'center',
     flex: 1,
     paddingTop: vs(12),
   },
@@ -417,9 +436,15 @@ const styles = StyleSheet.create({
     marginBottom: vs(24),
     width: '100%',
   },
+  nailSetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
   nailSetItem: {
     marginBottom: vs(12),
-    width: '48%', // 약간의 간격을 두기 위해 48%로 설정
+    width: '48%',
   },
   nailSetList: {
     paddingBottom: vs(20),
@@ -429,8 +454,9 @@ const styles = StyleSheet.create({
     ...typography.body2_SB,
     color: colors.gray400,
   },
-  rowSeparator: {
-    height: vs(12),
+  scrollViewContentContainer: {
+    alignItems: 'center',
+    paddingBottom: vs(20),
   },
   similarErrorContainer: {
     alignItems: 'center',
@@ -447,7 +473,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   similarSectionContainer: {
-    marginTop: vs(55),
+    marginTop: vs(49),
     width: '100%',
   },
   similarSectionTitle: {

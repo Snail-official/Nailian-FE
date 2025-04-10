@@ -5,7 +5,6 @@ import {
   ScrollView,
   SafeAreaView,
   Text,
-  Dimensions,
   Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -21,10 +20,6 @@ import { toast } from '~/shared/lib/toast';
 import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
 import { NailSet, StyleInfo, Banner as BannerType } from './types';
-
-const { width } = Dimensions.get('window');
-const BANNER_WIDTH = scale(331);
-const LEFT_MARGIN = (width - BANNER_WIDTH) / 2;
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MainHome'>;
@@ -153,7 +148,6 @@ function MainHomeScreen({ navigation }: Props) {
           <ScrollView
             ref={scrollViewRef}
             style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
             removeClippedSubviews={false}
             showsVerticalScrollIndicator={false}
             bounces={false}
@@ -183,7 +177,6 @@ function MainHomeScreen({ navigation }: Props) {
 
               {/* 추천 네일 세트 목록 */}
               <RecommendedNailSets
-                leftMargin={LEFT_MARGIN}
                 styleGroups={styleGroups}
                 onStylePress={handleStylePress}
                 onNailSetPress={handleNailSetPress}
@@ -227,21 +220,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   footer: {
-    alignItems: 'center',
-    backgroundColor: colors.gray50,
-    flexDirection: 'row',
-    marginTop: vs(20),
-    paddingBottom: vs(20),
-    paddingLeft: scale(26),
-    paddingRight: scale(167),
-    paddingTop: vs(25),
-    width: '100%',
+    marginLeft: scale(26),
+    marginTop: vs(25),
   },
   footerNotice: {
-    marginTop: vs(8),
+    marginBottom: vs(28),
+    marginTop: vs(14),
   },
   footerSection: {
-    marginBottom: vs(10),
+    backgroundColor: colors.gray50,
+    height: vs(140),
+    marginBottom: vs(27),
     width: '100%',
   },
   footerText: {
@@ -265,7 +254,7 @@ const styles = StyleSheet.create({
   },
   recommendationContainer: {
     marginTop: vs(28),
-    paddingHorizontal: LEFT_MARGIN,
+    paddingHorizontal: scale(22),
   },
   recommendationText: {
     ...typography.head2_B,
@@ -275,10 +264,6 @@ const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: colors.white,
     flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 0,
-    paddingBottom: vs(54),
   },
   scrollView: {
     flex: 1,

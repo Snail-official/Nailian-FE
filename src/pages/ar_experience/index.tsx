@@ -199,10 +199,14 @@ export default function ARExperiencePage() {
             title=""
             onBack={handleGoBack}
             rightContent={
-              <TouchableOpacity onPress={handleBookmark}>
+              <TouchableOpacity
+                onPress={handleBookmark}
+                style={styles.bookmarkContainer}
+                activeOpacity={1}
+              >
                 <BookmarkIcon
-                  width={scale(24)}
-                  height={scale(24)}
+                  width={scale(19)}
+                  height={scale(19)}
                   color={colors.gray600}
                 />
               </TouchableOpacity>
@@ -274,6 +278,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: vs(18),
   },
+  bookmarkContainer: {
+    alignItems: 'center',
+    height: scale(24),
+    justifyContent: 'center',
+    width: scale(24),
+  },
   bottomSheetBackground: {
     backgroundColor: colors.white,
     borderColor: colors.black,
@@ -288,7 +298,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentArea: {
-    backgroundColor: colors.gray50,
+    backgroundColor: colors.white,
     flex: 1,
     paddingTop: vs(8),
   },
@@ -325,10 +335,10 @@ const styles = StyleSheet.create({
     shadowRadius: 0,
   },
   indicator: {
-    backgroundColor: colors.gray400,
+    backgroundColor: colors.gray200,
     borderRadius: 100,
-    height: vs(5),
-    width: scale(60),
+    height: vs(4),
+    width: scale(44),
   },
   mainTitle: {
     ...typography.head2_B,
@@ -341,6 +351,7 @@ const styles = StyleSheet.create({
   subTitle: {
     ...typography.body4_M,
     color: colors.gray500,
+    marginTop: vs(4),
   },
   titleContainer: {
     marginLeft: scale(22),

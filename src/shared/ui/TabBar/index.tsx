@@ -87,8 +87,16 @@ export function TabBarHeader({
     <View style={styles.headerContainer}>
       <View style={styles.header}>
         {onBack && (
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <BackIcon width={scale(48)} height={scale(48)} />
+          <TouchableOpacity
+            onPress={onBack}
+            style={styles.backButton}
+            activeOpacity={1}
+          >
+            <BackIcon
+              width={scale(48)}
+              height={scale(48)}
+              color={colors.gray900}
+            />
           </TouchableOpacity>
         )}
         <Text style={styles.headerTitle}>{title}</Text>
@@ -118,6 +126,7 @@ export function TabBarFooter({ activeTab }: TabBarFooterProps) {
             key={id}
             style={styles.tabItem}
             onPress={() => handleTabPress(id)}
+            activeOpacity={1}
           >
             <Icon
               width={scale(24)}
@@ -152,7 +161,7 @@ const styles = StyleSheet.create({
   footer: {
     backgroundColor: colors.white,
     flexDirection: 'row',
-    height: vs(74),
+    height: vs(42),
     justifyContent: 'center',
     width: '100%',
   },
@@ -188,19 +197,20 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...typography.title2_SB,
-    color: colors.gray900,
+    color: colors.gray850,
     textAlign: 'center',
   },
   rightContent: {
     bottom: 0,
     justifyContent: 'center',
     position: 'absolute',
-    right: scale(16),
+    right: scale(22),
     top: 0,
   },
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: vs(10),
     paddingVertical: spacing.small,
     width: scale(120),
   },

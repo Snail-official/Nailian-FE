@@ -3,6 +3,7 @@ import { Text, StyleSheet, Animated } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
+import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 import { toast } from '~/shared/lib/toast';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,6 +21,7 @@ export function ToastContainer() {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
   const [position, setPosition] = useState<'top' | 'bottom'>('top');
+  const [iconType, setIconType] = useState<'error' | 'check'>('error');
   const insets = useSafeAreaInsets();
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -27,7 +29,12 @@ export function ToastContainer() {
   const translateY = useRef(new Animated.Value(0)).current;
 
   const showToastMessage = useCallback(
-    (newMessage: string, toastPosition: 'top' | 'bottom', duration: number) => {
+    (
+      newMessage: string,
+      toastPosition: 'top' | 'bottom',
+      duration: number,
+      toastIconType: 'error' | 'check' = 'error',
+    ) => {
       // 이전 타이머가 있다면 클리어
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -35,6 +42,7 @@ export function ToastContainer() {
 
       setMessage(newMessage);
       setPosition(toastPosition);
+      setIconType(toastIconType);
       setVisible(true);
 
       // 새로운 타이머 설정
@@ -46,11 +54,16 @@ export function ToastContainer() {
   );
 
   useEffect(() => {
-    const unsubscribe = toast.addListener(({ message, options }) => {
-      const { duration = 3000, position: toastPosition = 'top' } =
-        options || {};
-      showToastMessage(message, toastPosition, duration);
-    });
+    const unsubscribe = toast.addListener(
+      ({ message: toastMessage, options }) => {
+        const {
+          duration = 3000,
+          position: toastPosition = 'top',
+          iconType: toastIconType = 'error',
+        } = options || {};
+        showToastMessage(toastMessage, toastPosition, duration, toastIconType);
+      },
+    );
 
     // cleanup
     return () => {
@@ -103,6 +116,9 @@ export function ToastContainer() {
 
   if (!visible) return null;
 
+  const IconComponent = iconType === 'check' ? CheckIcon : ErrorIcon;
+  const iconColor = iconType === 'check' ? colors.purple500 : colors.gray650;
+
   return (
     <Animated.View
       style={[
@@ -117,11 +133,7 @@ export function ToastContainer() {
       ]}
     >
       {position === 'top' && (
-        <ErrorIcon
-          width={scale(20)}
-          height={scale(20)}
-          color={colors.gray650}
-        />
+        <IconComponent width={scale(20)} height={scale(20)} color={iconColor} />
       )}
       <Text
         style={position === 'top' ? styles.topMessage : styles.bottomMessage}

@@ -1,8 +1,10 @@
 type ToastPosition = 'top' | 'bottom';
+type ToastIconType = 'error' | 'check';
 
 interface ToastOptions {
   duration?: number;
   position?: ToastPosition;
+  iconType?: ToastIconType;
 }
 
 type ToastEvent = {

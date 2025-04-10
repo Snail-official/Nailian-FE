@@ -23,6 +23,7 @@ function FilterContentButton({
       style={[styles.container, isSelected && styles.containerSelected]}
       onPress={onPress}
       disabled={disabled}
+      activeOpacity={1}
     >
       {/* 선택 시 체크 아이콘 */}
       {isSelected && (

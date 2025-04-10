@@ -150,7 +150,7 @@ export const componentStyles = {
       width: '100%',
       height: '100%',
       borderRadius: scale(4),
-      backgroundColor: colors.gray200,
+      backgroundColor: colors.gray50,
     },
     selectedOverlay: {
       position: 'absolute',
