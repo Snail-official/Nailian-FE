@@ -3,14 +3,9 @@ import { View, Text, StyleSheet } from 'react-native';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import Button from '~/shared/ui/Button';
-import { useNavigation, CommonActions } from '@react-navigation/native';
-import { RootStackParamList } from '~/shared/types/navigation';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 
 import WarningIcon from '~/shared/assets/icons/ic_warn.svg';
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 /**
  * 에러 뷰 컴포넌트
@@ -22,25 +17,13 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
  */
 export default function ErrorView() {
   console.log('ErrorView');
-  const navigation = useNavigation<NavigationProp>();
   const { goToNextOnboardingStep } = useOnboardingNavigation();
-
-  const handleGoMain = () => {
-    navigation.replace('MainHome');
-  };
 
   const handleRetry = async () => {
     try {
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [],
-        }),
-      );
       await goToNextOnboardingStep();
     } catch (error) {
       console.error('온보딩 재시도 실패:', error);
-      handleGoMain();
     }
   };
 
