@@ -4,8 +4,13 @@ import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import Button from '~/shared/ui/Button';
 import { useNavigation, CommonActions } from '@react-navigation/native';
+import { RootStackParamList } from '~/shared/types/navigation';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useOnboardingNavigation } from '~/features/onboarding/model/useOnboardingNavigation';
 
 import WarningIcon from '~/shared/assets/icons/ic_warn.svg';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 /**
  * 에러 뷰 컴포넌트
@@ -17,22 +22,33 @@ import WarningIcon from '~/shared/assets/icons/ic_warn.svg';
  */
 export default function ErrorView() {
   console.log('ErrorView');
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
+  const { goToNextOnboardingStep } = useOnboardingNavigation();
 
   const handleGoMain = () => {
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'MainHome' }],
-      }),
-    );
+    navigation.replace('MainHome');
+  };
+
+  const handleRetry = async () => {
+    try {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [],
+        }),
+      );
+      await goToNextOnboardingStep();
+    } catch (error) {
+      console.error('온보딩 재시도 실패:', error);
+      handleGoMain();
+    }
   };
 
   return (
     <View style={styles.container}>
       <WarningIcon width={scale(42)} height={scale(42)} />
       <Text style={styles.emptyText}>알 수 없는 오류가 발생했어요</Text>
-      <Button variant="chip_black" onPress={handleGoMain}>
+      <Button variant="chip_black" onPress={handleRetry}>
         <Text style={styles.buttonText}>메인으로</Text>
       </Button>
     </View>
@@ -40,12 +56,6 @@ export default function ErrorView() {
 }
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    alignItems: 'center',
-    flexDirection: 'column',
-    gap: vs(12),
-    width: '100%',
-  },
   buttonText: {
     ...typography.body4_M,
     color: colors.white,
@@ -57,29 +67,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: scale(20),
   },
-  descriptionText: {
-    ...typography.body3_B,
-    color: colors.gray400,
-    lineHeight: vs(20),
-    marginBottom: vs(32),
-    textAlign: 'center',
-  },
   emptyText: {
     ...typography.body2_SB,
     color: colors.gray500,
     marginBottom: vs(12),
-    textAlign: 'center',
-  },
-  homeButtonText: {
-    color: colors.black,
-  },
-  retryButton: {
-    marginBottom: vs(8),
-  },
-  titleText: {
-    ...typography.title1_SB,
-    color: colors.black,
-    marginBottom: vs(8),
     textAlign: 'center',
   },
 });
