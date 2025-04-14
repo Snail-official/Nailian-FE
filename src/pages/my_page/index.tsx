@@ -74,7 +74,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
   useFocusEffect(
     useCallback(() => {
       refetchProfile();
-    }, [refetchProfile]),
+      refetchNailSets();
+    }, [refetchProfile, refetchNailSets]),
   );
 
   /**
