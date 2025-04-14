@@ -35,8 +35,8 @@ export function vs(size: number): number {
 /**
  * 폰트 크기와 같이 너무 크게 변하지 않아야 하는 요소에 사용
  * @param size 원래 크기
- * @param factor 스케일링 계수 (0.5가 기본값, 낮을수록 스케일링 정도가 작아짐)
+ * @param factor 스케일링 계수 (1이 기본값, 낮을수록 스케일링 정도가 작아짐)
  */
-export function ms(size: number, factor: number = 0.5): number {
+export function ms(size: number, factor: number = 1): number {
   return moderateScale(size * WIDTH_RATIO, factor);
 }
