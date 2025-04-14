@@ -68,6 +68,7 @@ export default function NailSelectScreen() {
         fetchNails({
           page: pageParam,
           size: 20,
+          random: 1,
         }),
       getNextPageParam: lastPage => {
         const totalPages = lastPage.data?.pageInfo?.totalPages || 0;

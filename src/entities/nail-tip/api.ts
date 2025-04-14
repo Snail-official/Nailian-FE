@@ -14,6 +14,7 @@ export const fetchNails = async (
     ...(params.color && { color: params.color }), // 색상 필터
     ...(params.shape && { shape: params.shape }), // 모양 필터
     ...(params.category && { category: params.category }), // 카테고리 필터
+    ...(params.random && { random: params.random }), // 랜덤 필터
     page: params.page, // 페이지 번호
     size: params.size, // 페이지 크기
   };
