@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { colors } from '~/shared/styles/design';
-import { NailListResponse, Shape } from '~/shared/api/types';
+import { Shape } from '~/shared/api/types';
 import { fetchNails } from '~/entities/nail-tip/api';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { scale, vs } from '~/shared/lib/responsive';
