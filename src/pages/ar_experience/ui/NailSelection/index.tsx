@@ -34,6 +34,10 @@ interface NailSelectionProps {
    * 네일셋 변경 핸들러
    */
   onNailSetChange: (nailSet: NailSet) => void;
+  /**
+   * 읽기 전용 모드 (뷰 모드에서 사용)
+   */
+  readOnly?: boolean;
 }
 // 네일셋 변경 시 전달되는 임시 타입
 interface NailSetUpdate extends Partial<NailSet> {
@@ -60,6 +64,7 @@ interface NailSetUpdate extends Partial<NailSet> {
 export default function NailSelection({
   currentNailSet,
   onNailSetChange,
+  readOnly = false,
 }: NailSelectionProps) {
   // 필터 모달 상태
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
@@ -95,6 +100,9 @@ export default function NailSelection({
   // 손가락 버튼 클릭 핸들러
   const handleNailButtonClick = useCallback(
     (index: number) => {
+      // 읽기 전용 모드에서는 동작하지 않음
+      if (readOnly) return;
+
       // 이미 선택된 버튼이면 선택 해제
       if (selectedNailButton === index) {
         setSelectedNailButton(null);
@@ -106,12 +114,15 @@ export default function NailSelection({
       setSelectedNailButton(index);
       setIsSelectingImage(true);
     },
-    [selectedNailButton],
+    [selectedNailButton, readOnly],
   );
 
   // 네일 이미지 삭제 핸들러
   const handleNailImageDelete = useCallback(
     (index: number) => {
+      // 읽기 전용 모드에서는 동작하지 않음
+      if (readOnly) return;
+
       const fingerType =
         (FINGER_MAP.find(item => item.index === index)
           ?.type as keyof NailSet) || 'pinky';
@@ -123,7 +134,7 @@ export default function NailSelection({
 
       setSelectedNailButton(null);
     },
-    [currentNailSet, onNailSetChange],
+    [currentNailSet, onNailSetChange, readOnly],
   );
 
   // 네일셋 변경 핸들러
@@ -193,26 +204,28 @@ export default function NailSelection({
         {/* 네일 추가 버튼 영역 */}
         <View style={styles.nailButtonsContainer}>{renderNailButtons()}</View>
 
-        {/* 필터 버튼 */}
-        <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={handleFilterClick}
-            activeOpacity={1}
-          >
-            <View style={styles.filterButtonContent}>
-              <FilterIcon
-                width={scale(20)}
-                height={scale(20)}
-                color={colors.gray600}
-              />
-              <Text style={styles.filterText}>필터</Text>
-              {Object.keys(activeFilters).length > 0 && (
-                <View style={styles.filterActiveIndicator} />
-              )}
-            </View>
-          </TouchableOpacity>
-        </View>
+        {/* 필터 버튼 - 읽기 전용 모드에서는 표시하지 않음 */}
+        {!readOnly && (
+          <View style={styles.filterContainer}>
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={handleFilterClick}
+              activeOpacity={1}
+            >
+              <View style={styles.filterButtonContent}>
+                <FilterIcon
+                  width={scale(20)}
+                  height={scale(20)}
+                  color={colors.gray600}
+                />
+                <Text style={styles.filterText}>필터</Text>
+                {Object.keys(activeFilters).length > 0 && (
+                  <View style={styles.filterActiveIndicator} />
+                )}
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* 그래디언트 이미지 */}
@@ -230,6 +243,7 @@ export default function NailSelection({
           selectedNailButton={selectedNailButton}
           isSelectingImage={isSelectingImage}
           fingerMap={FINGER_MAP}
+          readOnly={readOnly}
         />
       </View>
 

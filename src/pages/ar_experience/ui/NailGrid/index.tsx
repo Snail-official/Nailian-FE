@@ -40,7 +40,14 @@ interface NailGridProps {
    * 손가락 타입과 인덱스 매핑
    */
   fingerMap: Array<{ index: number; type: string }>;
+  /**
+   * 필터 초기화 콜백
+   */
   onResetFilter?: () => void;
+  /**
+   * 읽기 전용 모드 (뷰 모드에서 사용)
+   */
+  readOnly?: boolean;
 }
 
 // 네일셋 변경 시 전달되는 임시 타입
@@ -71,6 +78,7 @@ export function NailGrid({
   isSelectingImage = false,
   fingerMap,
   onResetFilter,
+  readOnly = false,
 }: NailGridProps) {
   const scrollViewRef =
     useRef<React.ComponentRef<typeof BottomSheetScrollView>>(null);
@@ -149,11 +157,13 @@ export function NailGrid({
   // 그리드 네일 아이템 클릭 핸들러
   const handleNailItemClick = useCallback(
     (item: { id: number; imageUrl: string; shape?: Shape }) => {
+      // 읽기 전용 모드에서는 동작하지 않음
+      if (readOnly) return;
       if (isSelectingImage && selectedNailButton !== null) {
         addImageToNailSet(selectedNailButton, item);
       }
     },
-    [isSelectingImage, selectedNailButton, addImageToNailSet],
+    [isSelectingImage, selectedNailButton, addImageToNailSet, readOnly],
   );
 
   // 네일 아이템 렌더링 함수

@@ -200,8 +200,16 @@ function NailSetDetailPage() {
   }, [nailSetId, deleteBookmark]);
 
   const handleArButtonPress = useCallback(() => {
-    navigation.navigate('ARExperiencePage');
-  }, [navigation]);
+    // 이미 로드된 네일 세트 데이터가 있으므로 이를 활용하여 AR 뷰 페이지로 이동
+    if (nailSet?.data) {
+      navigation.navigate('ARViewPage', { nailSet: nailSet.data });
+    } else {
+      // 데이터가 없는 경우 토스트 메시지 표시
+      toast.showToast('네일 정보를 불러오는데 실패했습니다', {
+        position: 'bottom',
+      });
+    }
+  }, [navigation, nailSet]);
 
   // 스크롤 이벤트 처리를 위한 상태
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
