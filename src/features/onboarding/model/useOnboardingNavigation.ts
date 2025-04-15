@@ -37,7 +37,10 @@ export const useOnboardingNavigation = () => {
       const response = await fetchOnboardingStatus({ maxSupportedVersion: 2 });
       const nextOnboardingStep = response.data?.nextOnboardingStep;
       if (nextOnboardingStep) {
-        navigation.replace(nextOnboardingStep);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: nextOnboardingStep }],
+        });
       } else {
         navigation.replace('MainHome');
       }
