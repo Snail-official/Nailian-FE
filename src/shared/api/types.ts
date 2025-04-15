@@ -120,9 +120,10 @@ export type Shape = 'SQUARE' | 'ROUND' | 'ALMOND' | 'BALLERINA' | 'STILETTO';
 
 /** 네일 목록 조회 요청 */
 export interface GetNailsRequest extends PaginationRequest {
-  color?: string;
-  shape?: string;
-  category?: string;
+  color?: Color;
+  shape?: Shape;
+  category?: Category;
+  random?: number;
 }
 
 /** 네일 목록 조회 응답 */
