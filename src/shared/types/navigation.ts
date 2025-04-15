@@ -1,3 +1,4 @@
+import { INailSet } from './nail-set';
 /**
  * 루트 네비게이션 스택의 파라미터 타입 정의
  *
@@ -49,8 +50,13 @@ export type RootStackParamList = {
     isBookmarked?: boolean;
   };
 
-  /** AR 체험 페이지 */
+  /** AR 체험 페이지 - 일반 편집 모드 */
   ARExperiencePage: undefined;
+
+  /** AR 체험 페이지 - 뷰 전용 모드 */
+  ARViewPage: {
+    nailSet: INailSet; // 네일 세트 데이터 전체 전달
+  };
 
   /** AR 카메라 화면 */
   ARCameraPage: undefined;
