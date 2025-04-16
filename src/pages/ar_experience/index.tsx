@@ -27,10 +27,11 @@ import { toast } from '~/shared/lib/toast';
 import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ViewShot, { captureRef } from 'react-native-view-shot';
 import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 // 손가락 타입 정의
 export type FingerType = 'pinky' | 'ring' | 'middle' | 'index' | 'thumb';
@@ -78,6 +79,11 @@ export default function ARExperiencePage() {
 
   // 현재 선택된 네일셋 상태 (API 타입에 맞게 관리)
   const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
+
+  // 라이트박스 관련 상태
+  const [isLightboxVisible, setIsLightboxVisible] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const viewShotRef = useRef<ViewShot | null>(null);
 
   /**
    * 네일셋이 완전한지 확인하는 함수 (모든 손가락에 네일이 선택되었는지)
@@ -188,6 +194,26 @@ export default function ARExperiencePage() {
     </View>
   );
 
+  /**
+   * 손 이미지 영역을 캡처하고 라이트박스로 보여주는 함수
+   */
+  const captureAndShowLightbox = useCallback(() => {
+    if (viewShotRef.current) {
+      captureRef(viewShotRef).then(uri => {
+        setCapturedImage(uri);
+        setIsLightboxVisible(true);
+      });
+    }
+  }, []);
+
+  /**
+   * 라이트박스 닫기
+   */
+  const closeLightbox = useCallback(() => {
+    setIsLightboxVisible(false);
+    setCapturedImage(null); // 메모리에서 이미지 해제
+  }, []);
+
   return (
     <BottomSheetModalProvider>
       <SafeAreaView style={styles.safeArea}>
@@ -226,17 +252,26 @@ export default function ARExperiencePage() {
             </View>
 
             {/* 손 이미지와 네일 오버레이 컨테이너 */}
-            <View style={styles.handContainer}>
-              {/* 기본 손 이미지 */}
-              <Image
-                source={require('~/shared/assets/images/hand.png')}
-                style={styles.handImage}
-                resizeMode="contain"
-              />
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={captureAndShowLightbox}
+            >
+              <ViewShot
+                ref={viewShotRef}
+                options={{ quality: 1 }}
+                style={styles.handContainer}
+              >
+                {/* 기본 손 이미지 */}
+                <Image
+                  source={require('~/shared/assets/images/hand.png')}
+                  style={styles.handImage}
+                  resizeMode="contain"
+                />
 
-              {/* 네일 오버레이 - 선택된 네일팁을 손 위에 표시 */}
-              <NailOverlay nailSet={currentNailSet} />
-            </View>
+                {/* 네일 오버레이 - 선택된 네일팁을 손 위에 표시 */}
+                <NailOverlay nailSet={currentNailSet} />
+              </ViewShot>
+            </TouchableOpacity>
 
             {/* AR 버튼 */}
             <View style={styles.arButtonContainer}>
@@ -267,6 +302,21 @@ export default function ARExperiencePage() {
               onNailSetChange={nailSet => setCurrentNailSet(nailSet)}
             />
           </BottomSheet>
+
+          {/* 라이트박스 (position: absolute와 zIndex로 구현) */}
+          {isLightboxVisible && capturedImage && (
+            <TouchableOpacity
+              style={styles.lightboxContainer}
+              activeOpacity={1}
+              onPress={closeLightbox}
+            >
+              <Image
+                source={{ uri: capturedImage }}
+                style={styles.lightboxImage}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </SafeAreaView>
     </BottomSheetModalProvider>
@@ -339,6 +389,22 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     height: vs(4),
     width: scale(44),
+  },
+  lightboxContainer: {
+    alignItems: 'center',
+    backgroundColor: colors.black,
+    bottom: 0,
+    justifyContent: 'center',
+    left: 0,
+    opacity: 0.85,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    zIndex: 10000,
+  },
+  lightboxImage: {
+    height: height * 1.5,
+    width: width * 1.5,
   },
   mainTitle: {
     ...typography.head2_B,
