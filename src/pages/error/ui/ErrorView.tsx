@@ -32,7 +32,7 @@ export default function ErrorView() {
       <WarningIcon width={scale(42)} height={scale(42)} />
       <Text style={styles.emptyText}>알 수 없는 오류가 발생했어요</Text>
       <Button variant="chip_black" onPress={handleRetry}>
-        <Text style={styles.buttonText}>메인으로</Text>
+        <Text style={styles.buttonText}>이전 화면으로</Text>
       </Button>
     </View>
   );
