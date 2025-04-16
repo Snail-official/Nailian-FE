@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -172,6 +173,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     elevation: 3,
     left: 0,
+    paddingBottom: Platform.OS === 'android' ? vs(16) : 0,
     position: 'absolute',
     right: 0,
     shadowColor: colors.black,

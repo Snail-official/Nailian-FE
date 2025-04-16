@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Text,
   Linking,
+  Platform,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
   },
   footerSection: {
     backgroundColor: colors.gray50,
-    height: vs(140),
+    height: Platform.OS === 'android' ? vs(156) : vs(140),
     marginBottom: vs(27),
     width: '100%',
   },
