@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { scale } from '~/shared/lib/responsive';
 import { Shape } from '~/shared/api/types';
 
@@ -31,8 +32,8 @@ export const SHAPE_SIZE_RATIO: Record<
   ROUND: { width: 1, height: 1 },
   SQUARE: { width: 1.05, height: 1 },
   ALMOND: { width: 1.05, height: 1.05 },
-  BALLERINA: { width: 1.25, height: 1.1 },
-  STILETTO: { width: 1.3, height: 1.15 },
+  BALLERINA: { width: 1.1, height: 1.1 },
+  STILETTO: { width: 1.1, height: 1.15 },
 };
 
 /**
@@ -47,17 +48,14 @@ export const SHAPE_POSITION_OFFSET: Record<Shape, { x: number; y: number }> = {
   ROUND: { x: 0, y: 0 },
   SQUARE: { x: scale(-1), y: scale(-2) },
   ALMOND: { x: scale(-1), y: scale(-3) },
-  BALLERINA: { x: scale(-6.7), y: scale(-5) },
-  STILETTO: { x: scale(-7.5), y: scale(-6) },
+  BALLERINA: { x: scale(-2.5), y: scale(-5) },
+  STILETTO: { x: scale(-2.5), y: scale(-6) },
 };
 
 /**
- * 손톱별 기본 위치 정보 (ROUND 쉐입 기준)
- *
- * 좌표와 변형 값들은 기본 손 이미지를 기준으로 측정된 값입니다.
- * 해당 값들은 실제 이미지와 화면 크기에 따라 조정이 필요할 수 있습니다.
+ * iOS용 손톱별 기본 위치 정보 (ROUND 쉐입 기준)
  */
-export const BASE_NAIL_POSITIONS: Record<string, NailPosition> = {
+export const IOS_NAIL_POSITIONS: Record<string, NailPosition> = {
   // 엄지손가락 - 가장 오른쪽에 위치
   thumb: {
     x: scale(264),
@@ -99,3 +97,57 @@ export const BASE_NAIL_POSITIONS: Record<string, NailPosition> = {
     rotation: -5, // 반대 방향으로 약간 기울임
   },
 };
+
+/**
+ * Android용 손톱별 기본 위치 정보 (ROUND 쉐입 기준)
+ * Android는 일부 디바이스에서 렌더링 차이가 있을 수 있으므로 조정된 값을 사용
+ */
+export const ANDROID_NAIL_POSITIONS: Record<string, NailPosition> = {
+  // 엄지손가락 - 가장 오른쪽에 위치
+  thumb: {
+    x: scale(259),
+    y: scale(129),
+    width: scale(58),
+    height: scale(50),
+    rotation: 25,
+  },
+  // 검지손가락
+  index: {
+    x: scale(201),
+    y: scale(26),
+    width: scale(47),
+    height: scale(33),
+    rotation: 1,
+  },
+  // 중지손가락
+  middle: {
+    x: scale(159.5),
+    y: scale(5),
+    width: scale(52),
+    height: scale(37),
+    rotation: 1,
+  },
+  // 약지손가락
+  ring: {
+    x: scale(119.5),
+    y: scale(30),
+    width: scale(47),
+    height: scale(33),
+    rotation: -2,
+  },
+  // 소지손가락 - 가장 왼쪽에 위치
+  pinky: {
+    x: scale(84),
+    y: scale(85),
+    width: scale(37),
+    height: scale(28),
+    rotation: -5,
+  },
+};
+
+/**
+ * 플랫폼에 따른 손톱별 기본 위치 정보
+ * iOS와 Android에서 각각 최적화된 위치 값 사용
+ */
+export const BASE_NAIL_POSITIONS =
+  Platform.OS === 'ios' ? IOS_NAIL_POSITIONS : ANDROID_NAIL_POSITIONS;
