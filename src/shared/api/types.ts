@@ -41,7 +41,24 @@ export interface UpdateNicknameRequest {
 export type UpdateNicknameResponse = ApiResponse<null>;
 
 /** 이벤트 응모 응답 */
-export type ApplyEventResponse = ApiResponse<null>;
+export type ApplyEventResponse = ApiResponse<{
+  id: number;
+  thumb: {
+    imageUrl: string;
+  };
+  index: {
+    imageUrl: string;
+  };
+  middle: {
+    imageUrl: string;
+  };
+  ring: {
+    imageUrl: string;
+  };
+  pinky: {
+    imageUrl: string;
+  };
+}>;
 
 /* ─────────────────── 인증 (Auth) ─────────────────── */
 

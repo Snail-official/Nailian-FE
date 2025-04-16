@@ -11,24 +11,25 @@ import {
   Platform,
   SafeAreaView,
 } from 'react-native';
-import { colors, typography } from '~/shared/styles/design';
-import BottomSheet, {
-  BottomSheetRefProps,
-} from '~/pages/ar_experience/ui/BottomSheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import NailOverlay from '~/pages/ar_experience/ui/NailOverlay';
-import { TabBarHeader } from '~/shared/ui/TabBar';
-import ArButton from '~/features/nail-set-ar/ui/ArButton';
-import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import { createUserNailSet } from '~/entities/nail-set/api';
 import { applyEvent } from '~/entities/user/api';
 import { toast } from '~/shared/lib/toast';
 import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
 import { RootStackParamList } from '~/shared/types/navigation';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import Button from '~/shared/ui/Button';
+import BottomSheet, {
+  BottomSheetRefProps,
+} from '~/pages/ar_experience/ui/BottomSheet';
+import NailOverlay from '~/pages/ar_experience/ui/NailOverlay';
+import { TabBarHeader } from '~/shared/ui/TabBar';
+import ArButton from '~/features/nail-set-ar/ui/ArButton';
+import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
+import ApplyModal from '~/pages/ar_experience/ui/ApplyModal';
 import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기
@@ -45,6 +46,9 @@ export const FINGER_TYPES = [
   'ring',
   'pinky',
 ] as const;
+
+// AsyncStorage 키
+const APPLY_EVENT_MODAL_SHOWN = 'APPLY_EVENT_MODAL_SHOWN';
 
 /**
  * 네일 세트 인터페이스 (API 요청 형식에 맞춤)
@@ -80,6 +84,10 @@ export default function ARExperiencePage() {
 
   // 현재 선택된 네일셋 상태 (API 타입에 맞게 관리)
   const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
+  // 이벤트 응모 모달 상태
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  // 모달이 이미 표시되었는지 추적하는 상태
+  const [modalAlreadyShown, setModalAlreadyShown] = useState(false);
 
   /**
    * 네일셋이 완전한지 확인하는 함수 (모든 손가락에 네일이 선택되었는지)
@@ -88,6 +96,48 @@ export default function ARExperiencePage() {
     () => FINGER_TYPES.every(finger => currentNailSet[finger as keyof NailSet]),
     [currentNailSet],
   );
+
+  /**
+   * 앱 시작 시 모달이 이미 표시되었는지 확인
+   */
+  useEffect(() => {
+    const checkModalAlreadyShown = async () => {
+      try {
+        const modalShown = await AsyncStorage.getItem(APPLY_EVENT_MODAL_SHOWN);
+        if (modalShown === 'true') {
+          setModalAlreadyShown(true);
+        }
+      } catch (error) {
+        console.error('모달 표시 여부 확인 실패:', error);
+      }
+    };
+    checkModalAlreadyShown();
+  }, []);
+
+  /**
+   * 네일셋이 완성되었을 때 모달 표시 여부 결정
+   */
+  useEffect(() => {
+    const checkAndShowModal = async () => {
+      if (isNailSetComplete() && !modalAlreadyShown) {
+        // 바텀시트를 완전히 접음
+        bottomSheetRef.current?.close();
+
+        // 바텀시트 애니메이션을 위한 짧은 지연 후 모달 표시
+        setTimeout(() => {
+          setShowApplyModal(true);
+        }, 300);
+
+        try {
+          await AsyncStorage.setItem(APPLY_EVENT_MODAL_SHOWN, 'true');
+          setModalAlreadyShown(true);
+        } catch (error) {
+          console.error('모달 표시 상태 저장 실패:', error);
+        }
+      }
+    };
+    checkAndShowModal();
+  }, [currentNailSet, isNailSetComplete, modalAlreadyShown]);
 
   /**
    * AR 버튼 클릭 핸들러
@@ -104,16 +154,41 @@ export default function ARExperiencePage() {
   }, [isNailSetComplete, navigation]);
 
   /**
-   * 응모하기 버튼 클릭 핸들러
+   * 응모 모달 확인 핸들러
    */
-  const handleApplyButtonPress = useCallback(async () => {
+  const handleApplyConfirm = useCallback(async () => {
+    const requestData: CreateNailSetRequest = {
+      thumb: { id: currentNailSet.thumb!.id },
+      index: { id: currentNailSet.index!.id },
+      middle: { id: currentNailSet.middle!.id },
+      ring: { id: currentNailSet.ring!.id },
+      pinky: { id: currentNailSet.pinky!.id },
+    };
+
     try {
-      await applyEvent();
+      await applyEvent(requestData);
       // 응모 성공 시 토스트 메시지 표시
       toast.showToast('응모가 완료되었습니다', { position: 'bottom' });
     } catch (err) {
       toast.showToast('응모에 실패했습니다', { position: 'bottom' });
+    } finally {
+      setShowApplyModal(false);
+      // 모달이 닫힌 후 바텀시트 다시 펼치기
+      setTimeout(() => {
+        bottomSheetRef.current?.snapToIndex(0);
+      }, 300);
     }
+  }, [currentNailSet]);
+
+  /**
+   * 응모 모달 취소 핸들러
+   */
+  const handleApplyCancel = useCallback(() => {
+    setShowApplyModal(false);
+    // 모달이 닫힌 후 바텀시트 다시 펼치기
+    setTimeout(() => {
+      bottomSheetRef.current?.snapToIndex(0);
+    }, 300);
   }, []);
 
   /**
@@ -137,7 +212,7 @@ export default function ARExperiencePage() {
     };
 
     try {
-      // 네일셋 저장 API 호출
+      // 네일셋 저장 API.호출
       await createUserNailSet(requestData);
 
       // 성공 시 메시지 표시
@@ -257,12 +332,6 @@ export default function ARExperiencePage() {
             <View style={styles.arButtonContainer}>
               <ArButton onPress={handleArButtonPress} />
             </View>
-            {/* 응모하기 버튼 (style 재지정 필요) */}
-            <View style={styles.arButtonContainer}>
-              <Button onPress={handleApplyButtonPress} variant="chip_black">
-                <Text style={styles.subTitle}>응모하기</Text>
-              </Button>
-            </View>
           </View>
 
           {/* 바텀시트 */}
@@ -288,6 +357,13 @@ export default function ARExperiencePage() {
               onNailSetChange={nailSet => setCurrentNailSet(nailSet)}
             />
           </BottomSheet>
+
+          {/* 응모 모달 */}
+          <ApplyModal
+            visible={showApplyModal}
+            onClose={handleApplyCancel}
+            onApply={handleApplyConfirm}
+          />
         </View>
       </SafeAreaView>
     </BottomSheetModalProvider>
