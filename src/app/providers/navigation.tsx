@@ -55,10 +55,18 @@ export default function AppNavigation() {
         <Stack.Screen
           name="SocialLogin"
           component={withErrorBoundary(SocialLoginScreen)}
+          options={{
+            animation: 'fade',
+            animationDuration: 300,
+          }}
         />
         <Stack.Screen
           name="OnboardingEntry"
           component={withErrorBoundary(OnboardingEntryScreen)}
+          options={{
+            animation: 'fade',
+            animationDuration: 300,
+          }}
         />
         <Stack.Screen
           name="OnboardingNickname"
