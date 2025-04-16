@@ -1,4 +1,5 @@
 import { toast } from '~/shared/lib/toast';
+import { queryClient } from '~/app/queryClient';
 import { RequestInterceptor, ResponseInterceptor } from '../types';
 import { reissueAccessToken } from '../../../entities/user/api';
 import { useAuthStore } from '../../store/authStore';
@@ -64,6 +65,16 @@ export const authRequestInterceptor: RequestInterceptor = async options => {
 
 // 응답 인터셉터 - 401 에러 처리
 export const authResponseInterceptor: ResponseInterceptor = async response => {
+  // 410 에러 처리 - 사용자 데이터가 DB에서 삭제된 경우
+  if (response.status === 410) {
+    const { clearTokens } = useAuthStore.getState();
+    await clearTokens();
+    queryClient.clear();
+    toast.showToast('사용자 정보를 찾을 수 없습니다. 다시 로그인해 주세요.');
+    navigate('SocialLogin');
+    return response;
+  }
+
   // 이미 /auth/reissue 요청에 대한 응답이면 재시도하지 않음 (무한 루프 방지)
   if (response.status === 401 && !response.url.includes('/auth/reissue')) {
     const { refreshToken, setTokens, clearTokens } = useAuthStore.getState();
@@ -115,6 +126,7 @@ export const authResponseInterceptor: ResponseInterceptor = async response => {
       } catch (error) {
         onRefreshFailed();
         await clearTokens();
+        queryClient.clear();
         toast.showToast('로그인이 만료되었습니다. 다시 로그인해 주세요.');
         navigate('SocialLogin');
         return response;
