@@ -22,6 +22,7 @@ export function ToastContainer() {
   const [message, setMessage] = useState('');
   const [position, setPosition] = useState<'top' | 'bottom'>('top');
   const [iconType, setIconType] = useState<'error' | 'check'>('error');
+  const [animationComplete, setAnimationComplete] = useState(true);
   const insets = useSafeAreaInsets();
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -83,6 +84,7 @@ export function ToastContainer() {
       // 초기 상태로 리셋
       fadeAnim.setValue(0);
       translateY.setValue(position === 'top' ? vs(-20) : vs(20));
+      setAnimationComplete(false);
 
       // 토스트 표시 애니메이션
       Animated.parallel([
@@ -96,9 +98,12 @@ export function ToastContainer() {
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start();
+      ]).start(() => {
+        setAnimationComplete(true);
+      });
     } else {
       // 토스트 숨김 애니메이션
+      setAnimationComplete(false);
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 0,
@@ -110,11 +115,13 @@ export function ToastContainer() {
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start();
+      ]).start(() => {
+        setAnimationComplete(true);
+      });
     }
   }, [visible, fadeAnim, translateY, position]);
 
-  if (!visible) return null;
+  if (!visible && animationComplete) return null;
 
   const IconComponent = iconType === 'check' ? CheckIcon : ErrorIcon;
   const iconColor = iconType === 'check' ? colors.purple500 : colors.gray650;
