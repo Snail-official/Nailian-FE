@@ -255,7 +255,7 @@ export default function ARExperiencePage() {
             enableContentPanningGesture={true}
             enableHandlePanningGesture={true}
             enableOverDrag={false}
-            maxDynamicContentSize={Math.min(780, height * 0.8)}
+            maxDynamicContentSize={height * 0.93}
             backgroundStyle={styles.bottomSheetBackground}
             contentContainerStyle={styles.contentContainer}
             enableBackdrop={true}
@@ -265,6 +265,7 @@ export default function ARExperiencePage() {
             <NailSelection
               currentNailSet={currentNailSet}
               onNailSetChange={nailSet => setCurrentNailSet(nailSet)}
+              bottomSheetRef={bottomSheetRef}
             />
           </BottomSheet>
         </View>

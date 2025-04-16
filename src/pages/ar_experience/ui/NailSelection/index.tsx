@@ -7,6 +7,7 @@ import FilterIcon from '~/shared/assets/icons/ic_filter.svg';
 import { NailSet, FingerType } from '~/pages/ar_experience';
 import FilterModal, { FilterValues } from '../FilterModal';
 import NailGrid from '../NailGrid';
+import { BottomSheetRefProps } from '../BottomSheet';
 
 // 손가락 타입과 인덱스 매핑
 export const FINGER_MAP = [
@@ -38,6 +39,10 @@ interface NailSelectionProps {
    * 읽기 전용 모드 (뷰 모드에서 사용)
    */
   readOnly?: boolean;
+  /**
+   * 바텀시트 참조
+   */
+  bottomSheetRef?: React.RefObject<BottomSheetRefProps>;
 }
 // 네일셋 변경 시 전달되는 임시 타입
 interface NailSetUpdate extends Partial<NailSet> {
@@ -65,6 +70,7 @@ export default function NailSelection({
   currentNailSet,
   onNailSetChange,
   readOnly = false,
+  bottomSheetRef,
 }: NailSelectionProps) {
   // 필터 모달 상태
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
@@ -113,8 +119,10 @@ export default function NailSelection({
       // 새 버튼 선택 및 이미지 선택 모드로 전환
       setSelectedNailButton(index);
       setIsSelectingImage(true);
+      // 바텀시트를 93% 스냅포인트로 확장
+      bottomSheetRef?.current?.expand();
     },
-    [selectedNailButton, readOnly],
+    [selectedNailButton, readOnly, bottomSheetRef],
   );
 
   // 네일 이미지 삭제 핸들러
