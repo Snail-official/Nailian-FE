@@ -10,7 +10,7 @@ import {
   Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, typography } from '~/shared/styles/design';
@@ -52,6 +52,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
   const [currentModal, setCurrentModal] = React.useState<
     'none' | 'logout' | 'unsubscribe'
   >('none');
+  const queryClient = useQueryClient();
 
   // React Query를 사용한 데이터 페칭
   const { data: userProfile, refetch: refetchProfile } = useQuery({
@@ -107,6 +108,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
       await logoutFromService();
       // 로컬에 저장된 인증 토큰 제거
       await useAuthStore.getState().clearTokens();
+      // React Query 캐시 초기화
+      queryClient.clear();
       closeModal();
       navigation.replace('SocialLogin');
     } catch (err) {
@@ -183,6 +186,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
       await deleteUser();
       // 로컬에 저장된 인증 토큰 제거
       await useAuthStore.getState().clearTokens();
+      // React Query 캐시 초기화
+      queryClient.clear();
       closeModal();
       navigation.replace('SocialLogin');
     } catch (err) {
