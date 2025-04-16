@@ -23,10 +23,12 @@ import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import { useNavigation } from '@react-navigation/native';
 import { scale, vs } from '~/shared/lib/responsive';
 import { createUserNailSet } from '~/entities/nail-set/api';
+import { applyEvent } from '~/entities/user/api';
 import { toast } from '~/shared/lib/toast';
 import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Button from '~/shared/ui/Button';
 import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기
@@ -100,6 +102,19 @@ export default function ARExperiencePage() {
       navigation.navigate('ARCameraPage');
     }
   }, [isNailSetComplete, navigation]);
+
+  /**
+   * 응모하기 버튼 클릭 핸들러
+   */
+  const handleApplyButtonPress = useCallback(async () => {
+    try {
+      await applyEvent();
+      // 응모 성공 시 토스트 메시지 표시
+      toast.showToast('응모가 완료되었습니다', { position: 'bottom' });
+    } catch (err) {
+      toast.showToast('응모에 실패했습니다', { position: 'bottom' });
+    }
+  }, []);
 
   /**
    * 북마크 버튼 클릭 핸들러
@@ -241,6 +256,12 @@ export default function ARExperiencePage() {
             {/* AR 버튼 */}
             <View style={styles.arButtonContainer}>
               <ArButton onPress={handleArButtonPress} />
+            </View>
+            {/* 응모하기 버튼 (style 재지정 필요) */}
+            <View style={styles.arButtonContainer}>
+              <Button onPress={handleApplyButtonPress} variant="chip_black">
+                <Text style={styles.subTitle}>응모하기</Text>
+              </Button>
             </View>
           </View>
 

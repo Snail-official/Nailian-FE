@@ -13,6 +13,7 @@ import {
   DeleteUserResponse,
   AppleAuthRequest,
   AppleAuthResponse,
+  ApplyEventResponse,
 } from '../../shared/api/types';
 
 /**
@@ -123,4 +124,15 @@ export const deleteUser = (): Promise<DeleteUserResponse> =>
   fetcher({
     endpoint: '/users/me',
     method: 'DELETE',
+  });
+
+/**
+ * 이벤트 응모 API 호출
+ *
+ * @returns {Promise<ApplyEventResponse>} 이벤트 응모 성공 여부 반환
+ */
+export const applyEvent = (): Promise<ApplyEventResponse> =>
+  fetcher({
+    endpoint: '/users/me/events',
+    method: 'POST',
   });
