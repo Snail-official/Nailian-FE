@@ -88,7 +88,7 @@ export default function ARExperiencePage() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   // 모달이 이미 표시되었는지 추적하는 상태
   const [modalAlreadyShown, setModalAlreadyShown] = useState(false);
-
+  AsyncStorage.setItem(APPLY_EVENT_MODAL_SHOWN, 'false');
   /**
    * 네일셋이 완전한지 확인하는 함수 (모든 손가락에 네일이 선택되었는지)
    */
@@ -168,9 +168,9 @@ export default function ARExperiencePage() {
     try {
       await applyEvent(requestData);
       // 응모 성공 시 토스트 메시지 표시
-      toast.showToast('응모가 완료되었습니다', { position: 'bottom' });
+      toast.showToast('응모가 완료되었습니다', { iconType: 'check' });
     } catch (err) {
-      toast.showToast('응모에 실패했습니다', { position: 'bottom' });
+      toast.showToast('응모에 실패했습니다');
     } finally {
       setShowApplyModal(false);
       // 모달이 닫힌 후 바텀시트 다시 펼치기
