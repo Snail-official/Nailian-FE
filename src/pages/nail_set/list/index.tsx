@@ -70,7 +70,6 @@ function NailSetListPage() {
     isLoading,
     isError,
     error,
-    refetch,
   } = useInfiniteQuery({
     queryKey: ['nailSets', styleId, styleName],
     queryFn: async ({ pageParam = 0 }) => {
@@ -92,17 +91,14 @@ function NailSetListPage() {
       return currentPage < totalPages - 1 ? currentPage + 1 : undefined;
     },
     initialPageParam: 0,
+    staleTime: 5 * 60 * 1000, // 5분 동안 데이터를 fresh 상태로 유지
+    gcTime: 30 * 60 * 1000, // 30분 동안 캐시 유지
+    refetchOnMount: false, // 컴포넌트 마운트시 자동 refetch 방지
+    refetchOnWindowFocus: false, // 윈도우 포커스시 자동 refetch 방지
   });
 
   // 모든 페이지의 데이터를 하나의 배열로 합치기
   const nailSets = data?.pages.flatMap(page => page.data?.content || []) || [];
-
-  // 화면에 포커스가 올 때마다 데이터 새로고침
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch]),
-  );
 
   /**
    * 네일 세트 아이템 클릭 핸들러
