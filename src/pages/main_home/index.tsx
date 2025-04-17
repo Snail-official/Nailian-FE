@@ -18,6 +18,7 @@ import { fetchRecommendedNailSets } from '~/entities/nail-set/api';
 import Logo from '~/shared/assets/icons/logo.svg';
 import { TabBarFooter } from '~/shared/ui/TabBar';
 import { toast } from '~/shared/lib/toast';
+import { useFocusEffect } from '@react-navigation/native';
 import Banner from './ui/banner';
 import RecommendedNailSets from './ui/recommended-nail-sets';
 import { NailSet, StyleInfo, Banner as BannerType } from './types';
@@ -43,12 +44,20 @@ function MainHomeScreen({ navigation }: Props) {
   const scrollViewRef = useRef<ScrollView>(null);
 
   // React Query를 사용한 데이터 페칭
-  const { data: userProfile, error: userProfileError } = useQuery({
+  const {
+    data: userProfile,
+    error: userProfileError,
+    refetch: refetchUserProfile,
+  } = useQuery({
     queryKey: ['userProfile'],
     queryFn: fetchUserProfile,
   });
 
-  const { data: styleGroups = [], error: styleGroupsError } = useQuery({
+  const {
+    data: styleGroups = [],
+    error: styleGroupsError,
+    refetch: refetchStyleGroups,
+  } = useQuery({
     queryKey: ['recommendedNailSets'],
     queryFn: async () => {
       const response = await fetchRecommendedNailSets();
@@ -57,6 +66,17 @@ function MainHomeScreen({ navigation }: Props) {
   });
 
   const nickname = userProfile?.data?.nickname || '';
+
+  /**
+   * 화면에 포커스될 때마다 데이터 다시 로드
+   * 로그아웃 후 다시 로그인하는 경우에도 데이터를 최신 상태로 유지
+   */
+  useFocusEffect(
+    useCallback(() => {
+      refetchUserProfile();
+      refetchStyleGroups();
+    }, [refetchUserProfile, refetchStyleGroups]),
+  );
 
   /**
    * 배너 클릭 핸들러
