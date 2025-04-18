@@ -115,31 +115,6 @@ export default function ARExperiencePage() {
   }, []);
 
   /**
-   * 네일셋이 완성되었을 때 모달 표시 여부 결정
-   */
-  useEffect(() => {
-    const checkAndShowModal = async () => {
-      if (isNailSetComplete() && !modalAlreadyShown) {
-        // 바텀시트를 완전히 접음
-        bottomSheetRef.current?.close();
-
-        // 바텀시트 애니메이션을 위한 짧은 지연 후 모달 표시
-        setTimeout(() => {
-          setShowApplyModal(true);
-        }, 300);
-
-        try {
-          await AsyncStorage.setItem(APPLY_EVENT_MODAL_SHOWN, 'true');
-          setModalAlreadyShown(true);
-        } catch (error) {
-          console.error('모달 표시 상태 저장 실패:', error);
-        }
-      }
-    };
-    checkAndShowModal();
-  }, [currentNailSet, isNailSetComplete, modalAlreadyShown]);
-
-  /**
    * AR 버튼 클릭 핸들러
    */
   const handleArButtonPress = useCallback(() => {
@@ -157,15 +132,16 @@ export default function ARExperiencePage() {
    * 응모 모달 확인 핸들러
    */
   const handleApplyConfirm = useCallback(async () => {
-    const requestData: CreateNailSetRequest = {
-      thumb: { id: currentNailSet.thumb!.id },
-      index: { id: currentNailSet.index!.id },
-      middle: { id: currentNailSet.middle!.id },
-      ring: { id: currentNailSet.ring!.id },
-      pinky: { id: currentNailSet.pinky!.id },
-    };
-
     try {
+      // 현재 네일셋으로 이벤트 응모 API 호출
+      const requestData: CreateNailSetRequest = {
+        thumb: { id: currentNailSet.thumb!.id },
+        index: { id: currentNailSet.index!.id },
+        middle: { id: currentNailSet.middle!.id },
+        ring: { id: currentNailSet.ring!.id },
+        pinky: { id: currentNailSet.pinky!.id },
+      };
+
       await applyEvent(requestData);
       // 응모 성공 시 토스트 메시지 표시
       toast.showToast('응모가 완료되었습니다', { iconType: 'check' });
@@ -212,11 +188,29 @@ export default function ARExperiencePage() {
     };
 
     try {
-      // 네일셋 저장 API.호출
+      // 네일셋 저장 API 호출
       await createUserNailSet(requestData);
 
       // 성공 시 메시지 표시
       toast.showToast('보관함에 저장되었습니다', { position: 'bottom' });
+
+      // 모달이 아직 표시된 적 없는 경우에만 바텀시트 조작 및 모달 표시
+      if (!modalAlreadyShown) {
+        // 저장 성공 후 바텀시트 닫기
+        bottomSheetRef.current?.close();
+
+        // 바텀시트 애니메이션을 위한 짧은 지연 후 응모 모달 표시
+        setTimeout(() => {
+          setShowApplyModal(true);
+          // 모달 표시 여부를 AsyncStorage에 저장
+          try {
+            AsyncStorage.setItem(APPLY_EVENT_MODAL_SHOWN, 'true');
+            setModalAlreadyShown(true);
+          } catch (error) {
+            console.error('모달 표시 상태 저장 실패:', error);
+          }
+        }, 300);
+      }
     } catch (error) {
       if (error instanceof APIError && error.code === 409) {
         toast.showToast('이미 저장된 아트입니다', { position: 'bottom' });
@@ -226,7 +220,7 @@ export default function ARExperiencePage() {
         });
       }
     }
-  }, [currentNailSet, isNailSetComplete]);
+  }, [currentNailSet, isNailSetComplete, modalAlreadyShown]);
 
   /**
    * 뒤로가기 버튼 핸들러
