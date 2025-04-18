@@ -20,7 +20,8 @@ import {
   BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
+import { applyEvent } from '~/entities/user/api';
+import { toast } from '~/shared/lib/toast';
 
 /**
  * 응모 모달 Props 인터페이스
@@ -35,9 +36,13 @@ interface ApplyModalProps {
    */
   onClose: () => void;
   /**
-   * 응모하기 버튼 콜백
+   * 네일셋 ID
    */
-  onApply: () => void;
+  nailSetId: number;
+  /**
+   * 응모 완료 콜백
+   */
+  onComplete?: () => void;
 }
 
 /**
@@ -55,6 +60,21 @@ export interface ApplyModalRefProps {
 }
 
 /**
+ * 연락처 유효성 검사 함수
+ * 이메일 또는 전화번호 형식 검증
+ */
+const isValidUserInfo = (value: string): boolean => {
+  // 빈 값 체크
+  if (!value.trim()) {
+    return false;
+  }
+  // 이메일 및 전화번호 정규식
+  const regex =
+    /(^[^@]+@[^@.]+\.[^@.\n]+$)|(^0[15-9][0-9]{1,2}-[0-9]{3,4}-[0-9]{3,5}$)/;
+  return regex.test(value);
+};
+
+/**
  * 응모 모달 컴포넌트
  *
  * AR 체험 화면에서 네일 디자인 완성 시 이벤트에 응모할 수 있는 모달 컴포넌트입니다.
@@ -63,20 +83,54 @@ export interface ApplyModalRefProps {
  * - 이벤트 응모 안내 메시지 표시
  * - 응모하기 및 취소 버튼 제공
  * - Android 뒤로가기 버튼 핸들링
- * - SafeAreaView 통합으로 다양한 기기에서 안전한 화면 표시
  *
  * @param {ApplyModalProps} props - 응모 모달 컴포넌트 속성
  * @returns {JSX.Element} 응모 모달 컴포넌트
  */
-function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
+function ApplyModal({
+  visible,
+  onClose,
+  nailSetId,
+  onComplete,
+}: ApplyModalProps) {
   // 바텀시트 모달 ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  // 모달 화면 상태 (initial: 초기 화면, form: 양식 입력 화면)
-  const [modalStep, setModalStep] = useState<'initial' | 'form'>('initial');
-  // 유저 입력 양식 상태
-  const [contactInfo, setContactInfo] = useState('');
+  // 모달 화면 상태 (initial: 초기 화면, form: 양식 입력 화면, complete: 완료 화면)
+  const [modalStep, setModalStep] = useState<'initial' | 'form' | 'complete'>(
+    'initial',
+  );
+  // 일시적인 입력값 저장 (입력 중 리렌더링 방지)
+  const inputValueRef = useRef('');
+  // 실제 제출용 상태
+  const [userInfo, setUserInfo] = useState('');
   // 키보드 표시 상태
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  // 로딩 상태
+  const [isLoading, setIsLoading] = useState(false);
+  // 입력 에러 상태
+  const [inputError, setInputError] = useState('');
+
+  // 모달 표시/숨김 처리
+  useEffect(() => {
+    if (visible) {
+      bottomSheetModalRef.current?.present();
+    } else {
+      bottomSheetModalRef.current?.dismiss();
+      // 상태 초기화
+      setModalStep('initial');
+      setUserInfo('');
+      inputValueRef.current = '';
+      setKeyboardVisible(false);
+      setInputError('');
+      setIsLoading(false);
+    }
+  }, [visible]);
+
+  // 닫기 핸들러
+  const handleClose = useCallback(() => {
+    Keyboard.dismiss();
+    bottomSheetModalRef.current?.dismiss();
+  }, []);
 
   // 키보드 이벤트 리스너 설정
   useEffect(() => {
@@ -88,7 +142,6 @@ function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
         Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
         () => {
           setKeyboardVisible(true);
-          // 키보드가 표시되면 모달 스냅포인트 업데이트
           bottomSheetModalRef.current?.snapToIndex(0);
         },
       );
@@ -97,7 +150,6 @@ function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
         Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
         () => {
           setKeyboardVisible(false);
-          // 키보드가 사라지면 모달 스냅포인트 업데이트
           bottomSheetModalRef.current?.snapToIndex(0);
         },
       );
@@ -113,79 +165,75 @@ function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
     };
   }, [modalStep]);
 
-  // visible prop이 변경될 때 모달 열기/닫기 처리
-  useEffect(() => {
-    if (visible) {
-      // 모달 열기
-      bottomSheetModalRef.current?.present();
-    } else {
-      // 모달 닫기
-      bottomSheetModalRef.current?.dismiss();
-      // 모달이 닫힐 때 상태 초기화
-      setModalStep('initial');
-      setContactInfo('');
-      setKeyboardVisible(false);
-    }
-  }, [visible]);
-
   // 뒤로가기 버튼 핸들러 (Android)
   useEffect(() => {
-    // Android에서만 적용, 모달이 열려있을 때만 작동
     if (Platform.OS !== 'android' || !visible) return;
 
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
         if (modalStep === 'form') {
-          // 양식 화면에서 뒤로가기 누르면 초기 화면으로
           setModalStep('initial');
           return true;
+        } else if (modalStep === 'complete') {
+          handleClose();
+          return true;
         }
-        // 초기 화면에서 뒤로가기 누르면 모달 닫기
         bottomSheetModalRef.current?.dismiss();
-        return true; // 이벤트 처리 완료
+        return true;
       },
     );
 
-    // 컴포넌트 언마운트 또는 상태 변경 시 이벤트 리스너 제거
     return () => backHandler.remove();
-  }, [visible, modalStep]);
+  }, [visible, modalStep, handleClose]);
 
   // 응모하기 핸들러 - 양식 입력 화면으로 전환
   const handleApply = useCallback(() => {
     setModalStep('form');
   }, []);
 
+  // 이벤트 응모 API 호출
+  const submitApplication = useCallback(async () => {
+    // 현재 입력값 참조
+    const currentValue = inputValueRef.current;
+
+    if (!currentValue.trim()) {
+      setInputError('*연락처를 입력해주세요');
+      return;
+    }
+
+    if (!isValidUserInfo(currentValue)) {
+      setInputError('*올바른 이메일 또는 전화번호 형식이 아닙니다');
+      return;
+    }
+
+    setInputError('');
+    setIsLoading(true);
+    setUserInfo(currentValue); // 제출 시에만 상태 업데이트
+
+    try {
+      await applyEvent({
+        userInfo: currentValue,
+        nailSetId,
+      });
+      setModalStep('complete');
+    } catch (err) {
+      toast.showToast('응모에 실패했습니다');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [nailSetId]);
+
   // 양식 제출 핸들러
   const handleSubmitForm = useCallback(() => {
-    // 키보드 닫기
     Keyboard.dismiss();
-    // 응모 콜백 실행
-    onApply();
-    // 모달 닫기
-    bottomSheetModalRef.current?.dismiss();
-    // 상태 초기화
-    setModalStep('initial');
-    setContactInfo('');
-  }, [onApply]);
-
-  // 닫기 핸들러
-  const handleClose = useCallback(() => {
-    // 키보드 닫기
-    Keyboard.dismiss();
-    // 모달 닫기
-    bottomSheetModalRef.current?.dismiss();
-  }, []);
+    submitApplication();
+  }, [submitApplication]);
 
   // 배경 터치 시 키보드 닫기
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
-
-  // 입력 값 변경 핸들러
-  const handleInputChange = useCallback((value: string) => {
-    setContactInfo(value);
-  }, []);
 
   // 바텀시트 닫기 콜백
   const handleSheetChanges = useCallback(
@@ -193,11 +241,20 @@ function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
       if (index === -1) {
         onClose();
         setModalStep('initial');
-        setContactInfo('');
+        setUserInfo('');
+        setInputError('');
       }
     },
     [onClose],
   );
+
+  // 완료 화면에서 확인 버튼 클릭 핸들러
+  const handleCompleteConfirm = useCallback(() => {
+    if (onComplete) {
+      onComplete();
+    }
+    handleClose();
+  }, [onComplete, handleClose]);
 
   // 백드롭 컴포넌트 렌더링
   const renderBackdrop = useCallback(
@@ -213,15 +270,28 @@ function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
     [],
   );
 
+  // 현재 상태에 따른 스냅포인트 계산
+  const getSnapPoints = () => {
+    if (modalStep === 'initial') {
+      return ['27%'];
+    } else if (modalStep === 'form') {
+      return keyboardVisible ? ['65%'] : ['40%'];
+    } else {
+      return ['25%']; // 완료 화면
+    }
+  };
+
   // 초기 화면 컨텐츠 렌더링
   const renderInitialContent = () => (
     <View style={styles.contentContainer}>
-      {/* 경고 아이콘 */}
-      <ErrorIcon width={scale(20)} height={scale(20)} color={colors.gray650} />
-
       {/* 타이틀 */}
       <Text style={styles.titleText}>
-        [아트 만들기] 이벤트에{'\n'}응모하시겠어요?
+        [이달의 아트 만들기]{'\n'}이벤트에 응모하시겠어요?
+      </Text>
+
+      {/* 설명 텍스트 */}
+      <Text style={styles.descriptionText}>
+        해당 이벤트는 유저당 1회만 참여 가능합니다.
       </Text>
 
       {/* 버튼 영역 */}
@@ -245,38 +315,38 @@ function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
         style={styles.keyboardAvoidingContainer}
       >
         <View style={styles.contentContainer}>
-          {/* 경고 아이콘 */}
-          <ErrorIcon
-            width={scale(20)}
-            height={scale(20)}
-            color={colors.gray650}
-          />
-
           {/* 타이틀 */}
           <Text style={styles.titleText}>응모가 완료되었습니다.</Text>
 
           {/* 설명 텍스트 */}
           <Text style={styles.descriptionText}>
-            *경품 지급을 위해 이메일 혹은 전화번호 입력이 필요합니다.{'\n'}
-            미입력시, 선정되어도 경품 수령이 불가할 수 있습니다.
+            경품 지급을 위해 이메일 혹은 전화번호 입력이 필요합니다.{'\n'}
+            미입력시, 선정되어도 경품 수령이 불가할 수 있습니다.{'\n'}
+            이벤트 참여 시 개인정보 수집 활용 동의로 간주됩니다.
           </Text>
 
           {/* 입력 영역 */}
           <View style={styles.inputWrapper}>
             <TextInput
-              style={styles.textInput}
-              value={contactInfo}
-              onChangeText={handleInputChange}
-              placeholder="ex. nailjoa@nailian.kr"
+              style={[styles.textInput, styles.textInputError]}
+              defaultValue={userInfo}
+              onChangeText={text => {
+                // ref에 직접 값 저장 (입력 중 리렌더링 방지)
+                inputValueRef.current = text;
+
+                // 검증 실패 후 다시 입력했을 때 에러 메시지 제거
+                if (inputError) {
+                  setInputError('');
+                }
+              }}
+              placeholder="ex. 010-1234-5678"
               placeholderTextColor={colors.gray300}
               textAlign="center"
               keyboardType="email-address"
               autoCapitalize="none"
-              returnKeyType="done"
-              onSubmitEditing={
-                contactInfo.trim() ? handleSubmitForm : undefined
-              }
+              editable={!isLoading}
             />
+            <Text style={styles.errorText}>{inputError}</Text>
           </View>
 
           {/* 버튼 영역 */}
@@ -284,7 +354,8 @@ function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
             <Button
               variant="secondarySmallRight"
               onPress={handleSubmitForm}
-              disabled={!contactInfo.trim()}
+              disabled={isLoading}
+              loading={isLoading}
             >
               <Text style={styles.applyButtonText}>확인</Text>
             </Button>
@@ -294,14 +365,26 @@ function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
     </TouchableWithoutFeedback>
   );
 
-  // 현재 상태에 따른 스냅포인트 계산
-  const getSnapPoints = () => {
-    if (modalStep === 'initial') {
-      return ['27%'];
-    } else {
-      return keyboardVisible ? ['65%'] : ['40%'];
-    }
-  };
+  // 완료 화면 컨텐츠 렌더링
+  const renderCompleteContent = () => (
+    <View style={styles.contentContainer}>
+      {/* 타이틀 */}
+      <Text style={styles.titleText}>참여 완료!</Text>
+
+      {/* 설명 텍스트 */}
+      <Text style={styles.descriptionText}>
+        이달의 조합 이벤트 결과는 @nailian_official_kr{'\n'}
+        인스타그램 계정에서 확인하실 수 있습니다.
+      </Text>
+
+      {/* 버튼 영역 */}
+      <View style={styles.confirmButtonContainer}>
+        <Button variant="secondarySmallRight" onPress={handleCompleteConfirm}>
+          <Text style={styles.applyButtonText}>확인</Text>
+        </Button>
+      </View>
+    </View>
+  );
 
   return (
     <BottomSheetModal
@@ -319,7 +402,11 @@ function ApplyModal({ visible, onClose, onApply }: ApplyModalProps) {
     >
       <SafeAreaView style={styles.modalContent}>
         {/* 현재 상태에 따라 다른 콘텐츠 렌더링 */}
-        {modalStep === 'initial' ? renderInitialContent() : renderFormContent()}
+        {modalStep === 'initial'
+          ? renderInitialContent()
+          : modalStep === 'form'
+            ? renderFormContent()
+            : renderCompleteContent()}
       </SafeAreaView>
     </BottomSheetModal>
   );
@@ -336,7 +423,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: scale(8),
     justifyContent: 'center',
-    marginTop: vs(29),
+    marginTop: vs(35),
     paddingBottom: vs(15),
     paddingHorizontal: scale(18),
   },
@@ -351,26 +438,39 @@ const styles = StyleSheet.create({
   },
   confirmButtonContainer: {
     alignItems: 'center',
+    alignSelf: 'center',
     justifyContent: 'center',
-    marginTop: vs(30),
+    marginTop: vs(23),
     paddingBottom: vs(15),
+    width: '100%',
   },
   contentContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     flex: 1,
     paddingHorizontal: spacing.large,
     paddingTop: vs(32),
   },
   descriptionText: {
     ...typography.body4_M,
+    alignSelf: 'flex-start',
     color: colors.gray500,
-    marginBottom: vs(24),
-    marginTop: vs(7),
-    textAlign: 'center',
+    marginTop: vs(6),
+    textAlign: 'left',
+    width: '100%',
+  },
+  errorText: {
+    ...typography.body4_M,
+    alignSelf: 'flex-start',
+    color: colors.warn_red,
+    marginLeft: scale(2),
+    marginTop: vs(2),
+    textAlign: 'left',
   },
   inputWrapper: {
     alignItems: 'center',
+    alignSelf: 'center',
     justifyContent: 'center',
+    marginTop: vs(22),
     width: scale(287),
   },
   keyboardAvoidingContainer: {
@@ -392,17 +492,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray100,
     borderRadius: scale(8),
     color: colors.gray900,
-    paddingHorizontal: scale(48),
+    paddingHorizontal: scale(16),
     paddingVertical: scale(12),
     textAlign: 'center',
     width: '100%',
   },
+  textInputError: {
+    borderColor: colors.warn_red,
+    borderWidth: 1,
+  },
   titleText: {
     ...typography.title2_SB,
+    alignSelf: 'flex-start',
     color: colors.gray850,
-    marginTop: vs(14),
-    textAlign: 'center',
+    textAlign: 'left',
+    width: '100%',
   },
 });
-
 export default ApplyModal;

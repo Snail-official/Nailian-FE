@@ -88,7 +88,11 @@ export default function ARExperiencePage() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   // 모달이 이미 표시되었는지 추적하는 상태
   const [modalAlreadyShown, setModalAlreadyShown] = useState(false);
+  // 저장된 네일셋 ID 상태
+  const [savedNailSetId, setSavedNailSetId] = useState<number | null>(null);
+
   AsyncStorage.setItem(APPLY_EVENT_MODAL_SHOWN, 'false');
+
   /**
    * 네일셋이 완전한지 확인하는 함수 (모든 손가락에 네일이 선택되었는지)
    */
@@ -129,32 +133,21 @@ export default function ARExperiencePage() {
   }, [isNailSetComplete, navigation]);
 
   /**
-   * 응모 모달 확인 핸들러
+   * 응모 모달 완료 핸들러
+   * 응모가 성공적으로 완료되었을 때 호출됩니다.
    */
-  const handleApplyConfirm = useCallback(async () => {
+  const handleApplyComplete = useCallback(async () => {
     try {
-      // 현재 네일셋으로 이벤트 응모 API 호출
-      const requestData: CreateNailSetRequest = {
-        thumb: { id: currentNailSet.thumb!.id },
-        index: { id: currentNailSet.index!.id },
-        middle: { id: currentNailSet.middle!.id },
-        ring: { id: currentNailSet.ring!.id },
-        pinky: { id: currentNailSet.pinky!.id },
-      };
+      // 모달 표시 여부를 AsyncStorage에 저장
+      await AsyncStorage.setItem(APPLY_EVENT_MODAL_SHOWN, 'true');
+      setModalAlreadyShown(true);
 
-      await applyEvent(requestData);
       // 응모 성공 시 토스트 메시지 표시
       toast.showToast('응모가 완료되었습니다', { iconType: 'check' });
-    } catch (err) {
-      toast.showToast('응모에 실패했습니다');
-    } finally {
-      setShowApplyModal(false);
-      // 모달이 닫힌 후 바텀시트 다시 펼치기
-      setTimeout(() => {
-        bottomSheetRef.current?.snapToIndex(0);
-      }, 300);
+    } catch (error) {
+      console.error('모달 표시 상태 저장 실패:', error);
     }
-  }, [currentNailSet]);
+  }, []);
 
   /**
    * 응모 모달 취소 핸들러
@@ -189,26 +182,24 @@ export default function ARExperiencePage() {
 
     try {
       // 네일셋 저장 API 호출
-      await createUserNailSet(requestData);
+      const result = await createUserNailSet(requestData);
+
+      // 응모를 위해 저장된 네일셋 ID 기억
+      if (result?.data?.id) {
+        setSavedNailSetId(result.data.id);
+      }
 
       // 성공 시 메시지 표시
       toast.showToast('보관함에 저장되었습니다', { position: 'bottom' });
 
       // 모달이 아직 표시된 적 없는 경우에만 바텀시트 조작 및 모달 표시
-      if (!modalAlreadyShown) {
+      if (!modalAlreadyShown && result?.data?.id) {
         // 저장 성공 후 바텀시트 닫기
         bottomSheetRef.current?.close();
 
         // 바텀시트 애니메이션을 위한 짧은 지연 후 응모 모달 표시
         setTimeout(() => {
           setShowApplyModal(true);
-          // 모달 표시 여부를 AsyncStorage에 저장
-          try {
-            AsyncStorage.setItem(APPLY_EVENT_MODAL_SHOWN, 'true');
-            setModalAlreadyShown(true);
-          } catch (error) {
-            console.error('모달 표시 상태 저장 실패:', error);
-          }
         }, 300);
       }
     } catch (error) {
@@ -356,7 +347,8 @@ export default function ARExperiencePage() {
           <ApplyModal
             visible={showApplyModal}
             onClose={handleApplyCancel}
-            onApply={handleApplyConfirm}
+            nailSetId={savedNailSetId || 0}
+            onComplete={handleApplyComplete}
           />
         </View>
       </SafeAreaView>

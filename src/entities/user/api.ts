@@ -139,7 +139,7 @@ export const applyEvent = ({
   nailSetId,
 }: ApplyEventRequest): Promise<ApplyEventResponse> =>
   fetcher({
-    endpoint: '/users/me/events',
+    endpoint: '/users/me/event',
     method: 'POST',
     body: { userInfo, nailSetId },
   });
