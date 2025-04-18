@@ -14,8 +14,8 @@ import {
   AppleAuthRequest,
   AppleAuthResponse,
   ApplyEventResponse,
-  CreateNailSetRequest,
   ApplyEventRequest,
+  EventStatusResponse,
 } from '../../shared/api/types';
 
 /**
@@ -142,4 +142,15 @@ export const applyEvent = ({
     endpoint: '/users/me/event',
     method: 'POST',
     body: { userInfo, nailSetId },
+  });
+
+/**
+ * 사용자의 이벤트 응모 상태 조회 API 호출
+ *
+ * @returns {Promise<EventStatusResponse>} 사용자의 이벤트 응모 상태 반환
+ */
+export const fetchEventStatus = (): Promise<EventStatusResponse> =>
+  fetcher({
+    endpoint: '/users/me/event-status',
+    method: 'GET',
   });

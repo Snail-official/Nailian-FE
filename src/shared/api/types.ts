@@ -49,6 +49,10 @@ export interface ApplyEventRequest {
 /** 이벤트 응모 응답 */
 export type ApplyEventResponse = ApiResponse<null>;
 
+/** 이벤트 응모 상태 조회 응답 */
+export interface EventStatusResponse
+  extends ApiResponse<{ isParticipated: boolean }> {}
+
 /* ─────────────────── 인증 (Auth) ─────────────────── */
 
 /** 카카오 로그인 요청 */
