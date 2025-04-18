@@ -11,14 +11,13 @@ import {
   Platform,
   SafeAreaView,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import { createUserNailSet } from '~/entities/nail-set/api';
-import { applyEvent } from '~/entities/user/api';
+import { fetchEventStatus } from '~/entities/user/api';
 import { toast } from '~/shared/lib/toast';
 import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
 import { RootStackParamList } from '~/shared/types/navigation';
@@ -46,9 +45,6 @@ export const FINGER_TYPES = [
   'ring',
   'pinky',
 ] as const;
-
-// AsyncStorage 키
-const APPLY_EVENT_MODAL_SHOWN = 'APPLY_EVENT_MODAL_SHOWN';
 
 /**
  * 네일 세트 인터페이스 (API 요청 형식에 맞춤)
@@ -86,12 +82,8 @@ export default function ARExperiencePage() {
   const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
   // 이벤트 응모 모달 상태
   const [showApplyModal, setShowApplyModal] = useState(false);
-  // 모달이 이미 표시되었는지 추적하는 상태
-  const [modalAlreadyShown, setModalAlreadyShown] = useState(false);
   // 저장된 네일셋 ID 상태
   const [savedNailSetId, setSavedNailSetId] = useState<number | null>(null);
-
-  AsyncStorage.setItem(APPLY_EVENT_MODAL_SHOWN, 'false');
 
   /**
    * 네일셋이 완전한지 확인하는 함수 (모든 손가락에 네일이 선택되었는지)
@@ -100,23 +92,6 @@ export default function ARExperiencePage() {
     () => FINGER_TYPES.every(finger => currentNailSet[finger as keyof NailSet]),
     [currentNailSet],
   );
-
-  /**
-   * 앱 시작 시 모달이 이미 표시되었는지 확인
-   */
-  useEffect(() => {
-    const checkModalAlreadyShown = async () => {
-      try {
-        const modalShown = await AsyncStorage.getItem(APPLY_EVENT_MODAL_SHOWN);
-        if (modalShown === 'true') {
-          setModalAlreadyShown(true);
-        }
-      } catch (error) {
-        console.error('모달 표시 여부 확인 실패:', error);
-      }
-    };
-    checkModalAlreadyShown();
-  }, []);
 
   /**
    * AR 버튼 클릭 핸들러
@@ -137,16 +112,10 @@ export default function ARExperiencePage() {
    * 응모가 성공적으로 완료되었을 때 호출됩니다.
    */
   const handleApplyComplete = useCallback(async () => {
-    try {
-      // 모달 표시 여부를 AsyncStorage에 저장
-      await AsyncStorage.setItem(APPLY_EVENT_MODAL_SHOWN, 'true');
-      setModalAlreadyShown(true);
-
-      // 응모 성공 시 토스트 메시지 표시
-      toast.showToast('응모가 완료되었습니다', { iconType: 'check' });
-    } catch (error) {
-      console.error('모달 표시 상태 저장 실패:', error);
-    }
+    // 응모 성공 시 토스트 메시지 표시
+    toast.showToast('응모가 완료되었습니다', { iconType: 'check' });
+    // 모달 닫기
+    setShowApplyModal(false);
   }, []);
 
   /**
@@ -192,8 +161,12 @@ export default function ARExperiencePage() {
       // 성공 시 메시지 표시
       toast.showToast('보관함에 저장되었습니다', { position: 'bottom' });
 
-      // 모달이 아직 표시된 적 없는 경우에만 바텀시트 조작 및 모달 표시
-      if (!modalAlreadyShown && result?.data?.id) {
+      // 이벤트 참여 상태 확인
+      const eventStatus = await fetchEventStatus();
+      const hasParticipated = eventStatus?.data?.isParticipated || false;
+
+      // 이벤트에 참여하지 않은 경우에만 바텀시트 조작 및 모달 표시
+      if (!hasParticipated && result?.data?.id) {
         // 저장 성공 후 바텀시트 닫기
         bottomSheetRef.current?.close();
 
@@ -211,7 +184,7 @@ export default function ARExperiencePage() {
         });
       }
     }
-  }, [currentNailSet, isNailSetComplete, modalAlreadyShown]);
+  }, [currentNailSet, isNailSetComplete]);
 
   /**
    * 뒤로가기 버튼 핸들러
