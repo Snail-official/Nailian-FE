@@ -15,6 +15,7 @@ import {
   AppleAuthResponse,
   ApplyEventResponse,
   CreateNailSetRequest,
+  ApplyEventRequest,
 } from '../../shared/api/types';
 
 /**
@@ -130,18 +131,15 @@ export const deleteUser = (): Promise<DeleteUserResponse> =>
 /**
  * 이벤트 응모 API 호출
  *
- * @param {CreateNailSetRequest} data - 이벤트 응모 정보
+ * @param {ApplyEventRequest} data - 이벤트 응모 정보 (이메일/전화번호와 네일셋 ID)
  * @returns {Promise<ApplyEventResponse>} 이벤트 응모 성공 여부 반환
  */
 export const applyEvent = ({
-  thumb,
-  index,
-  middle,
-  ring,
-  pinky,
-}: CreateNailSetRequest): Promise<ApplyEventResponse> =>
+  userInfo,
+  nailSetId,
+}: ApplyEventRequest): Promise<ApplyEventResponse> =>
   fetcher({
     endpoint: '/users/me/events',
     method: 'POST',
-    body: { thumb, index, middle, ring, pinky },
+    body: { userInfo, nailSetId },
   });

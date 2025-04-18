@@ -40,25 +40,14 @@ export interface UpdateNicknameRequest {
 /** 닉네임 수정 응답 */
 export type UpdateNicknameResponse = ApiResponse<null>;
 
+/** 이벤트 응모 요청 */
+export interface ApplyEventRequest {
+  userInfo: string;
+  nailSetId: number;
+}
+
 /** 이벤트 응모 응답 */
-export type ApplyEventResponse = ApiResponse<{
-  id: number;
-  thumb: {
-    imageUrl: string;
-  };
-  index: {
-    imageUrl: string;
-  };
-  middle: {
-    imageUrl: string;
-  };
-  ring: {
-    imageUrl: string;
-  };
-  pinky: {
-    imageUrl: string;
-  };
-}>;
+export type ApplyEventResponse = ApiResponse<null>;
 
 /* ─────────────────── 인증 (Auth) ─────────────────── */
 
