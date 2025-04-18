@@ -28,10 +28,11 @@ import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ViewShot, { captureRef } from 'react-native-view-shot';
+import Lightbox, { LightboxImage } from '~/shared/ui/Lightbox';
 import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기
-const { height, width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 // 손가락 타입 정의
 export type FingerType = 'pinky' | 'ring' | 'middle' | 'index' | 'thumb';
@@ -303,20 +304,10 @@ export default function ARExperiencePage() {
             />
           </BottomSheet>
 
-          {/* 라이트박스 (position: absolute와 zIndex로 구현) */}
-          {isLightboxVisible && capturedImage && (
-            <TouchableOpacity
-              style={styles.lightboxContainer}
-              activeOpacity={1}
-              onPress={closeLightbox}
-            >
-              <Image
-                source={{ uri: capturedImage }}
-                style={styles.lightboxImage}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-          )}
+          {/* 공용 Lightbox 컴포넌트 사용 */}
+          <Lightbox visible={isLightboxVisible} onClose={closeLightbox}>
+            {capturedImage && <LightboxImage uri={capturedImage} />}
+          </Lightbox>
         </View>
       </SafeAreaView>
     </BottomSheetModalProvider>
@@ -389,22 +380,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     height: vs(4),
     width: scale(44),
-  },
-  lightboxContainer: {
-    alignItems: 'center',
-    backgroundColor: colors.black,
-    bottom: 0,
-    justifyContent: 'center',
-    left: 0,
-    opacity: 0.85,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    zIndex: 10000,
-  },
-  lightboxImage: {
-    height: height * 1.5,
-    width: width * 1.5,
   },
   mainTitle: {
     ...typography.head2_B,
