@@ -48,3 +48,22 @@ jobs:
       - name: Install CocoaPods dependencies
         working-directory: ios
         run: pod install
+
+      # --- Xcode 프로젝트 패치 ---
+      - name: Downgrade objectVersion in Xcode project
+        run: |
+          sed -i '' 's/objectVersion = 63;/objectVersion = 56;/g' ios/nailian.xcodeproj/project.pbxproj
+
+      - name: Patch pbxproj to remove Xcode 16 specific features
+        run: |
+          # 1. PBXFileSystemSynchronizedRootGroup 섹션 제거
+          awk '
+          /^\/\* Begin PBXFileSystemSynchronizedRootGroup section \*\// {skip=1; next}
+          /^\/\* End PBXFileSystemSynchronizedRootGroup section \*\// {skip=0; next}
+          !skip {print}
+          ' ios/nailian.xcodeproj/project.pbxproj > temp.pbxproj && mv temp.pbxproj ios/nailian.xcodeproj/project.pbxproj
+          # 2. fileSystemSynchronizedGroups 속성 삭제
+          sed -i '' '/fileSystemSynchronizedGroups = (/,/);/d' ios/nailian.xcodeproj/project.pbxproj
+
+      - name: List available schemes
+        run: xcodebuild -list -workspace ios/nailian.xcworkspace
