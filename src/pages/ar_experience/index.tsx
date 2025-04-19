@@ -163,7 +163,7 @@ export default function ARExperiencePage() {
 
       // 이벤트 참여 상태 확인
       const eventStatus = await fetchEventStatus();
-      const hasParticipated = eventStatus?.data?.isParticipated || false;
+      const hasParticipated = eventStatus?.data || false;
 
       // 이벤트에 참여하지 않은 경우에만 바텀시트 조작 및 모달 표시
       if (!hasParticipated && result?.data?.id) {

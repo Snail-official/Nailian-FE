@@ -328,7 +328,7 @@ function ApplyModal({
           {/* 입력 영역 */}
           <View style={styles.inputWrapper}>
             <TextInput
-              style={[styles.textInput, styles.textInputError]}
+              style={[styles.textInput, inputError && styles.textInputError]}
               defaultValue={userInfo}
               onChangeText={text => {
                 // ref에 직접 값 저장 (입력 중 리렌더링 방지)

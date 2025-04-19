@@ -151,6 +151,6 @@ export const applyEvent = ({
  */
 export const fetchEventStatus = (): Promise<EventStatusResponse> =>
   fetcher({
-    endpoint: '/users/me/event-status',
+    endpoint: '/users/me/event',
     method: 'GET',
   });
