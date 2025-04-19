@@ -65,8 +65,8 @@ export const authRequestInterceptor: RequestInterceptor = async options => {
 
 // 응답 인터셉터 - 401 에러 처리
 export const authResponseInterceptor: ResponseInterceptor = async response => {
-  // 410 에러 처리 - 사용자 데이터가 DB에서 삭제된 경우
-  if (response.status === 410) {
+  // 404, 410 에러 처리 - 사용자 데이터가 DB에서 삭제된 경우
+  if (response.status === 404 || response.status === 410) {
     const { clearTokens } = useAuthStore.getState();
     await clearTokens();
     queryClient.clear();
