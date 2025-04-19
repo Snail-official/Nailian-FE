@@ -67,3 +67,18 @@ jobs:
 
       - name: List available schemes
         run: xcodebuild -list -workspace ios/nailian.xcworkspace
+
+      # --- Ruby 및 Fastlane 설정 ---
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2.2'
+
+      - name: Install Fastlane & Bundler
+        working-directory: ios
+        run: |
+          gem install fastlane -v 2.216.0
+          gem install cocoapods -v 1.14.3
+          gem install bundler
+          bundle config set --local path 'vendor/bundle'
+          bundle install --jobs=4 --retry=3
