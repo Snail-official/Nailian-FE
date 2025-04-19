@@ -27,8 +27,7 @@ import { toast } from '~/shared/lib/toast';
 import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import ViewShot, { captureRef } from 'react-native-view-shot';
-import Lightbox, { LightboxImage } from '~/shared/ui/Lightbox';
+import ViewshotLightbox from '~/shared/ui/Lightbox';
 import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기
@@ -80,11 +79,6 @@ export default function ARExperiencePage() {
 
   // 현재 선택된 네일셋 상태 (API 타입에 맞게 관리)
   const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
-
-  // 라이트박스 관련 상태
-  const [isLightboxVisible, setIsLightboxVisible] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const viewShotRef = useRef<ViewShot | null>(null);
 
   /**
    * 네일셋이 완전한지 확인하는 함수 (모든 손가락에 네일이 선택되었는지)
@@ -195,26 +189,6 @@ export default function ARExperiencePage() {
     </View>
   );
 
-  /**
-   * 손 이미지 영역을 캡처하고 라이트박스로 보여주는 함수
-   */
-  const captureAndShowLightbox = useCallback(() => {
-    if (viewShotRef.current) {
-      captureRef(viewShotRef).then(uri => {
-        setCapturedImage(uri);
-        setIsLightboxVisible(true);
-      });
-    }
-  }, []);
-
-  /**
-   * 라이트박스 닫기
-   */
-  const closeLightbox = useCallback(() => {
-    setIsLightboxVisible(false);
-    setCapturedImage(null); // 메모리에서 이미지 해제
-  }, []);
-
   return (
     <BottomSheetModalProvider>
       <SafeAreaView style={styles.safeArea}>
@@ -252,27 +226,22 @@ export default function ARExperiencePage() {
               </Text>
             </View>
 
-            {/* 손 이미지와 네일 오버레이 컨테이너 */}
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={captureAndShowLightbox}
-            >
-              <ViewShot
-                ref={viewShotRef}
-                options={{ quality: 1 }}
-                style={styles.handContainer}
-              >
-                {/* 기본 손 이미지 */}
-                <Image
-                  source={require('~/shared/assets/images/hand.png')}
-                  style={styles.handImage}
-                  resizeMode="contain"
-                />
+            {/* 손 이미지와 네일 오버레이 + ViewshotLightbox 통합 */}
+            <ViewshotLightbox
+              viewShotContent={
+                <View style={styles.handContainer}>
+                  {/* 기본 손 이미지 */}
+                  <Image
+                    source={require('~/shared/assets/images/hand.png')}
+                    style={styles.handImage}
+                    resizeMode="contain"
+                  />
 
-                {/* 네일 오버레이 - 선택된 네일팁을 손 위에 표시 */}
-                <NailOverlay nailSet={currentNailSet} />
-              </ViewShot>
-            </TouchableOpacity>
+                  {/* 네일 오버레이 - 선택된 네일팁을 손 위에 표시 */}
+                  <NailOverlay nailSet={currentNailSet} />
+                </View>
+              }
+            />
 
             {/* AR 버튼 */}
             <View style={styles.arButtonContainer}>
@@ -303,11 +272,6 @@ export default function ARExperiencePage() {
               onNailSetChange={nailSet => setCurrentNailSet(nailSet)}
             />
           </BottomSheet>
-
-          {/* 공용 Lightbox 컴포넌트 사용 */}
-          <Lightbox visible={isLightboxVisible} onClose={closeLightbox}>
-            {capturedImage && <LightboxImage uri={capturedImage} />}
-          </Lightbox>
         </View>
       </SafeAreaView>
     </BottomSheetModalProvider>
