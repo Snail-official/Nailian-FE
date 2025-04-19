@@ -133,4 +133,37 @@ platform :ios do
 
     UI.success("#{tag_name} 태그 생성 완료")
   end
+
+  #——————————————————————————————————————————————————————————————————————————
+  # 공통 프로젝트 설정 업데이트 함수
+  #——————————————————————————————————————————————————————————————————————————
+  private_lane :update_project_version do |options|
+    version = options[:version]
+    build = options[:build]
+    xcodeproj = options[:xcodeproj] || "nailian.xcodeproj"
+    scheme = options[:scheme] || "nailian"
+    build_config = options[:build_config] || "Release"
+    
+    # 버전 업데이트
+    if version
+      increment_version_number_in_xcodeproj(
+        version_number: version,
+        xcodeproj: xcodeproj,
+        scheme: scheme,
+        build_configuration_name: build_config
+      )
+      UI.message("프로젝트 설정의 MARKETING_VERSION을 #{version}으로 업데이트했습니다")
+    end
+    
+    # 빌드 번호 업데이트
+    if build
+      increment_build_number_in_xcodeproj(
+        build_number: build,
+        xcodeproj: xcodeproj,
+        scheme: scheme,
+        build_configuration_name: build_config
+      )
+      UI.message("프로젝트 설정의 CURRENT_PROJECT_VERSION을 #{build}로 업데이트했습니다")
+    end
+  end
 end
