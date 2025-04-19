@@ -166,4 +166,26 @@ platform :ios do
       UI.message("프로젝트 설정의 CURRENT_PROJECT_VERSION을 #{build}로 업데이트했습니다")
     end
   end
+
+  #——————————————————————————————————————————————————————————————————————————
+  # 릴리즈 브랜치 검증 함수
+  #——————————————————————————————————————————————————————————————————————————
+  private_lane :verify_release_branch do |options|
+    tag_version = options[:tag_version]
+    
+    branch = git_branch  # ex: release/1.2
+    branch_match = branch.match(%r{release/(\d+\.\d+)})
+    unless branch_match
+      UI.user_error!("release/x.y 형식의 브랜치가 아닙니다.")
+    end
+    
+    branch_minor = branch_match[1]
+    tag_minor = tag_version.split('.')[0..1].join('.')
+    
+    unless tag_minor == branch_minor
+      UI.user_error!("태그의 마이너 버전(#{tag_minor})이 브랜치(#{branch})와 일치하지 않습니다.")
+    end
+    
+    return true
+  end
 end
