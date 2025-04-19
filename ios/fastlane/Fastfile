@@ -62,4 +62,75 @@ platform :ios do
 
     UI.success("빌드 번호 #{new_build_number}로 업데이트 및 태그 #{build_tag_name} 생성 완료")
   end
+
+  #——————————————————————————————————————————————————————————————————————————
+  # 2. 패치 버전을 증가시키고 태그를 생성하는 lane
+  #    - 현재 release/x.y 브랜치에서만 동작
+  #    - 패치 버전 +1 및 빌드 번호 1로 초기화
+  #——————————————————————————————————————————————————————————————————————————
+  lane :bump_patch do
+    # 2-1. 현재 버전 가져오기
+    current_version = get_version_number_from_xcodeproj(
+      xcodeproj: "nailian.xcodeproj",
+      scheme: "nailian",
+      build_configuration_name: "Release"
+    )  # ex: "1.2.3"
+
+    # 2-2. 브랜치 확인 및 검증
+    branch = git_branch
+    branch_match = branch.match(%r{release/(\d+\.\d+)})
+    unless branch_match
+      UI.user_error!("현재 브랜치는 release/x.y 형식이 아닙니다. 현재: #{branch}")
+    end
+    branch_minor = branch_match[1]
+
+    # 2-3. 버전 형식 검증 및 파싱
+    version_match = current_version.match(/^(\d+)\.(\d+)\.(\d+)$/)
+    unless version_match
+      UI.user_error!("Xcode 프로젝트 버전 형식이 잘못되었습니다: #{current_version}")
+    end
+    major, minor, patch = version_match[1], version_match[2], version_match[3].to_i
+    version_minor = "#{major}.#{minor}"
+
+    # 2-4. 마이너 버전과 브랜치 일치 여부 확인
+    unless version_minor == branch_minor
+      UI.user_error!("프로젝트의 마이너 버전 #{version_minor}과 브랜치 #{branch}가 일치하지 않습니다.")
+    end
+
+    # 2-5. 패치 버전 증가 및 태그 이름 생성
+    next_patch = patch + 1
+    next_version = "#{major}.#{minor}.#{next_patch}"
+    tag_name = "v#{next_version}"
+
+    # 2-6. 중복 태그 확인
+    existing_tags = sh("git tag").split("\n")
+    if existing_tags.include?(tag_name)
+      UI.user_error!("이미 존재하는 태그입니다: #{tag_name}")
+    end
+
+    # 2-7. 프로젝트 버전 및 빌드 번호 업데이트
+    increment_version_number_in_xcodeproj(
+      version_number: next_version,
+      xcodeproj: "nailian.xcodeproj",
+      scheme: "nailian",
+      build_configuration_name: "Release"
+    )
+    UI.message("프로젝트 설정의 MARKETING_VERSION을 #{next_version}로 업데이트")
+
+    increment_build_number_in_xcodeproj(
+      build_number: "1",
+      xcodeproj: "nailian.xcodeproj",
+      scheme: "nailian",
+      build_configuration_name: "Release"
+    ) 
+    UI.message("프로젝트 설정의 CURRENT_PROJECT_VERSION을 1로 초기화")
+
+    # 2-8. Git 커밋 및 태그 생성, 푸시
+    sh("git add ../nailian.xcodeproj")
+    sh("git commit --no-verify -m 'release #{tag_name} (1)' || echo '커밋할 변경사항 없음'")
+    sh("git tag #{tag_name}")
+    sh("git push origin HEAD --tags")
+
+    UI.success("#{tag_name} 태그 생성 완료")
+  end
 end
