@@ -1,0 +1,16 @@
+name: iOS TestFlight Release
+
+on:
+  push:
+    tags:
+      - 'v*' # v1.2.3, v2.0.0-b4 등 태그 푸시 시 트리거
+
+jobs:
+  release:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # 모든 태그·브랜치 히스토리 가져오기
