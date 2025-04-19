@@ -135,6 +135,120 @@ platform :ios do
   end
 
   #——————————————————————————————————————————————————————————————————————————
+  # 3. CI 환경에서 실행되는 배포 lane
+  #    - 태그에 따라 프로젝트 설정 자동 업데이트
+  #    - TestFlight 자동 배포
+  #——————————————————————————————————————————————————————————————————————————
+  lane :auto_release do
+    # 3-1. CI 환경 확인
+    unless ENV["CI"] == "true"
+      UI.user_error!("이 lane은 GitHub Actions 같은 CI 환경에서만 실행 가능합니다.")
+    end
+
+    # 3-2. 태그 확인
+    tag = sh("git describe --tags --exact-match 2>/dev/null || echo ''").strip
+    is_tagged = !tag.empty?
+
+    unless is_tagged
+      UI.user_error!("태그가 없습니다. 릴리즈 배포를 위해서는 태그가 필요합니다.")
+    end
+
+    # 3-3. 태그 형식 분석
+    version_match = tag.match(/^v(\d+\.\d+\.\d+)$/)
+    build_match = tag.match(/^v(\d+\.\d+\.\d+)-b(\d+)$/)
+    
+    if version_match
+      # 3-4A. 버전 태그인 경우
+      tag_version = version_match[1]
+      
+      current_version = get_version_number_from_xcodeproj(
+        xcodeproj: "nailian.xcodeproj",
+        scheme: "nailian",
+        build_configuration_name: "Release"
+      )
+      if current_version != tag_version
+        # 프로젝트 버전과 빌드 번호 업데이트
+        update_project_version(
+          version: tag_version,
+          build: "1",
+          scheme: "nailian",
+          build_configuration_name: "Release"
+        )
+      else
+        UI.message("프로젝트 버전이 태그와 일치합니다.")
+      end
+      
+      # 릴리즈 브랜치 마이너 체크
+      verify_release_branch(tag_version: tag_version)
+      
+    elsif build_match
+      # 3-4B. 빌드 태그인 경우
+      tag_version = build_match[1]
+      build_number = build_match[2]
+      
+      current_version = get_version_number_from_xcodeproj(
+        xcodeproj: "nailian.xcodeproj",
+        scheme: "nailian",
+        build_configuration_name: "Release"
+      )
+      
+      # 프로젝트 버전과 빌드 번호 업데이트
+      update_project_version(
+        version: (current_version != tag_version) ? tag_version : nil,
+        build: build_number,
+        scheme: "nailian",
+        build_configuration_name: "Release"
+      )
+      
+    else
+      UI.user_error!("태그 형식이 잘못되었습니다. 예: v1.2.3 또는 v1.2.3-b4")
+    end
+
+    # 3-5. 배포 준비 (키체인, 인증서)
+    setup_ci if ENV['CI']
+    
+    # 인증서 및 프로비저닝 프로파일 설치
+    match(
+      type: "appstore",              # App Store용 프로비저닝 프로필 사용
+      app_identifier: ENV["APP_IDENTIFIER"] || "nailian.app",  # 앱 아이디
+      git_url: ENV["MATCH_GIT_URL"],
+      git_branch: "master",
+      readonly: is_ci,
+      force_for_new_certificates: true,   # 새 인증서 있을 때만 프로필 갱신
+      force: false,                       # 매번 갱신하지 않음
+      api_key: lane_context[SharedValues::APP_STORE_CONNECT_API_KEY]
+    )
+
+    # 3-6. 앱 빌드
+    build_app(
+      workspace: "nailian.xcworkspace",
+      scheme: "nailian",
+      configuration: "Release", 
+      export_method: "app-store",
+      include_bitcode: false,
+      include_symbols: true,
+      export_options: {
+        provisioningProfiles: { 
+          "nailian.app" => "match AppStore nailian.app"
+        }
+      }
+    )
+    
+    # 3-7. TestFlight 업로드
+    upload_to_testflight(
+      api_key: {
+        key_id:     ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+        issuer_id:  ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+        key:        ENV["APP_STORE_CONNECT_API_KEY_KEY"],
+        is_key_content_base64: false
+      },
+      skip_waiting_for_build_processing: true
+    )
+    
+    UI.success("TestFlight 배포 완료 (#{tag})")
+  end
+
+  #——————————————————————————————————————————————————————————————————————————
   # 공통 프로젝트 설정 업데이트 함수
   #——————————————————————————————————————————————————————————————————————————
   private_lane :update_project_version do |options|
