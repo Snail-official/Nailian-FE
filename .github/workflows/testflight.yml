@@ -36,3 +36,15 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '15.2'
+
+      # --- 의존성 설치 ---
+      - name: Install Node modules
+        run: npm install
+
+      - name: Full clean of Pods and workspace
+        run: |
+          rm -rf ios/Pods ios/nailian.xcworkspace ios/Podfile.lock
+
+      - name: Install CocoaPods dependencies
+        working-directory: ios
+        run: pod install
