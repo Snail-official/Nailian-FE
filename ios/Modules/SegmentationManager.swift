@@ -5,7 +5,6 @@ import Accelerate
 
 @objc class SegmentationManager: NSObject {
     static let shared = SegmentationManager()
-    private let maxImageDimension: CGFloat = 1024.0
     private let modelInputSize = CGSize(width: 800, height: 800)  // 모델 입력 크기
     private var modelLoaded = false
     private var model: MLModel?
@@ -97,30 +96,6 @@ import Accelerate
           }
       }
     
-    // 모델 입력용 리사이즈
-    private func resizeImageForModel(_ image: UIImage) -> UIImage {
-        UIGraphicsBeginImageContextWithOptions(modelInputSize, false, 0.0)
-        image.draw(in: CGRect(origin: .zero, size: modelInputSize))
-        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return resizedImage ?? image
-    }
-    
-    // 디스플레이용 리사이즈
-    private func resizeImageForDisplay(_ image: UIImage) -> UIImage {
-        let size = image.size
-        let widthRatio = maxImageDimension / size.width
-        let heightRatio = maxImageDimension / size.height
-        let scale = min(widthRatio, heightRatio)
-        if scale >= 1.0 { return image }
-        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-        image.draw(in: CGRect(origin: .zero, size: newSize))
-        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return resizedImage ?? image
-    }
-
     // MLMultiArray로부터 바이너리 마스크 이미지를 생성하는 함수
     private func createHeatmapFromMultiArray(_ multiArray: MLMultiArray, width: Int, height: Int) -> UIImage? {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -173,7 +148,7 @@ import Accelerate
     
     // UIImage를 MLMultiArray로 변환 (모델 입력이 MLMultiArray인 경우)
     private func convertImageToMultiArray(_ image: UIImage) throws -> MLMultiArray {
-        let resizedImage = resizeImageForModel(image)
+        let resizedImage = ImageResizer.shared.resizeImageForModel(image, targetSize: modelInputSize, preserveAspectRatio: false)
         guard let cgImage = resizedImage.cgImage else {
             throw NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "CGImage 변환 실패"])
         }
@@ -218,7 +193,7 @@ import Accelerate
     private func createPixelBuffer(from image: UIImage) throws -> CVPixelBuffer {
         let width = Int(modelInputSize.width)
         let height = Int(modelInputSize.height)
-        let resizedImage = resizeImageForModel(image)
+        let resizedImage = ImageResizer.shared.resizeImageForModel(image, targetSize: modelInputSize, preserveAspectRatio: false)
         guard let cgImage = resizedImage.cgImage else {
             throw NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "CGImage 변환 실패"])
         }
@@ -259,7 +234,7 @@ import Accelerate
     @objc func processImage(_ image: UIImage, completion: @escaping (UIImage?, Error?) -> Void) {
         let totalStartTime = CACurrentMediaTime()
         
-        let displayImage = resizeImageForDisplay(image)
+        let displayImage = ImageResizer.shared.resizeImageForDisplay(image)
         let resizeTime = CACurrentMediaTime() - totalStartTime
         
         // 모델이 로드되었는지 확인
