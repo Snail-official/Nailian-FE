@@ -19,7 +19,6 @@ import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { applyEvent } from '~/entities/user/api';
 import { toast } from '~/shared/lib/toast';
 
@@ -400,14 +399,14 @@ function ApplyModal({
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"
     >
-      <SafeAreaView style={styles.modalContent}>
+      <View style={styles.modalContent}>
         {/* 현재 상태에 따라 다른 콘텐츠 렌더링 */}
         {modalStep === 'initial'
           ? renderInitialContent()
           : modalStep === 'form'
             ? renderFormContent()
             : renderCompleteContent()}
-      </SafeAreaView>
+      </View>
     </BottomSheetModal>
   );
 }
