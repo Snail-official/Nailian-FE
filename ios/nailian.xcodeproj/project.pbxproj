@@ -15,6 +15,9 @@
 		473BFEFAD123086068F6BFCD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		7699B88040F8A987B510C191 /* libPods-nailian-nailianTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-nailian-nailianTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		E138426C2DB764EF00631A7F /* ContourAnalyzing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E13842692DB764EF00631A7F /* ContourAnalyzing.swift */; };
+		E138426D2DB764EF00631A7F /* HandPoseDetecting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */; };
+		E138426F2DB764F500631A7F /* NailMetricsAnalyzing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */; };
 		E14D840E2D8D740700EDD138 /* Pretendard-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C58AFF360BBE4F84A816AC89 /* Pretendard-SemiBold.ttf */; };
 		E14D840F2D8D740700EDD138 /* Pretendard-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4548124832A749DAA5A2903A /* Pretendard-ExtraLight.ttf */; };
 		E14D84102D8D740700EDD138 /* Pretendard-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F6F6624F647A4D35B9A96978 /* Pretendard-Thin.ttf */; };
@@ -70,6 +73,9 @@
 		C8D7FE748B344A429ACD3F64 /* Pretendard-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-ExtraBold.ttf"; path = "../src/shared/assets/fonts/Pretendard-ExtraBold.ttf"; sourceTree = "<group>"; };
 		CB4F9DE9ABA54B6093085640 /* Pretendard-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Medium.ttf"; path = "../src/shared/assets/fonts/Pretendard-Medium.ttf"; sourceTree = "<group>"; };
 		E1112B902DA009390021E94C /* nailian.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = nailian.entitlements; path = nailian/nailian.entitlements; sourceTree = "<group>"; };
+		E13842692DB764EF00631A7F /* ContourAnalyzing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContourAnalyzing.swift; sourceTree = "<group>"; };
+		E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandPoseDetecting.swift; sourceTree = "<group>"; };
+		E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailMetricsAnalyzing.swift; sourceTree = "<group>"; };
 		E16EA9A02D7815BF0056AA4B /* libRNKeychain.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNKeychain.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1E0C2642D8C157B0053273B /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		E1E0C2652D8C157B0053273B /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
@@ -84,15 +90,11 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E14D84192D8D7C6E00EDD138 /* Modules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Modules;
 			sourceTree = "<group>";
 		};
 		E1D033572D8E8DB900C244AD /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Models;
 			sourceTree = "<group>";
 		};
@@ -142,6 +144,7 @@
 		13B07FAE1A68108700A75B9A /* nailian */ = {
 			isa = PBXGroup;
 			children = (
+				E138426B2DB764EF00631A7F /* Protocols */,
 				E1F0762C2DA4AF86003F928C /* Assets.xcassets */,
 				E1112B902DA009390021E94C /* nailian.entitlements */,
 				E1D033572D8E8DB900C244AD /* Models */,
@@ -230,6 +233,16 @@
 				89C6BE57DB24E9ADA2F236DE /* Pods-nailian-nailianTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		E138426B2DB764EF00631A7F /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */,
+				E13842692DB764EF00631A7F /* ContourAnalyzing.swift */,
+				E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -494,7 +507,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				E138426F2DB764F500631A7F /* NailMetricsAnalyzing.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				E138426C2DB764EF00631A7F /* ContourAnalyzing.swift in Sources */,
+				E138426D2DB764EF00631A7F /* HandPoseDetecting.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -691,10 +707,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -765,10 +778,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
