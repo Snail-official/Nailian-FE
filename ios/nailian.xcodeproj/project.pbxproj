@@ -18,6 +18,7 @@
 		E138426C2DB764EF00631A7F /* ContourAnalyzing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E13842692DB764EF00631A7F /* ContourAnalyzing.swift */; };
 		E138426D2DB764EF00631A7F /* HandPoseDetecting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */; };
 		E138426F2DB764F500631A7F /* NailMetricsAnalyzing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */; };
+		E13842862DB7698500631A7F /* NailAssetProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E13842852DB7697D00631A7F /* NailAssetProviding.swift */; };
 		E14D840E2D8D740700EDD138 /* Pretendard-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C58AFF360BBE4F84A816AC89 /* Pretendard-SemiBold.ttf */; };
 		E14D840F2D8D740700EDD138 /* Pretendard-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4548124832A749DAA5A2903A /* Pretendard-ExtraLight.ttf */; };
 		E14D84102D8D740700EDD138 /* Pretendard-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F6F6624F647A4D35B9A96978 /* Pretendard-Thin.ttf */; };
@@ -76,6 +77,7 @@
 		E13842692DB764EF00631A7F /* ContourAnalyzing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContourAnalyzing.swift; sourceTree = "<group>"; };
 		E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandPoseDetecting.swift; sourceTree = "<group>"; };
 		E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailMetricsAnalyzing.swift; sourceTree = "<group>"; };
+		E13842852DB7697D00631A7F /* NailAssetProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailAssetProviding.swift; sourceTree = "<group>"; };
 		E16EA9A02D7815BF0056AA4B /* libRNKeychain.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNKeychain.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1E0C2642D8C157B0053273B /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		E1E0C2652D8C157B0053273B /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 		E138426B2DB764EF00631A7F /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				E13842852DB7697D00631A7F /* NailAssetProviding.swift */,
 				E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */,
 				E13842692DB764EF00631A7F /* ContourAnalyzing.swift */,
 				E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */,
@@ -511,6 +514,7 @@
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				E138426C2DB764EF00631A7F /* ContourAnalyzing.swift in Sources */,
 				E138426D2DB764EF00631A7F /* HandPoseDetecting.swift in Sources */,
+				E13842862DB7698500631A7F /* NailAssetProviding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
