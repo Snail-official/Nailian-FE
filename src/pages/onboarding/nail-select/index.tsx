@@ -222,6 +222,7 @@ const styles = StyleSheet.create({
     width: scale(375),
   },
   gridContainer: {
+    paddingBottom: vs(140),
     paddingHorizontal: spacing.large,
   },
   header: {

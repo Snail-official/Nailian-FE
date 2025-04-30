@@ -10,7 +10,7 @@ import {
   Linking,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, typography } from '~/shared/styles/design';
@@ -52,6 +52,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
   const [currentModal, setCurrentModal] = React.useState<
     'none' | 'logout' | 'unsubscribe'
   >('none');
+  const queryClient = useQueryClient();
 
   // React Query를 사용한 데이터 페칭
   const { data: userProfile, refetch: refetchProfile } = useQuery({
@@ -107,6 +108,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
       await logoutFromService();
       // 로컬에 저장된 인증 토큰 제거
       await useAuthStore.getState().clearTokens();
+      // React Query 캐시 초기화
+      queryClient.clear();
       closeModal();
       navigation.replace('SocialLogin');
     } catch (err) {
@@ -138,9 +141,9 @@ function MyPageScreen({ navigation }: MyPageProps) {
    */
   const handleMenuPress = async (menuType: string) => {
     const urls: Record<string, string> = {
-      '1:1 문의': 'https://example.com/inquiry',
-      FAQ: 'https://example.com/faq',
-      '약관 및 정책': 'https://example.com/terms',
+      '1:1 문의': 'https://www.notion.so/1-1-1d4a61f4f3718080af26de9177d78887',
+      FAQ: 'https://www.notion.so/FAQ-1d4a61f4f3718095891aec01cdbb82d5',
+      '약관 및 정책': 'https://www.notion.so/1d4a61f4f37180a89490fd3bde2b3a7b',
     };
     // URL이 있으면 웹페이지로 이동
     if (urls[menuType]) {
@@ -183,6 +186,8 @@ function MyPageScreen({ navigation }: MyPageProps) {
       await deleteUser();
       // 로컬에 저장된 인증 토큰 제거
       await useAuthStore.getState().clearTokens();
+      // React Query 캐시 초기화
+      queryClient.clear();
       closeModal();
       navigation.replace('SocialLogin');
     } catch (err) {

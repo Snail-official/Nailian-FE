@@ -13,6 +13,9 @@ import {
   DeleteUserResponse,
   AppleAuthRequest,
   AppleAuthResponse,
+  ApplyEventResponse,
+  ApplyEventRequest,
+  EventStatusResponse,
 } from '../../shared/api/types';
 
 /**
@@ -123,4 +126,31 @@ export const deleteUser = (): Promise<DeleteUserResponse> =>
   fetcher({
     endpoint: '/users/me',
     method: 'DELETE',
+  });
+
+/**
+ * 이벤트 응모 API 호출
+ *
+ * @param {ApplyEventRequest} data - 이벤트 응모 정보 (이메일/전화번호와 네일셋 ID)
+ * @returns {Promise<ApplyEventResponse>} 이벤트 응모 성공 여부 반환
+ */
+export const applyEvent = ({
+  userInfo,
+  nailSetId,
+}: ApplyEventRequest): Promise<ApplyEventResponse> =>
+  fetcher({
+    endpoint: '/users/me/event',
+    method: 'POST',
+    body: { userInfo, nailSetId },
+  });
+
+/**
+ * 사용자의 이벤트 응모 상태 조회 API 호출
+ *
+ * @returns {Promise<EventStatusResponse>} 사용자의 이벤트 응모 상태 반환
+ */
+export const fetchEventStatus = (): Promise<EventStatusResponse> =>
+  fetcher({
+    endpoint: '/users/me/event',
+    method: 'GET',
   });
