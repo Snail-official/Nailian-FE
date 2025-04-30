@@ -11,22 +11,24 @@ import {
   Platform,
   SafeAreaView,
 } from 'react-native';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, typography } from '~/shared/styles/design';
+import { scale, vs } from '~/shared/lib/responsive';
+import { createUserNailSet } from '~/entities/nail-set/api';
+import { fetchEventStatus } from '~/entities/user/api';
+import { toast } from '~/shared/lib/toast';
+import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
+import { RootStackParamList } from '~/shared/types/navigation';
 import BottomSheet, {
   BottomSheetRefProps,
 } from '~/pages/ar_experience/ui/BottomSheet';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import NailOverlay from '~/pages/ar_experience/ui/NailOverlay';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
-import { useNavigation } from '@react-navigation/native';
-import { scale, vs } from '~/shared/lib/responsive';
-import { createUserNailSet } from '~/entities/nail-set/api';
-import { toast } from '~/shared/lib/toast';
-import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
-import { RootStackParamList } from '~/shared/types/navigation';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ApplyModal from '~/pages/ar_experience/ui/ApplyModal';
 import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기
@@ -78,6 +80,10 @@ export default function ARExperiencePage() {
 
   // 현재 선택된 네일셋 상태 (API 타입에 맞게 관리)
   const [currentNailSet, setCurrentNailSet] = useState<NailSet>({});
+  // 이벤트 응모 모달 상태
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  // 저장된 네일셋 ID 상태
+  const [savedNailSetId, setSavedNailSetId] = useState<number | null>(null);
 
   /**
    * 네일셋이 완전한지 확인하는 함수 (모든 손가락에 네일이 선택되었는지)
@@ -102,6 +108,28 @@ export default function ARExperiencePage() {
   }, [isNailSetComplete, navigation]);
 
   /**
+   * 응모 모달 완료 핸들러
+   * 응모가 성공적으로 완료되었을 때 호출됩니다.
+   */
+  const handleApplyComplete = useCallback(async () => {
+    // 응모 성공 시 토스트 메시지 표시
+    toast.showToast('응모가 완료되었습니다', { iconType: 'check' });
+    // 모달 닫기
+    setShowApplyModal(false);
+  }, []);
+
+  /**
+   * 응모 모달 취소 핸들러
+   */
+  const handleApplyCancel = useCallback(() => {
+    setShowApplyModal(false);
+    // 모달이 닫힌 후 바텀시트 다시 펼치기
+    setTimeout(() => {
+      bottomSheetRef.current?.snapToIndex(0);
+    }, 300);
+  }, []);
+
+  /**
    * 북마크 버튼 클릭 핸들러
    */
   const handleBookmark = useCallback(async () => {
@@ -123,10 +151,30 @@ export default function ARExperiencePage() {
 
     try {
       // 네일셋 저장 API 호출
-      await createUserNailSet(requestData);
+      const result = await createUserNailSet(requestData);
+
+      // 응모를 위해 저장된 네일셋 ID 기억
+      if (result?.data?.id) {
+        setSavedNailSetId(result.data.id);
+      }
 
       // 성공 시 메시지 표시
       toast.showToast('보관함에 저장되었습니다', { position: 'bottom' });
+
+      // 이벤트 참여 상태 확인
+      const eventStatus = await fetchEventStatus();
+      const hasParticipated = eventStatus?.data || false;
+
+      // 이벤트에 참여하지 않은 경우에만 바텀시트 조작 및 모달 표시
+      if (!hasParticipated && result?.data?.id) {
+        // 저장 성공 후 바텀시트 닫기
+        bottomSheetRef.current?.close();
+
+        // 바텀시트 애니메이션을 위한 짧은 지연 후 응모 모달 표시
+        setTimeout(() => {
+          setShowApplyModal(true);
+        }, 300);
+      }
     } catch (error) {
       if (error instanceof APIError && error.code === 409) {
         toast.showToast('이미 저장된 아트입니다', { position: 'bottom' });
@@ -268,6 +316,14 @@ export default function ARExperiencePage() {
               bottomSheetRef={bottomSheetRef}
             />
           </BottomSheet>
+
+          {/* 응모 모달 */}
+          <ApplyModal
+            visible={showApplyModal}
+            onClose={handleApplyCancel}
+            nailSetId={savedNailSetId || 0}
+            onComplete={handleApplyComplete}
+          />
         </View>
       </SafeAreaView>
     </BottomSheetModalProvider>

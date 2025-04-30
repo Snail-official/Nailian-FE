@@ -40,6 +40,19 @@ export interface UpdateNicknameRequest {
 /** 닉네임 수정 응답 */
 export type UpdateNicknameResponse = ApiResponse<null>;
 
+/** 이벤트 응모 요청 */
+export interface ApplyEventRequest {
+  userInfo: string;
+  nailSetId: number;
+}
+
+/** 이벤트 응모 응답 */
+export type ApplyEventResponse = ApiResponse<null>;
+
+/** 이벤트 응모 상태 조회 응답 */
+export interface EventStatusResponse
+  extends ApiResponse<{ isParticipated: boolean }> {}
+
 /* ─────────────────── 인증 (Auth) ─────────────────── */
 
 /** 카카오 로그인 요청 */
