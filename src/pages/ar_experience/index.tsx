@@ -28,6 +28,14 @@ import NailOverlay from '~/pages/ar_experience/ui/NailOverlay';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
+import { useNavigation } from '@react-navigation/native';
+import { scale, vs } from '~/shared/lib/responsive';
+import { createUserNailSet } from '~/entities/nail-set/api';
+import { toast } from '~/shared/lib/toast';
+import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
+import { RootStackParamList } from '~/shared/types/navigation';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ViewshotLightbox from '~/shared/ui/Lightbox';
 import ApplyModal from '~/pages/ar_experience/ui/ApplyModal';
 import NailSelection from './ui/NailSelection';
 
@@ -273,18 +281,22 @@ export default function ARExperiencePage() {
               </Text>
             </View>
 
-            {/* 손 이미지와 네일 오버레이 컨테이너 */}
-            <View style={styles.handContainer}>
-              {/* 기본 손 이미지 */}
-              <Image
-                source={require('~/shared/assets/images/hand.png')}
-                style={styles.handImage}
-                resizeMode="contain"
-              />
+            {/* 손 이미지와 네일 오버레이 + ViewshotLightbox 통합 */}
+            <ViewshotLightbox
+              viewShotContent={
+                <View style={styles.handContainer}>
+                  {/* 기본 손 이미지 */}
+                  <Image
+                    source={require('~/shared/assets/images/hand.png')}
+                    style={styles.handImage}
+                    resizeMode="contain"
+                  />
 
-              {/* 네일 오버레이 - 선택된 네일팁을 손 위에 표시 */}
-              <NailOverlay nailSet={currentNailSet} />
-            </View>
+                  {/* 네일 오버레이 - 선택된 네일팁을 손 위에 표시 */}
+                  <NailOverlay nailSet={currentNailSet} />
+                </View>
+              }
+            />
 
             {/* AR 버튼 */}
             <View style={styles.arButtonContainer}>
