@@ -99,7 +99,7 @@ export function NailGrid({
         category: activeFilters.category,
         color: activeFilters.color,
         shape: activeFilters.shape,
-        random: activeFilters ? 1 : 0,
+        random: activeFilters ? 0 : 1,
       }),
     getNextPageParam: lastPage => {
       const totalPages = lastPage.data?.pageInfo?.totalPages || 0;
