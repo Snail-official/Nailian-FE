@@ -28,15 +28,8 @@ import NailOverlay from '~/pages/ar_experience/ui/NailOverlay';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import ArButton from '~/features/nail-set-ar/ui/ArButton';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
-import { useNavigation } from '@react-navigation/native';
-import { scale, vs } from '~/shared/lib/responsive';
-import { createUserNailSet } from '~/entities/nail-set/api';
-import { toast } from '~/shared/lib/toast';
-import { CreateNailSetRequest, Shape, APIError } from '~/shared/api/types';
-import { RootStackParamList } from '~/shared/types/navigation';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import ViewshotLightbox from '~/shared/ui/Lightbox';
 import ApplyModal from '~/pages/ar_experience/ui/ApplyModal';
+import ViewshotLightbox from '~/shared/ui/Lightbox';
 import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기
