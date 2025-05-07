@@ -16,4 +16,8 @@ RCT_EXTERN_METHOD(getModelPath:(NSString *)modelType
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(initModel:(NSString *)modelType
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 @end

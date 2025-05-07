@@ -19,6 +19,33 @@ import Accelerate
     private var modelLoaded = false
     private var model: MLModel?
     
+    /// 현재 모델이 로드되어 있는지 확인합니다.
+    func isModelLoaded() -> Bool {
+        return modelLoaded && model != nil
+    }
+    
+    /// 현재 모델을 로드 중인지 확인합니다.
+    private var _isLoading = false
+    
+    /// 현재 모델 로드 작업이 진행 중인지 여부
+    func isCurrentlyLoadingModel() -> Bool {
+        return _isLoading
+    }
+    
+    /// 모델을 백그라운드에서 로드합니다 (비동기 호출용)
+    func preloadModelInBackground() {
+        if modelLoaded || _isLoading {
+            return
+        }
+        
+        _isLoading = true
+        DispatchQueue.global(qos: .background).async {
+            self.loadSegmentationModel { _ in
+                self._isLoading = false
+            }
+        }
+    }
+    
     private override init() {
         super.init()
     }
@@ -74,6 +101,20 @@ import Accelerate
       
       // 모델 미리 로드
       func loadSegmentationModel(completion: ((Bool) -> Void)? = nil) {
+          // 이미 로드되어 있으면 바로 성공 반환
+          if modelLoaded && model != nil {
+              completion?(true)
+              return
+          }
+          
+          // 이미 로드 중이면 중복 로드 방지
+          if _isLoading {
+              completion?(false)
+              return
+          }
+          
+          _isLoading = true
+          
           DispatchQueue.global(qos: .background).async {
               do {
                   let config = MLModelConfiguration()
@@ -82,6 +123,7 @@ import Accelerate
                   // 로컬에 모델 파일이 있는지 확인
                   guard let modelURL = self.localModelURL() else {
                       self.modelLoaded = false
+                      self._isLoading = false
                       completion?(false)
                       return
                   }
@@ -91,9 +133,11 @@ import Accelerate
                   
                   self.model = try MLModel(contentsOf: compiledModelURL, configuration: config)
                   self.modelLoaded = true
+                  self._isLoading = false
                   completion?(true)
               } catch {
                   self.modelLoaded = false
+                  self._isLoading = false
                   completion?(false)
               }
           }
@@ -111,9 +155,34 @@ import Accelerate
         // 디스플레이용 이미지 리사이즈
         let displayImage = ImageResizer.shared.resizeImageForDisplay(image)
         
-        // 모델 로드 확인
+        // 모델이 로드되지 않았다면 자동으로 로드 시도
+        if !modelLoaded || model == nil {
+            print("모델이 로드되지 않았습니다. 자동으로 로드를 시도합니다.")
+            
+            // 동기적으로 모델 로드 시도
+            let semaphore = DispatchSemaphore(value: 0)
+            var loadSuccess = false
+            
+            self.loadSegmentationModel { success in
+                loadSuccess = success
+                semaphore.signal()
+            }
+            
+            // 최대 5초간 대기
+            _ = semaphore.wait(timeout: .now() + 5.0)
+            
+            if !loadSuccess {
+                print("자동 모델 로드 실패")
+                completion(nil, NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "모델 로드에 실패했습니다. 모델 파일이 있는지 확인해주세요."]))
+                return
+            }
+            
+            print("자동 모델 로드 성공")
+        }
+        
+        // 모델이 여전히 로드되지 않았다면 오류 반환
         guard modelLoaded, let modelToUse = model else {
-            completion(nil, NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "모델이 로드되지 않았습니다. 먼저 loadSegmentationModel을 호출해야 합니다."]))
+            completion(nil, NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "모델 로드 후에도 모델이 로드되지 않았습니다."]))
             return
         }
         

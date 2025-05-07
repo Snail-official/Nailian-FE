@@ -44,7 +44,7 @@ interface CameraViewProps {
 }
 
 const CameraView = requireNativeComponent<CameraViewProps>('CameraView');
-const { CameraViewManager } = NativeModules;
+const { CameraViewManager, ModelManager } = NativeModules;
 
 // CameraViewManager 타입 정의
 interface CameraViewManagerType {
@@ -75,6 +75,7 @@ function ARCameraPage({
   const [processing, setProcessing] = useState(false);
   const [showingResult, setShowingResult] = useState(false);
   const [nailSetLoaded, setNailSetLoaded] = useState(false);
+  const [modelError, setModelError] = useState<string | null>(null);
 
   // 화면 크기 가져오기
   const { width, height } = Dimensions.get('window');
@@ -84,6 +85,24 @@ function ARCameraPage({
     left: width * 0.15,
     right: width * 0.15,
   });
+
+  // AR 화면 진입 시 세그멘테이션 모델 초기화
+  useEffect(() => {
+    const initializeModel = async () => {
+      try {
+        // 세그멘테이션 모델 초기화
+        await ModelManager.initModel('segmentation');
+        console.log('세그멘테이션 모델 초기화 성공');
+      } catch (error) {
+        console.error('세그멘테이션 모델 초기화 실패:', error);
+        setModelError(
+          '모델 초기화에 실패했습니다. 필요한 모델이 다운로드되어 있는지 확인해주세요.',
+        );
+      }
+    };
+
+    initializeModel();
+  }, []);
 
   // 네일셋 데이터를 네이티브 모듈에 전달
   useEffect(() => {
@@ -195,6 +214,13 @@ function ARCameraPage({
             }
             onError={event => console.error('오류 발생:', event.nativeEvent)}
           />
+
+          {/* 모델 로드 오류 메시지 */}
+          {modelError && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{modelError}</Text>
+            </View>
+          )}
 
           {/* 초점 프레임 - 네 모서리에 브래킷 배치 */}
           <View style={styles.focusFrameContainer}>
@@ -345,6 +371,20 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: colors.gray300,
+  },
+  errorContainer: {
+    alignItems: 'center',
+    backgroundColor: colors.warn_red,
+    borderRadius: 10,
+    left: 0,
+    padding: 10,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  errorText: {
+    ...typography.body1_B,
+    color: colors.white,
   },
   focusFrameContainer: {
     bottom: 0,

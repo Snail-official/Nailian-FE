@@ -136,21 +136,6 @@ class ModelManager: RCTEventEmitter {
                 try self.extractModel(zipFilePath: zipFilePath, modelType: modelType)
                 try FileManager.default.removeItem(at: zipFilePath)
                 
-                // 모델 프리로드
-                if modelType == "segmentation" {
-                    let semaphore = DispatchSemaphore(value: 0)
-                    var segmentationSuccess = false
-                    
-                    DispatchQueue.global(qos: .background).async {
-                        ImageSegmenter.shared.loadSegmentationModel { result in
-                            segmentationSuccess = result
-                            semaphore.signal()
-                        }
-                    }
-                    
-                    _ = semaphore.wait(timeout: .now() + 30.0)
-                }
-                
                 self.sendEvent(withName: "ModelDownloadComplete", body: ["modelType": modelType, "success": true])
                 resolver(true)
             } catch {
@@ -478,6 +463,81 @@ class ModelManager: RCTEventEmitter {
                 
                 DispatchQueue.main.async {
                     rejecter("READ_ERROR", "디렉토리 조회 중 오류가 발생했습니다: \(error.localizedDescription)", error)
+                }
+            }
+        }
+    }
+    
+    /**
+     * 모델 초기화 메서드 (AR 관련 화면에서 필요한 모델만 선택적으로 호출)
+     * @param modelType 초기화할 모델 타입 (segmentation, detection 등)
+     */
+    @objc func initModel(_ modelType: String,
+                        resolver: @escaping RCTPromiseResolveBlock,
+                        rejecter: @escaping RCTPromiseRejectBlock) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            // 모델 타입에 따라 다른 로드 함수 호출
+            switch modelType {
+            case "segmentation":
+                self.initSegmentationModel(resolver, rejecter: rejecter)
+            case "detection":
+                // 향후 detection 모델 초기화 로직
+                DispatchQueue.main.async {
+                    rejecter("NOT_IMPLEMENTED", "Detection 모델 초기화는 아직 구현되지 않았습니다.", nil)
+                }
+            default:
+                DispatchQueue.main.async {
+                    rejecter("INVALID_MODEL_TYPE", "지원하지 않는 모델 타입입니다: \(modelType)", nil)
+                }
+            }
+        }
+    }
+    
+    /**
+     * 세그멘테이션 모델 초기화 (AR 카메라 화면에서 필요)
+     * 이미 로드되어 있으면 그대로 반환하고, 아니면 로드를 시작함
+     */
+    private func initSegmentationModel(_ resolver: @escaping RCTPromiseResolveBlock,
+                                   rejecter: @escaping RCTPromiseRejectBlock) {
+        // 이미 로드되어 있는지 확인
+        if ImageSegmenter.shared.isModelLoaded() {
+            print("세그멘테이션 모델이 이미 로드되어 있습니다.")
+            DispatchQueue.main.async {
+                resolver(true)
+            }
+            return
+        }
+        
+        // 이미 로드 중인지 확인
+        if ImageSegmenter.shared.isCurrentlyLoadingModel() {
+            print("세그멘테이션 모델이 이미 로드 중입니다.")
+            DispatchQueue.main.async {
+                resolver(true)
+            }
+            return
+        }
+        
+        // 모델 파일이 있는지 확인
+        if !isModelDownloaded(modelType: "segmentation") {
+            print("세그멘테이션 모델 파일이 존재하지 않습니다. 다운로드가 필요합니다.")
+            DispatchQueue.main.async {
+                rejecter("MODEL_NOT_FOUND", "세그멘테이션 모델 파일이 존재하지 않습니다. 먼저 모델을 다운로드해야 합니다.", nil)
+            }
+            return
+        }
+        
+        // 모델 로드 시도
+        print("세그멘테이션 모델 로드 시작")
+        ImageSegmenter.shared.loadSegmentationModel { success in
+            if success {
+                print("세그멘테이션 모델 로드 성공")
+                DispatchQueue.main.async {
+                    resolver(true)
+                }
+            } else {
+                print("세그멘테이션 모델 로드 실패")
+                DispatchQueue.main.async {
+                    rejecter("MODEL_LOAD_FAILED", "세그멘테이션 모델 로드에 실패했습니다", nil)
                 }
             }
         }
