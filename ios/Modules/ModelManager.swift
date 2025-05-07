@@ -142,7 +142,7 @@ class ModelManager: RCTEventEmitter {
                     var segmentationSuccess = false
                     
                     DispatchQueue.global(qos: .background).async {
-                        SegmentationManager.shared.loadSegmentationModel { result in
+                        ImageSegmenter.shared.loadSegmentationModel { result in
                             segmentationSuccess = result
                             semaphore.signal()
                         }

@@ -3,24 +3,27 @@ import CoreML
 import Vision
 import Accelerate
 
-@objc class SegmentationManager: NSObject {
-    static let shared = SegmentationManager()
-    private let modelInputSize = CGSize(width: 800, height: 800)  // 모델 입력 크기
-    private var modelLoaded = false
-    private var model: MLModel?
+/// CoreML을 사용한 이미지 세그멘테이션 서비스 클래스
+@objcMembers class ImageSegmenter: NSObject, ImageSegmenting {
+    /// 싱글톤 인스턴스
+    static let shared = ImageSegmenter()
     
     // 모델 파일 정보
     private let modelName = "segmentation_model"
     private let modelExt = "mlpackage"
     
-    // 처리 시간 측정용 변수
-    private var lastProcessingTime: TimeInterval = 0
-
+    /// 마지막 처리 시간 (선택적 프로토콜 요구사항)
+    private(set) var lastProcessingTime: TimeInterval = 0
+    
+    /// 미리 로드된 모델 변수
+    private var modelLoaded = false
+    private var model: MLModel?
+    
     private override init() {
         super.init()
     }
     
-  // 로컬에 다운로드된 모델 URL 확인
+    // 로컬에 다운로드된 모델 URL 확인
   private func localModelURL() -> URL? {
             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
             
@@ -96,59 +99,177 @@ import Accelerate
           }
       }
     
-    // MLMultiArray로부터 바이너리 마스크 이미지를 생성하는 함수
-    private func createHeatmapFromMultiArray(_ multiArray: MLMultiArray, width: Int, height: Int) -> UIImage? {
+    // MARK: - ImageSegmenting 프로토콜 구현
+    
+    /// 이미지 세그멘테이션 처리를 수행합니다.
+    /// - Parameters:
+    ///   - image: 세그멘테이션할 원본 이미지
+    ///   - completion: 결과 이미지와 에러를 전달하는 콜백
+    func processImage(_ image: UIImage, completion: @escaping (UIImage?, Error?) -> Void) {
+        let totalStartTime = CACurrentMediaTime()
+        
+        // 디스플레이용 이미지 리사이즈
+        let displayImage = ImageResizer.shared.resizeImageForDisplay(image)
+        
+        // 모델 로드 확인
+        guard modelLoaded, let modelToUse = model else {
+            completion(nil, NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "모델이 로드되지 않았습니다. 먼저 loadSegmentationModel을 호출해야 합니다."]))
+            return
+        }
+        
+        // 모델 입력 처리
+        guard let inputDesc = modelToUse.modelDescription.inputDescriptionsByName["input_image"] else {
+            completion(nil, NSError(domain: "SegmentationError", code: -99, userInfo: [NSLocalizedDescriptionKey: "모델 입력 피처 'input_image' 없음"]))
+            return
+        }
+        
+        var inputFeature: MLFeatureValue
+        do {
+            if inputDesc.type == .multiArray {
+                let multiArray = try convertImageToMultiArray(image)
+                inputFeature = MLFeatureValue(multiArray: multiArray)
+            } else if inputDesc.type == .image {
+                let pixelBuffer = try createPixelBuffer(from: image)
+                inputFeature = MLFeatureValue(pixelBuffer: pixelBuffer)
+            } else {
+                throw NSError(domain: "SegmentationError", code: -99, userInfo: [NSLocalizedDescriptionKey: "지원하지 않는 입력 타입입니다"])
+            }
+        } catch {
+            completion(nil, error)
+            return
+        }
+        
+        // 모델 추론
+        let inputProvider: MLDictionaryFeatureProvider
+        do {
+            inputProvider = try MLDictionaryFeatureProvider(dictionary: ["input_image": inputFeature])
+        } catch {
+            completion(nil, error)
+            return
+        }
+        
+        let output: MLFeatureProvider
+        do {
+            output = try modelToUse.prediction(from: inputProvider)
+        } catch {
+            completion(nil, error)
+            return
+        }
+        
+        // 세그멘테이션 마스크 추출
+        guard let segmentationMask = output.featureValue(for: "segmentation_mask")?.multiArrayValue else {
+            completion(nil, NSError(domain: "SegmentationError", code: -3, userInfo: [NSLocalizedDescriptionKey: "세그멘테이션 마스크 생성 실패"]))
+            return
+        }
+        
+        // 백그라운드에서 후처리 수행
+        DispatchQueue.global(qos: .userInitiated).async {
+            autoreleasepool {
+                let modelInputSize = ImageResizer.shared.modelInputSize
+                let width = Int(modelInputSize.width)
+                let height = Int(modelInputSize.height)
+                
+                // 바이너리 마스크 생성
+                guard let heatmapImage = self.createBinaryMaskFromMultiArray(segmentationMask, width: width, height: height) else {
+                    DispatchQueue.main.async {
+                        completion(nil, NSError(domain: "SegmentationError", code: -4, userInfo: [NSLocalizedDescriptionKey: "바이너리 마스크 생성 실패"]))
+                    }
+                    return
+                }
+                
+                // 결과 이미지 오버레이
+                UIGraphicsBeginImageContextWithOptions(displayImage.size, false, 0.0)
+                displayImage.draw(in: CGRect(origin: .zero, size: displayImage.size))
+                heatmapImage.draw(in: CGRect(origin: .zero, size: displayImage.size),
+                                  blendMode: .normal,
+                                  alpha: 0.6)
+                
+                // 처리 시간 계산
+                let totalTime = CACurrentMediaTime() - totalStartTime
+                self.lastProcessingTime = totalTime
+                
+                // 처리 시간 텍스트 오버레이
+                let timeText = String(format: "처리 시간: %.3f초", totalTime)
+                let paragraphStyle = NSMutableParagraphStyle()
+                paragraphStyle.alignment = .center
+                let attributes: [NSAttributedString.Key: Any] = [
+                    .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+                    .foregroundColor: UIColor.white,
+                    .paragraphStyle: paragraphStyle,
+                    .strokeColor: UIColor.black,
+                    .strokeWidth: -2.0
+                ]
+                let textRect = CGRect(x: 10, y: 30, width: displayImage.size.width - 20, height: 30)
+                timeText.draw(in: textRect, withAttributes: attributes)
+                
+                let resultImage = UIGraphicsGetImageFromCurrentImageContext()
+                UIGraphicsEndImageContext()
+                
+                DispatchQueue.main.async {
+                    completion(resultImage, nil)
+                }
+            }
+        }
+    }
+    
+    // MARK: - 내부 유틸리티 메서드
+    
+    /// MLMultiArray로 변환된 이미지로부터 바이너리 마스크를 생성합니다.
+    private func createBinaryMaskFromMultiArray(_ multiArray: MLMultiArray, width: Int, height: Int) -> UIImage? {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bytesPerPixel = 4
         let bytesPerRow = width * bytesPerPixel
         let totalBytes = height * bytesPerRow
-
+        
         let bitmapData = UnsafeMutablePointer<UInt8>.allocate(capacity: totalBytes)
         defer { bitmapData.deallocate() }
-
+        
+        // 각 픽셀에 대해 임계값 0.5 기준 이진화 처리 (배경: 투명, 전경: 흰색)
         for y in 0..<height {
             for x in 0..<width {
                 let index = y * width + x
                 let pixelOffset = y * bytesPerRow + x * bytesPerPixel
-                
                 if index < multiArray.count {
                     let value = multiArray[index].doubleValue
                     if value > 0.5 {
+                        // 전경: 흰색 (불투명)
+                        bitmapData[pixelOffset + 0] = 255  // R
+                        bitmapData[pixelOffset + 1] = 255  // G
+                        bitmapData[pixelOffset + 2] = 255  // B
+                        bitmapData[pixelOffset + 3] = 255  // A
+                    } else {
+                        // 배경: 투명
                         bitmapData[pixelOffset + 0] = 0    // R
                         bitmapData[pixelOffset + 1] = 0    // G
                         bitmapData[pixelOffset + 2] = 0    // B
-                        bitmapData[pixelOffset + 3] = 0    // A (투명) 
-                        
-                    } else {
-                        bitmapData[pixelOffset + 0] = 255  // R (빨간색)
-                        bitmapData[pixelOffset + 1] = 0    // G
-                        bitmapData[pixelOffset + 2] = 0    // B
-                        bitmapData[pixelOffset + 3] = 255  // A (불투명)
+                        bitmapData[pixelOffset + 3] = 255    // A
                     }
                 } else {
+                    // 범위 밖: 투명 처리
                     bitmapData[pixelOffset + 0] = 0
                     bitmapData[pixelOffset + 1] = 0
                     bitmapData[pixelOffset + 2] = 0
-                    bitmapData[pixelOffset + 3] = 0
+                    bitmapData[pixelOffset + 3] = 255
                 }
             }
         }
-
+        
         guard let context = CGContext(data: bitmapData,
-                                    width: width,
-                                    height: height,
-                                    bitsPerComponent: 8,
-                                    bytesPerRow: bytesPerRow,
-                                    space: colorSpace,
-                                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+                                      width: width,
+                                      height: height,
+                                      bitsPerComponent: 8,
+                                      bytesPerRow: bytesPerRow,
+                                      space: colorSpace,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
         else { return nil }
         guard let cgImage = context.makeImage() else { return nil }
         return UIImage(cgImage: cgImage)
     }
     
-    // UIImage를 MLMultiArray로 변환 (모델 입력이 MLMultiArray인 경우)
+    /// UIImage를 MLMultiArray로 변환합니다.
     private func convertImageToMultiArray(_ image: UIImage) throws -> MLMultiArray {
-        let resizedImage = ImageResizer.shared.resizeImageForModel(image, targetSize: modelInputSize, preserveAspectRatio: false)
+        let modelInputSize = ImageResizer.shared.modelInputSize
+        let resizedImage = ImageResizer.shared.resizeImageForModel(image, preserveAspectRatio: false)
         guard let cgImage = resizedImage.cgImage else {
             throw NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "CGImage 변환 실패"])
         }
@@ -180,6 +301,7 @@ import Accelerate
                 let r = Float(rawData[offset]) / 255.0
                 let g = Float(rawData[offset + 1]) / 255.0
                 let b = Float(rawData[offset + 2]) / 255.0
+                
                 multiArray[[0, 0, y, x] as [NSNumber]] = NSNumber(value: r)
                 multiArray[[0, 1, y, x] as [NSNumber]] = NSNumber(value: g)
                 multiArray[[0, 2, y, x] as [NSNumber]] = NSNumber(value: b)
@@ -188,26 +310,25 @@ import Accelerate
         return multiArray
     }
     
-    // UIImage를 CVPixelBuffer로 변환 (모델 입력이 이미지 타입인 경우)
-    // 여기서는 CGImage를 이용하여 픽셀 버퍼를 생성합니다.
+    /// UIImage를 CVPixelBuffer로 변환합니다.
     private func createPixelBuffer(from image: UIImage) throws -> CVPixelBuffer {
+        let modelInputSize = ImageResizer.shared.modelInputSize
         let width = Int(modelInputSize.width)
         let height = Int(modelInputSize.height)
-        let resizedImage = ImageResizer.shared.resizeImageForModel(image, targetSize: modelInputSize, preserveAspectRatio: false)
+        let resizedImage = ImageResizer.shared.resizeImageForModel(image, preserveAspectRatio: false)
         guard let cgImage = resizedImage.cgImage else {
             throw NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "CGImage 변환 실패"])
         }
-        
         var pixelBuffer: CVPixelBuffer?
         let attrs = [kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue,
                      kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue] as CFDictionary
-        
         let status = CVPixelBufferCreate(kCFAllocatorDefault,
                                          width,
                                          height,
                                          kCVPixelFormatType_32BGRA,
                                          attrs,
                                          &pixelBuffer)
+        
         guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
             throw NSError(domain: "SegmentationError", code: -2, userInfo: [NSLocalizedDescriptionKey: "PixelBuffer 생성 실패"])
         }
@@ -225,100 +346,7 @@ import Accelerate
         else {
             throw NSError(domain: "SegmentationError", code: -3, userInfo: [NSLocalizedDescriptionKey: "CGContext 생성 실패"])
         }
-        
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
         return buffer
-    }
-    
-    // 모델의 입력 피처 타입에 따라 자동으로 변환을 수행하여 모델 추론을 진행합니다.
-    @objc func processImage(_ image: UIImage, completion: @escaping (UIImage?, Error?) -> Void) {
-        let totalStartTime = CACurrentMediaTime()
-        
-        let displayImage = ImageResizer.shared.resizeImageForDisplay(image)
-        let resizeTime = CACurrentMediaTime() - totalStartTime
-        
-        // 모델이 로드되었는지 확인
-        guard modelLoaded, let modelToUse = model else {
-            completion(nil, NSError(domain: "SegmentationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "모델이 로드되지 않았습니다. 먼저 모델을 다운로드해야 합니다."])) 
-            return
-        }
-        
-        let modelLoadTime = CACurrentMediaTime() - totalStartTime - resizeTime
-        
-        do {
-            let convertStartTime = CACurrentMediaTime()
-            var inputFeature: MLFeatureValue
-            // 모델 입력 피처 타입에 따라 변환 수행
-            guard let inputDesc = modelToUse.modelDescription.inputDescriptionsByName["input_image"] else {
-                throw NSError(domain: "SegmentationError", code: -99, userInfo: [NSLocalizedDescriptionKey: "모델 입력 피처 'input_image' 없음"])
-            }
-            if inputDesc.type == .multiArray {
-                let multiArray = try convertImageToMultiArray(image)
-                inputFeature = MLFeatureValue(multiArray: multiArray)
-            } else if inputDesc.type == .image {
-                let pixelBuffer = try createPixelBuffer(from: image)
-                inputFeature = MLFeatureValue(pixelBuffer: pixelBuffer)
-            } else {
-                throw NSError(domain: "SegmentationError", code: -99, userInfo: [NSLocalizedDescriptionKey: "지원하지 않는 입력 타입입니다"])
-            }
-            let convertTime = CACurrentMediaTime() - convertStartTime
-            
-            let inferenceStartTime = CACurrentMediaTime()
-            let input = try MLDictionaryFeatureProvider(dictionary: ["input_image": inputFeature])
-            let output = try modelToUse.prediction(from: input)
-            let inferenceTime = CACurrentMediaTime() - inferenceStartTime
-            
-            guard let segmentationMask = output.featureValue(for: "segmentation_mask")?.multiArrayValue else {
-                throw NSError(domain: "SegmentationError", code: -3, userInfo: [NSLocalizedDescriptionKey: "세그멘테이션 마스크 생성 실패"])
-            }
-            
-            DispatchQueue.global(qos: .userInitiated).async {
-                autoreleasepool {
-                    let heatmapStartTime = CACurrentMediaTime()
-                    let width = Int(self.modelInputSize.width)
-                    let height = Int(self.modelInputSize.height)
-                    guard let heatmapImage = self.createHeatmapFromMultiArray(segmentationMask, width: width, height: height) else {
-                        DispatchQueue.main.async {
-                            completion(nil, NSError(domain: "SegmentationError", code: -4, userInfo: [NSLocalizedDescriptionKey: "히트맵 이미지 생성 실패"]))
-                        }
-                        return
-                    }
-                    let heatmapTime = CACurrentMediaTime() - heatmapStartTime
-                    
-                    let overlayStartTime = CACurrentMediaTime()
-                    UIGraphicsBeginImageContextWithOptions(displayImage.size, false, 0.0)
-                    displayImage.draw(in: CGRect(origin: .zero, size: displayImage.size))
-                    heatmapImage.draw(in: CGRect(origin: .zero, size: displayImage.size), blendMode: .normal, alpha: 0.6)
-                    
-                    // 처리 시간 텍스트 오버레이
-                    let totalEndTime = CACurrentMediaTime()
-                    self.lastProcessingTime = totalEndTime - totalStartTime
-                    let timeText = String(format: "처리 시간: %.3f초", self.lastProcessingTime)
-                    let paragraphStyle = NSMutableParagraphStyle()
-                    paragraphStyle.alignment = .center
-                    let attributes: [NSAttributedString.Key: Any] = [
-                        .font: UIFont.systemFont(ofSize: 14, weight: .bold),
-                        .foregroundColor: UIColor.white,
-                        .paragraphStyle: paragraphStyle,
-                        .strokeColor: UIColor.black,
-                        .strokeWidth: -2.0
-                    ]
-                    let textRect = CGRect(x: 10, y: 30, width: displayImage.size.width - 20, height: 30)
-                    timeText.draw(in: textRect, withAttributes: attributes)
-                    
-                    let resultImage = UIGraphicsGetImageFromCurrentImageContext()
-                    UIGraphicsEndImageContext()
-                    let overlayTime = CACurrentMediaTime() - overlayStartTime
-                    
-                    _ = resizeTime + modelLoadTime + convertTime + inferenceTime + heatmapTime + overlayTime
-                    
-                    DispatchQueue.main.async {
-                        completion(resultImage, nil)
-                    }
-                }
-            }
-        } catch {
-            completion(nil, error)
-        }
     }
 }
