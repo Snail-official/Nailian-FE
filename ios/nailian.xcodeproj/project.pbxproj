@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* nailianTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* nailianTests.m */; };
+		060238E52DCA5AC70017209A /* CameraCaptureable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060238E42DCA5AB50017209A /* CameraCaptureable.swift */; };
+		060238E72DCA5AE80017209A /* ImageSegmenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060238E62DCA5AE60017209A /* ImageSegmenting.swift */; };
+		060238E92DCA5B020017209A /* NailProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060238E82DCA5B000017209A /* NailProcessing.swift */; };
 		099F44DD2DC7868600E168F9 /* Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 099F44DC2DC7868600E168F9 /* Release.xcconfig */; };
 		0C80B921A6F3F58F76C31292 /* libPods-nailian.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-nailian.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
@@ -51,6 +54,9 @@
 		00E356EE1AD99517003FC87E /* nailianTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = nailianTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* nailianTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = nailianTests.m; sourceTree = "<group>"; };
+		060238E42DCA5AB50017209A /* CameraCaptureable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureable.swift; sourceTree = "<group>"; };
+		060238E62DCA5AE60017209A /* ImageSegmenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSegmenting.swift; sourceTree = "<group>"; };
+		060238E82DCA5B000017209A /* NailProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailProcessing.swift; sourceTree = "<group>"; };
 		099F44DC2DC7868600E168F9 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Nailian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nailian.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = nailian/AppDelegate.h; sourceTree = "<group>"; };
@@ -92,11 +98,15 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E14D84192D8D7C6E00EDD138 /* Modules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Modules;
 			sourceTree = "<group>";
 		};
 		E1D033572D8E8DB900C244AD /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Models;
 			sourceTree = "<group>";
 		};
@@ -240,6 +250,9 @@
 		E138426B2DB764EF00631A7F /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				060238E82DCA5B000017209A /* NailProcessing.swift */,
+				060238E62DCA5AE60017209A /* ImageSegmenting.swift */,
+				060238E42DCA5AB50017209A /* CameraCaptureable.swift */,
 				E13842852DB7697D00631A7F /* NailAssetProviding.swift */,
 				E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */,
 				E13842692DB764EF00631A7F /* ContourAnalyzing.swift */,
@@ -509,10 +522,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				060238E72DCA5AE80017209A /* ImageSegmenting.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				E138426F2DB764F500631A7F /* NailMetricsAnalyzing.swift in Sources */,
+				060238E52DCA5AC70017209A /* CameraCaptureable.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				E138426C2DB764EF00631A7F /* ContourAnalyzing.swift in Sources */,
+				060238E92DCA5B020017209A /* NailProcessing.swift in Sources */,
 				E138426D2DB764EF00631A7F /* HandPoseDetecting.swift in Sources */,
 				E13842862DB7698500631A7F /* NailAssetProviding.swift in Sources */,
 			);
@@ -552,6 +568,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/nailian.app/nailian";
 			};
 			name = Debug;
@@ -576,6 +596,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/nailian.app/nailian";
 			};
 			name = Release;
@@ -604,9 +628,13 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = nailian.app;
 				PRODUCT_NAME = Nailian;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -634,8 +662,12 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = nailian.app;
 				PRODUCT_NAME = Nailian;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -711,7 +743,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -782,7 +817,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
