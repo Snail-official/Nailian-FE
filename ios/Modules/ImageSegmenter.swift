@@ -2,6 +2,9 @@ import UIKit
 import CoreML
 import Vision
 import Accelerate
+import Metal
+import MetalKit
+import CoreImage.CIFilterBuiltins
 
 /// CoreML을 사용한 이미지 세그멘테이션 서비스 클래스
 @objcMembers class ImageSegmenter: NSObject, ImageSegmenting {
@@ -18,6 +21,12 @@ import Accelerate
     /// 미리 로드된 모델 변수
     private var modelLoaded = false
     private var model: MLModel?
+    
+    // Metal 관련 프로퍼티
+    private var metalDevice: MTLDevice?
+    private var commandQueue: MTLCommandQueue?
+    private var ciContext: CIContext?
+    private var textureCache: CVMetalTextureCache?
     
     /// 현재 모델이 로드되어 있는지 확인합니다.
     func isModelLoaded() -> Bool {
@@ -48,100 +57,123 @@ import Accelerate
     
     private override init() {
         super.init()
+        setupMetal()
+    }
+    
+    // MARK: - Metal 설정
+    
+    /// Metal 관련 리소스 초기화
+    private func setupMetal() {
+        // 기본 Metal 디바이스 가져오기
+        guard let device = MTLCreateSystemDefaultDevice() else {
+            print("Metal을 지원하지 않는 기기입니다")
+            return
+        }
+        
+        metalDevice = device
+        commandQueue = device.makeCommandQueue()
+        
+        // Metal 기반 CIContext 생성 (GPU 가속)
+        ciContext = CIContext(mtlDevice: device, options: [CIContextOption.workingColorSpace: NSNull()])
+        
+        // Metal 텍스처 캐시 생성
+        var textureCache: CVMetalTextureCache?
+        CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, device, nil, &textureCache)
+        self.textureCache = textureCache
     }
     
     // 로컬에 다운로드된 모델 URL 확인
-  private func localModelURL() -> URL? {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            
-            let modelsDirectory = documentsDirectory.appendingPathComponent("Models/segmentation", isDirectory: true)
-            
-            // 모델 디렉토리 존재 확인
-            if !FileManager.default.fileExists(atPath: modelsDirectory.path) {
-              // 디렉토리 구조 확인
-              let modelParentDir = documentsDirectory.appendingPathComponent("Models", isDirectory: true)
-              if FileManager.default.fileExists(atPath: modelParentDir.path) {
-                  do {
-                      let contents = try FileManager.default.contentsOfDirectory(at: modelParentDir, includingPropertiesForKeys: nil)
-                  } catch {
-                      print("Models 디렉토리 내용 읽기 실패: \(error.localizedDescription)")
-                  }
-              }
-          }
-          
-          let modelURL = modelsDirectory.appendingPathComponent("\(modelName).\(modelExt)")
-          
-          if FileManager.default.fileExists(atPath: modelURL.path) {
-              return modelURL
-          }
-          
-          // Models 내 다른 디렉토리 확인 (iOS vs android)
-          let rootModelsDir = documentsDirectory.appendingPathComponent("Models", isDirectory: true)
-          if FileManager.default.fileExists(atPath: rootModelsDir.path) {
-              do {
-                  let contents = try FileManager.default.contentsOfDirectory(at: rootModelsDir, includingPropertiesForKeys: nil)
-                  
-                  // 각 하위 디렉토리의 내용도 확인
-                  for item in contents {
-                      if item.hasDirectoryPath {
-                          do {
-                              let subContents = try FileManager.default.contentsOfDirectory(at: item, includingPropertiesForKeys: nil)
-                          } catch {
-                              print("하위 디렉토리 '\(item.lastPathComponent)' 내용 읽기 실패: \(error.localizedDescription)")
-                          }
-                      }
-                  }
-              } catch {
-                  print("Models 루트 디렉토리 내용 읽기 실패: \(error.localizedDescription)")
-              }
-          }
-          
-          return nil
-      }
-      
-      // 모델 미리 로드
-      func loadSegmentationModel(completion: ((Bool) -> Void)? = nil) {
-          // 이미 로드되어 있으면 바로 성공 반환
-          if modelLoaded && model != nil {
-              completion?(true)
-              return
-          }
-          
-          // 이미 로드 중이면 중복 로드 방지
-          if _isLoading {
-              completion?(false)
-              return
-          }
-          
-          _isLoading = true
-          
-          DispatchQueue.global(qos: .background).async {
-              do {
-                  let config = MLModelConfiguration()
-                  config.computeUnits = .all
-                  
-                  // 로컬에 모델 파일이 있는지 확인
-                  guard let modelURL = self.localModelURL() else {
-                      self.modelLoaded = false
-                      self._isLoading = false
-                      completion?(false)
-                      return
-                  }
-                  
-                  // MLModel.compileModel(at:)를 사용해 모델 컴파일
-                  let compiledModelURL = try MLModel.compileModel(at: modelURL)
-                  
-                  self.model = try MLModel(contentsOf: compiledModelURL, configuration: config)
-                  self.modelLoaded = true
-                  self._isLoading = false
-                  completion?(true)
-              } catch {
-                  self.modelLoaded = false
-                  self._isLoading = false
-                  completion?(false)
-              }
-          }
-      }
+    private func localModelURL() -> URL? {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        
+        let modelsDirectory = documentsDirectory.appendingPathComponent("Models/segmentation", isDirectory: true)
+        
+        // 모델 디렉토리 존재 확인
+        if !FileManager.default.fileExists(atPath: modelsDirectory.path) {
+            // 디렉토리 구조 확인
+            let modelParentDir = documentsDirectory.appendingPathComponent("Models", isDirectory: true)
+            if FileManager.default.fileExists(atPath: modelParentDir.path) {
+                do {
+                    let contents = try FileManager.default.contentsOfDirectory(at: modelParentDir, includingPropertiesForKeys: nil)
+                } catch {
+                    print("Models 디렉토리 내용 읽기 실패: \(error.localizedDescription)")
+                }
+            }
+        }
+        
+        let modelURL = modelsDirectory.appendingPathComponent("\(modelName).\(modelExt)")
+        
+        if FileManager.default.fileExists(atPath: modelURL.path) {
+            return modelURL
+        }
+        
+        // Models 내 다른 디렉토리 확인 (iOS vs android)
+        let rootModelsDir = documentsDirectory.appendingPathComponent("Models", isDirectory: true)
+        if FileManager.default.fileExists(atPath: rootModelsDir.path) {
+            do {
+                let contents = try FileManager.default.contentsOfDirectory(at: rootModelsDir, includingPropertiesForKeys: nil)
+                
+                // 각 하위 디렉토리의 내용도 확인
+                for item in contents {
+                    if item.hasDirectoryPath {
+                        do {
+                            let subContents = try FileManager.default.contentsOfDirectory(at: item, includingPropertiesForKeys: nil)
+                        } catch {
+                            print("하위 디렉토리 '\(item.lastPathComponent)' 내용 읽기 실패: \(error.localizedDescription)")
+                        }
+                    }
+                }
+            } catch {
+                print("Models 루트 디렉토리 내용 읽기 실패: \(error.localizedDescription)")
+            }
+        }
+        
+        return nil
+    }
+    
+    // 모델 미리 로드
+    func loadSegmentationModel(completion: ((Bool) -> Void)? = nil) {
+        // 이미 로드되어 있으면 바로 성공 반환
+        if modelLoaded && model != nil {
+            completion?(true)
+            return
+        }
+        
+        // 이미 로드 중이면 중복 로드 방지
+        if _isLoading {
+            completion?(false)
+            return
+        }
+        
+        _isLoading = true
+        
+        DispatchQueue.global(qos: .background).async {
+            do {
+                let config = MLModelConfiguration()
+                config.computeUnits = .all
+                
+                // 로컬에 모델 파일이 있는지 확인
+                guard let modelURL = self.localModelURL() else {
+                    self.modelLoaded = false
+                    self._isLoading = false
+                    completion?(false)
+                    return
+                }
+                
+                // MLModel.compileModel(at:)를 사용해 모델 컴파일
+                let compiledModelURL = try MLModel.compileModel(at: modelURL)
+                
+                self.model = try MLModel(contentsOf: compiledModelURL, configuration: config)
+                self.modelLoaded = true
+                self._isLoading = false
+                completion?(true)
+            } catch {
+                self.modelLoaded = false
+                self._isLoading = false
+                completion?(false)
+            }
+        }
+    }
     
     // MARK: - ImageSegmenting 프로토콜 구현
     
@@ -152,8 +184,15 @@ import Accelerate
     func processImage(_ image: UIImage, completion: @escaping (UIImage?, Error?) -> Void) {
         let totalStartTime = CACurrentMediaTime()
         
-        // 디스플레이용 이미지 리사이즈
-        let displayImage = ImageResizer.shared.resizeImageForDisplay(image)
+        // 디스플레이용 이미지 리사이즈 (Metal 사용)
+        let maxDimension: CGFloat = 1024.0
+        let originalSize = image.size
+        let widthRatio = maxDimension / originalSize.width
+        let heightRatio = maxDimension / originalSize.height
+        let scale = min(widthRatio, heightRatio)
+        let targetSize = scale < 1.0 ? CGSize(width: originalSize.width * scale, height: originalSize.height * scale) : originalSize
+        
+        let displayImage = resizeImageWithMetal(image: image, targetSize: targetSize)
         
         // 모델이 로드되지 않았다면 자동으로 로드 시도
         if !modelLoaded || model == nil {
@@ -238,47 +277,189 @@ import Accelerate
                 let width = Int(modelInputSize.width)
                 let height = Int(modelInputSize.height)
                 
-                // 바이너리 마스크 생성
-                guard let heatmapImage = self.createBinaryMaskFromMultiArray(segmentationMask, width: width, height: height) else {
+                // 바이너리 마스크 생성 (Metal 가속 사용)
+                guard let heatmapImage = self.createBinaryMaskWithMetal(
+                    segmentationMask, 
+                    width: width, 
+                    height: height
+                ) else {
                     DispatchQueue.main.async {
                         completion(nil, NSError(domain: "SegmentationError", code: -4, userInfo: [NSLocalizedDescriptionKey: "바이너리 마스크 생성 실패"]))
                     }
                     return
                 }
                 
-                // 결과 이미지 오버레이
-                UIGraphicsBeginImageContextWithOptions(displayImage.size, false, 0.0)
-                displayImage.draw(in: CGRect(origin: .zero, size: displayImage.size))
-                heatmapImage.draw(in: CGRect(origin: .zero, size: displayImage.size),
-                                  blendMode: .normal,
-                                  alpha: 0.6)
-                
-                // 처리 시간 계산
-                let totalTime = CACurrentMediaTime() - totalStartTime
-                self.lastProcessingTime = totalTime
-                
-                // 처리 시간 텍스트 오버레이
-                let timeText = String(format: "처리 시간: %.3f초", totalTime)
-                let paragraphStyle = NSMutableParagraphStyle()
-                paragraphStyle.alignment = .center
-                let attributes: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 14, weight: .bold),
-                    .foregroundColor: UIColor.white,
-                    .paragraphStyle: paragraphStyle,
-                    .strokeColor: UIColor.black,
-                    .strokeWidth: -2.0
-                ]
-                let textRect = CGRect(x: 10, y: 30, width: displayImage.size.width - 20, height: 30)
-                timeText.draw(in: textRect, withAttributes: attributes)
-                
-                let resultImage = UIGraphicsGetImageFromCurrentImageContext()
-                UIGraphicsEndImageContext()
-                
+                self.lastProcessingTime = CACurrentMediaTime() - totalStartTime
                 DispatchQueue.main.async {
-                    completion(resultImage, nil)
+                    completion(heatmapImage, nil)
                 }
             }
         }
+    }
+    
+    // MARK: - Metal 가속 기능
+    
+    /// Metal을 사용한 이미지 리사이징
+    private func resizeImageWithMetal(image: UIImage, targetSize: CGSize) -> UIImage {
+        guard let device = metalDevice,
+              let commandQueue = commandQueue,
+              let ciContext = ciContext,
+              let cgImage = image.cgImage else {
+            // Metal 사용 불가능하면 기존 방식으로 처리
+            return ImageResizer.shared.resizeImageForDisplay(image)
+        }
+        
+        // CIImage로 변환
+        let ciImage = CIImage(cgImage: cgImage)
+        
+        // CILanczosScaleTransform 필터로 리사이징 (고품질)
+        let scaleFilter = CIFilter.lanczosScaleTransform()
+        let scale = min(targetSize.width / ciImage.extent.width, 
+                         targetSize.height / ciImage.extent.height)
+        scaleFilter.inputImage = ciImage
+        scaleFilter.scale = Float(scale)
+        scaleFilter.aspectRatio = Float(1.0)
+        
+        guard let outputImage = scaleFilter.outputImage else {
+            return ImageResizer.shared.resizeImageForDisplay(image)
+        }
+        
+        // 최종 이미지 중앙 정렬을 위한 계산
+        let rect = CGRect(
+            x: (outputImage.extent.width - targetSize.width) / 2,
+            y: (outputImage.extent.height - targetSize.height) / 2,
+            width: targetSize.width,
+            height: targetSize.height
+        )
+        
+        // Metal 명령 버퍼 생성
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+            return ImageResizer.shared.resizeImageForDisplay(image)
+        }
+        
+        // Metal 텍스처 생성
+        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .rgba8Unorm,
+            width: Int(targetSize.width),
+            height: Int(targetSize.height),
+            mipmapped: false
+        )
+        textureDescriptor.usage = [.shaderRead, .shaderWrite, .renderTarget]
+        
+        guard let texture = device.makeTexture(descriptor: textureDescriptor) else {
+            return ImageResizer.shared.resizeImageForDisplay(image)
+        }
+        
+        // 텍스처에 렌더링
+        ciContext.render(outputImage, to: texture, commandBuffer: commandBuffer, bounds: rect, colorSpace: CGColorSpaceCreateDeviceRGB())
+        
+        // 명령 버퍼 실행
+        commandBuffer.commit()
+        commandBuffer.waitUntilCompleted()
+        
+        // CIImage에서 CGImage 생성
+        if let resultCGImage = ciContext.createCGImage(outputImage, from: rect) {
+            return UIImage(cgImage: resultCGImage, scale: image.scale, orientation: image.imageOrientation)
+        }
+        
+        return ImageResizer.shared.resizeImageForDisplay(image)
+    }
+    
+    /// Metal을 사용하여 MultiArray에서 바이너리 마스크 생성
+    private func createBinaryMaskWithMetal(_ multiArray: MLMultiArray, width: Int, height: Int) -> UIImage? {
+        guard let metalDevice = metalDevice,
+              let commandQueue = commandQueue,
+              let ciContext = ciContext else {
+            // Metal을 사용할 수 없는 경우 기존 메서드로 폴백
+            return createBinaryMaskFromMultiArray(multiArray, width: width, height: height)
+        }
+        
+        // MultiArray 데이터를 가져옴
+        let dataPointer = UnsafeMutablePointer<Float32>(OpaquePointer(multiArray.dataPointer))
+        let count = multiArray.count
+        
+        // Metal 버퍼 생성
+        guard let buffer = metalDevice.makeBuffer(length: count * MemoryLayout<Float32>.size, options: .storageModeShared) else {
+            return createBinaryMaskFromMultiArray(multiArray, width: width, height: height)
+        }
+        
+        // 데이터를 Metal 버퍼로 복사
+        let bufferPointer = buffer.contents().bindMemory(to: Float32.self, capacity: count)
+        for i in 0..<count {
+            bufferPointer[i] = dataPointer[i]
+        }
+        
+        // 이미지 생성을 위한 텍스처 디스크립터
+        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .rgba8Unorm,
+            width: width,
+            height: height,
+            mipmapped: false
+        )
+        textureDescriptor.usage = [.shaderRead, .shaderWrite, .renderTarget]
+        
+        // 텍스처 생성
+        guard let resultTexture = metalDevice.makeTexture(descriptor: textureDescriptor) else {
+            return createBinaryMaskFromMultiArray(multiArray, width: width, height: height)
+        }
+        
+        // 바이너리 마스크 계산을 위한 CIImage 생성
+        var pixelData = [UInt8](repeating: 0, count: width * height * 4)
+        for y in 0..<height {
+            for x in 0..<width {
+                let index = y * width + x
+                let value = dataPointer[index] > 0.5 ? 255 : 0
+                
+                let pixelIndex = (y * width + x) * 4
+                pixelData[pixelIndex] = UInt8(value)     // R
+                pixelData[pixelIndex + 1] = UInt8(value) // G
+                pixelData[pixelIndex + 2] = UInt8(value) // B
+                pixelData[pixelIndex + 3] = 255          // A
+            }
+        }
+        
+        let data = Data(bytes: pixelData, count: pixelData.count)
+        let provider = CGDataProvider(data: data as CFData)!
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+        
+        // CGImage 생성
+        guard let cgImage = CGImage(
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bitsPerPixel: 32,
+            bytesPerRow: width * 4,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo,
+            provider: provider,
+            decode: nil,
+            shouldInterpolate: false,
+            intent: .defaultIntent
+        ) else {
+            return createBinaryMaskFromMultiArray(multiArray, width: width, height: height)
+        }
+        
+        let ciImage = CIImage(cgImage: cgImage)
+        
+        // 명령 버퍼 생성
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+            return UIImage(cgImage: cgImage)
+        }
+        
+        // CIContext를 사용하여 Metal 텍스처에 렌더링
+        ciContext.render(ciImage, to: resultTexture, commandBuffer: commandBuffer, bounds: ciImage.extent, colorSpace: colorSpace)
+        
+        // 명령 버퍼 커밋
+        commandBuffer.commit()
+        commandBuffer.waitUntilCompleted()
+        
+        // 최종 CGImage 생성
+        if let finalCGImage = ciContext.createCGImage(ciImage, from: ciImage.extent) {
+            return UIImage(cgImage: finalCGImage)
+        }
+        
+        return UIImage(cgImage: cgImage)
     }
     
     // MARK: - 내부 유틸리티 메서드
