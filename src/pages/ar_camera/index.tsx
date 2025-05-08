@@ -142,6 +142,8 @@ function ARCameraPage({
       setProcessing(true);
       const nodeId = findNodeHandle(cameraRef.current);
       if (nodeId) {
+        // CameraViewManager를 통해 오버레이 초기화
+        EnhancedCameraViewManager.clearOverlay(nodeId);
         // CameraViewManager를 통해 캡처 수행
         await EnhancedCameraViewManager.capturePhoto(nodeId);
         setShowingResult(true);
