@@ -20,8 +20,11 @@ protocol NailAssetProviding {
     /// 특정 손가락 타입의 네일 정보 반환
     func getNailSetForFingerType(_ fingerType: FingerTypeEnum) -> NailInfoType?
     
-    /// 네일 이미지 로딩
-    func loadNailImage(for fingerType: FingerTypeEnum, completion: @escaping (UIImage?) -> Void)
+    /// 네일 이미지 로딩 (동기식, 캐시된 이미지만 반환)
+    func loadNailImage(for fingerType: FingerTypeEnum) -> UIImage?
+    
+    /// 모든 손가락 네일 이미지 미리 로드
+    func preloadNailImages()
     
     /// 네일 이미지 다운로드 (정적 메서드)
     static func downloadImage(from urlString: String, completion: @escaping (UIImage?) -> Void)

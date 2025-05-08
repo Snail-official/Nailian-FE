@@ -10,7 +10,7 @@ class NailAssetProvider: NailAssetProviding {
     static let shared = NailAssetProvider()
     
     // 손가락 타입 정의
-    enum FingerType: Int {
+    enum FingerType: Int, CaseIterable {
         case thumb = 0
         case index = 1
         case middle = 2
@@ -177,25 +177,40 @@ class NailAssetProvider: NailAssetProviding {
         task.resume()
     }
     
-    // 네일 이미지 로딩
-    func loadNailImage(for fingerType: FingerType, completion: @escaping (UIImage?) -> Void) {
+    // 네일 이미지 로딩 (동기식 버전 - 캐시에 있는 경우만 반환)
+    func loadNailImage(for fingerType: FingerType) -> UIImage? {
         // 해당 손가락의 네일 정보 가져오기
         guard let nailInfo = getNailSetForFingerType(fingerType) else {
             print("\(fingerName(fingerType)) 손가락의 네일 정보가 없습니다.")
-            completion(nil)
-            return
+            return nil
         }
         
-        print("\(fingerName(fingerType)) 손가락에 \(shapeName(nailInfo.shape)) 모양의 네일 적용")
+        // 캐시된 이미지가 있는지 확인
+        let cacheKey = NSString(string: nailInfo.imageUrl)
+        if let cachedImage = imageCache.object(forKey: cacheKey) {
+            print("캐시에서 이미지 로드: \(nailInfo.imageUrl)")
+            return cachedImage
+        }
         
-        // 네일 이미지 로드만 수행
-        NailAssetProvider.downloadImage(from: nailInfo.imageUrl) { [weak self] image in
-            guard let _ = self, let nailImage = image else {
-                print("네일 이미지 로드 실패")
-                completion(nil)
-                return
+        print("\(fingerName(fingerType)) 손가락 이미지가 캐시에 없습니다. 네트워크 로드가 필요합니다.")
+        return nil
+    }
+    
+    // 네일 이미지 선행 로드 (백그라운드에서 캐시 미리 채우기)
+    func preloadNailImages() {
+        for fingerType in FingerType.allCases {
+            if let nailInfo = getNailSetForFingerType(fingerType) {
+                // 이미 캐시에 있는지 확인
+                let cacheKey = NSString(string: nailInfo.imageUrl)
+                if imageCache.object(forKey: cacheKey) != nil {
+                    continue // 이미 캐시에 있으면 스킵
+                }
+                
+                // 백그라운드에서 로드
+                NailAssetProvider.downloadImage(from: nailInfo.imageUrl) { _ in
+                    // 캐시에 저장되었으므로 별도 처리 필요 없음
+                }
             }
-            completion(nailImage)
         }
     }
 }
