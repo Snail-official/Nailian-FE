@@ -177,40 +177,27 @@ class NailAssetProvider: NailAssetProviding {
         task.resume()
     }
     
-    // 네일 이미지 로딩 (동기식 버전 - 캐시에 있는 경우만 반환)
-    func loadNailImage(for fingerType: FingerType) -> UIImage? {
+    // 네일 이미지 로딩 (비동기식 버전 - 캐시 또는 네트워크에서 로드)
+    func loadNailImage(for fingerType: FingerType, completion: @escaping (UIImage?) -> Void) {
         // 해당 손가락의 네일 정보 가져오기
         guard let nailInfo = getNailSetForFingerType(fingerType) else {
             print("\(fingerName(fingerType)) 손가락의 네일 정보가 없습니다.")
-            return nil
+            completion(nil)
+            return
         }
         
         // 캐시된 이미지가 있는지 확인
         let cacheKey = NSString(string: nailInfo.imageUrl)
         if let cachedImage = imageCache.object(forKey: cacheKey) {
             print("캐시에서 이미지 로드: \(nailInfo.imageUrl)")
-            return cachedImage
+            completion(cachedImage)
+            return
         }
         
-        print("\(fingerName(fingerType)) 손가락 이미지가 캐시에 없습니다. 네트워크 로드가 필요합니다.")
-        return nil
-    }
-    
-    // 네일 이미지 선행 로드 (백그라운드에서 캐시 미리 채우기)
-    func preloadNailImages() {
-        for fingerType in FingerType.allCases {
-            if let nailInfo = getNailSetForFingerType(fingerType) {
-                // 이미 캐시에 있는지 확인
-                let cacheKey = NSString(string: nailInfo.imageUrl)
-                if imageCache.object(forKey: cacheKey) != nil {
-                    continue // 이미 캐시에 있으면 스킵
-                }
-                
-                // 백그라운드에서 로드
-                NailAssetProvider.downloadImage(from: nailInfo.imageUrl) { _ in
-                    // 캐시에 저장되었으므로 별도 처리 필요 없음
-                }
-            }
+        // 네트워크에서 이미지 다운로드
+        print("\(fingerName(fingerType)) 손가락 이미지 다운로드 시작")
+        NailAssetProvider.downloadImage(from: nailInfo.imageUrl) { image in
+            completion(image)
         }
     }
 }
