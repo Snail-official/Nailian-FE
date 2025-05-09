@@ -200,4 +200,31 @@ class NailAssetProvider: NailAssetProviding {
             completion(image)
         }
     }
+    
+    // 네일 이미지 선행 로드 (백그라운드에서 캐시 미리 채우기)
+    func preloadNailImages() {
+        print("네일 이미지 프리로드 시작")
+        
+        for fingerType in FingerType.allCases {
+            if let nailInfo = getNailSetForFingerType(fingerType) {
+                print("\(fingerName(fingerType)) 손가락 이미지 프리로드 시작")
+                
+                // 이미 캐시에 있는지 확인
+                let cacheKey = NSString(string: nailInfo.imageUrl)
+                if imageCache.object(forKey: cacheKey) != nil {
+                    print("\(fingerName(fingerType)) 손가락 이미지 이미 캐시에 있음")
+                    continue
+                }
+                
+                // 비동기 로드 메소드 사용
+                loadNailImage(for: fingerType) { image in
+                    if image != nil {
+                        print("\(self.fingerName(fingerType)) 손가락 이미지 프리로드 성공")
+                    } else {
+                        print("\(self.fingerName(fingerType)) 손가락 이미지 프리로드 실패")
+                    }
+                }
+            }
+        }
+    }
 }

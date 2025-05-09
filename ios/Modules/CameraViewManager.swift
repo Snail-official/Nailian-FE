@@ -35,6 +35,13 @@ class CameraViewManager: RCTViewManager {
         nailSetData = nailSetDict as? [String: Any] ?? [:]
         print("[CameraViewManager] 네일 세트 데이터 저장: \(nailSetData)")
         nailAssetProvider.setNailSet(nailSetData)
+        
+        // 네일 이미지 프리로드
+        print("[CameraViewManager] 네일 이미지 프리로드 시작")
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.nailAssetProvider.preloadNailImages()
+            print("[CameraViewManager] 네일 이미지 프리로드 완료")
+        }
     }
     
     @objc func capturePhoto(_ node: NSNumber, resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
