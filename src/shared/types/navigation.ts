@@ -1,3 +1,4 @@
+import { NailSet } from '~/pages/ar_experience';
 import { INailSet } from './nail-set';
 /**
  * 루트 네비게이션 스택의 파라미터 타입 정의
@@ -59,5 +60,7 @@ export type RootStackParamList = {
   };
 
   /** AR 카메라 화면 */
-  ARCameraPage: undefined;
+  ARCameraPage: {
+    nailSet: NailSet; // 네일 세트 데이터 전달
+  };
 };

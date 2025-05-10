@@ -10,7 +10,7 @@ class NailAssetProvider: NailAssetProviding {
     static let shared = NailAssetProvider()
     
     // 손가락 타입 정의
-    enum FingerType: Int {
+    enum FingerType: Int, CaseIterable {
         case thumb = 0
         case index = 1
         case middle = 2
@@ -177,7 +177,7 @@ class NailAssetProvider: NailAssetProviding {
         task.resume()
     }
     
-    // 네일 이미지 로딩
+    // 네일 이미지 로딩 (비동기식 버전 - 캐시 또는 네트워크에서 로드)
     func loadNailImage(for fingerType: FingerType, completion: @escaping (UIImage?) -> Void) {
         // 해당 손가락의 네일 정보 가져오기
         guard let nailInfo = getNailSetForFingerType(fingerType) else {
@@ -186,16 +186,45 @@ class NailAssetProvider: NailAssetProviding {
             return
         }
         
-        print("\(fingerName(fingerType)) 손가락에 \(shapeName(nailInfo.shape)) 모양의 네일 적용")
+        // 캐시된 이미지가 있는지 확인
+        let cacheKey = NSString(string: nailInfo.imageUrl)
+        if let cachedImage = imageCache.object(forKey: cacheKey) {
+            print("캐시에서 이미지 로드: \(nailInfo.imageUrl)")
+            completion(cachedImage)
+            return
+        }
         
-        // 네일 이미지 로드만 수행
-        NailAssetProvider.downloadImage(from: nailInfo.imageUrl) { [weak self] image in
-            guard let _ = self, let nailImage = image else {
-                print("네일 이미지 로드 실패")
-                completion(nil)
-                return
+        // 네트워크에서 이미지 다운로드
+        print("\(fingerName(fingerType)) 손가락 이미지 다운로드 시작")
+        NailAssetProvider.downloadImage(from: nailInfo.imageUrl) { image in
+            completion(image)
+        }
+    }
+    
+    // 네일 이미지 선행 로드 (백그라운드에서 캐시 미리 채우기)
+    func preloadNailImages() {
+        print("네일 이미지 프리로드 시작")
+        
+        for fingerType in FingerType.allCases {
+            if let nailInfo = getNailSetForFingerType(fingerType) {
+                print("\(fingerName(fingerType)) 손가락 이미지 프리로드 시작")
+                
+                // 이미 캐시에 있는지 확인
+                let cacheKey = NSString(string: nailInfo.imageUrl)
+                if imageCache.object(forKey: cacheKey) != nil {
+                    print("\(fingerName(fingerType)) 손가락 이미지 이미 캐시에 있음")
+                    continue
+                }
+                
+                // 비동기 로드 메소드 사용
+                loadNailImage(for: fingerType) { image in
+                    if image != nil {
+                        print("\(self.fingerName(fingerType)) 손가락 이미지 프리로드 성공")
+                    } else {
+                        print("\(self.fingerName(fingerType)) 손가락 이미지 프리로드 실패")
+                    }
+                }
             }
-            completion(nailImage)
         }
     }
 }

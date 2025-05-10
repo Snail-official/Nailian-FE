@@ -104,9 +104,9 @@ export default function ARExperiencePage() {
       });
     } else {
       // 모든 손가락에 네일팁이 선택된 경우, 추가 로직 실행
-      navigation.navigate('ARCameraPage');
+      navigation.navigate('ARCameraPage', { nailSet: currentNailSet });
     }
-  }, [isNailSetComplete, navigation]);
+  }, [isNailSetComplete, navigation, currentNailSet]);
 
   /**
    * 응모 모달 완료 핸들러

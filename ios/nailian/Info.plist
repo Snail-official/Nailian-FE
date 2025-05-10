@@ -53,9 +53,9 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>카메라 권한이 필요합니다.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>AR 기능 체험 및 손톱 스캔을 위해 카메라 접근이 필요합니다.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>AR 네일 체험 중 기기 기울기·회전 정보를 이용해 네일 이미지를 손톱 위에 정확히 배치합니다.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Pretendard-Black.ttf</string>

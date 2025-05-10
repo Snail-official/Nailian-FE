@@ -9,29 +9,21 @@ class ContourAnalyzer: NSObject, ContourAnalyzing {
     /// - Parameter segmentedImage: 세그멘테이션이 적용된 이미지
     /// - Returns: 유효한 컨투어 경로와 중심점 배열
     func extractContours(from segmentedImage: UIImage) -> [(path: UIBezierPath, center: CGPoint)] {
-        // 원본 이미지를 그레이스케일로 변환
-        guard let ciImage = CIImage(image: segmentedImage) else {
-            print("CIImage 변환 실패")
+        // 세그멘테이션 이미지에서 직접 CGImage 추출
+        guard let cgImage = segmentedImage.cgImage else {
+            print("세그멘테이션 이미지에서 CGImage 추출 실패")
             return []
         }
         
-        // 그레이스케일 필터 적용
-        let grayscaleFilter = CIFilter(name: "CIPhotoEffectMono")
-        grayscaleFilter?.setValue(ciImage, forKey: kCIInputImageKey)
-        
-        guard let outputImage = grayscaleFilter?.outputImage else {
-            print("그레이스케일 변환 실패")
-            return []
-        }
-        
-        // 이미지 컨투어 감지 요청
+        // 이미지 컨투어 감지 요청 설정 (원본 Nailian-AR와 일치)
         let request = VNDetectContoursRequest()
         request.revision = VNDetectContourRequestRevision1
-        request.contrastAdjustment = 1.0
-        request.maximumImageDimension = 512
+        request.contrastAdjustment = 2.0  // 원본과 동일한 값으로 변경 (1.0 -> 2.0)
+        request.detectsDarkOnLight = true  // 명시적 설정 추가
+        request.maximumImageDimension = Int(segmentedImage.size.width)  // 고정값 대신 이미지 크기 사용
         
         // 요청 수행
-        let handler = VNImageRequestHandler(ciImage: outputImage, options: [:])
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         do {
             try handler.perform([request])
             
