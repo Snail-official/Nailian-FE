@@ -18,6 +18,7 @@ import NailSetDetailPage from '~/pages/nail_set/detail';
 import ARExperiencePage from '~/pages/ar_experience';
 import ARCameraPage from '~/pages/ar_camera';
 import ARViewPage from '~/pages/ar_experience/ui/ViewMode';
+import PersonalNailFunnelPage from '~/pages/personal_nail';
 import ErrorBoundary from '~/pages/error';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -103,6 +104,10 @@ export default function AppNavigation() {
         <Stack.Screen
           name="ARViewPage"
           component={withErrorBoundary(ARViewPage)}
+        />
+        <Stack.Screen
+          name="PersonalNailFunnelPage"
+          component={withErrorBoundary(PersonalNailFunnelPage)}
         />
       </Stack.Navigator>
     </NavigationContainer>

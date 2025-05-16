@@ -63,4 +63,8 @@ export type RootStackParamList = {
   ARCameraPage: {
     nailSet: NailSet; // 네일 세트 데이터 전달
   };
+
+  PersonalNailFunnelPage: {
+    step?: number; // 퍼널 단계
+  };
 };
