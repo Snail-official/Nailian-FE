@@ -30,6 +30,7 @@ import { toast } from '~/shared/lib/toast';
 
 const BookmarkBar = require('~/shared/assets/images/bookmark_bar.png');
 const ProfileImage = require('~/shared/assets/images/img_profile.png');
+const EmptyNailImage = require('~/shared/assets/images/img_emptynail.png');
 
 interface MyPageProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MyPage'>;
@@ -249,6 +250,30 @@ function MyPageScreen({ navigation }: MyPageProps) {
               {/* 구분선 */}
               <View style={styles.divider} />
 
+              {/* 퍼스널 네일 측정 박스 */}
+              <View style={styles.personalNailBox}>
+                <View style={styles.personalNailContent}>
+                  <View style={styles.personalNailRow}>
+                    <Text style={styles.personalNailTitle}>
+                      네일리안님의{'\n'}퍼스널네일을 측정해보세요
+                    </Text>
+                    <Image
+                      source={EmptyNailImage}
+                      style={styles.emptyNailImage}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    style={styles.measureButton}
+                    activeOpacity={0.8}
+                    onPress={() =>
+                      navigation.navigate('PersonalNailFunnelPage', { step: 1 })
+                    }
+                  >
+                    <Text style={styles.measureButtonText}>측정하기</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
               {/* 네일 보관함 */}
               <TouchableOpacity
                 style={styles.bookmarkContainer}
@@ -415,9 +440,25 @@ const styles = StyleSheet.create({
     marginTop: vs(12),
     width: '100%',
   },
+  emptyNailImage: {
+    height: scale(64),
+    marginLeft: scale(54),
+    width: scale(64),
+  },
   mainContainer: {
     flex: 1,
     position: 'relative',
+  },
+  measureButton: {
+    backgroundColor: colors.gray900,
+    borderRadius: 8,
+    paddingHorizontal: scale(30),
+    paddingVertical: scale(10),
+  },
+  measureButtonText: {
+    ...typography.body2_SB,
+    color: colors.white,
+    textAlign: 'center',
   },
   menuItem: {
     alignItems: 'center',
@@ -441,6 +482,39 @@ const styles = StyleSheet.create({
     ...typography.body1_B,
     color: colors.gray850,
     textAlign: 'center',
+  },
+  personalNailBox: {
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    elevation: 5,
+    justifyContent: 'center',
+    marginBottom: vs(24),
+    marginHorizontal: scale(20),
+    marginTop: vs(24),
+    padding: scale(20),
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+  },
+  personalNailContent: {
+    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  personalNailRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: scale(16),
+    width: '100%',
+  },
+  personalNailTitle: {
+    ...typography.title2_SB,
+    color: colors.gray900,
+    textAlign: 'left',
   },
   profileImage: {
     height: scale(54),
