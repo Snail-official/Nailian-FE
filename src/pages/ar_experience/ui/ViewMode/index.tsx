@@ -112,10 +112,11 @@ export default function ARViewPage() {
 
   /**
    * AR 버튼 클릭 핸들러
+   * 선택된 네일 세트를 AR 카메라 페이지로 전달합니다.
    */
   const handleArButtonPress = useCallback(() => {
-    navigation.navigate('ARCameraPage');
-  }, [navigation]);
+    navigation.navigate('ARCameraPage', { nailSet: currentNailSet });
+  }, [navigation, currentNailSet]);
 
   /**
    * 뒤로가기 버튼 핸들러
