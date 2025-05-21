@@ -72,35 +72,35 @@ export default function ARViewPage() {
       ? {
           id: -1, // INail에는 id가 없으므로 -1로 설정
           imageUrl: nailSet.thumb.imageUrl,
-          shape: nailSet.thumb.shape,
+          shape: nailSet.thumb.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
     index: nailSet.index
       ? {
           id: -1,
           imageUrl: nailSet.index.imageUrl,
-          shape: nailSet.index.shape,
+          shape: nailSet.index.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
     middle: nailSet.middle
       ? {
           id: -1,
           imageUrl: nailSet.middle.imageUrl,
-          shape: nailSet.middle.shape,
+          shape: nailSet.middle.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
     ring: nailSet.ring
       ? {
           id: -1,
           imageUrl: nailSet.ring.imageUrl,
-          shape: nailSet.ring.shape,
+          shape: nailSet.ring.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
     pinky: nailSet.pinky
       ? {
           id: -1,
           imageUrl: nailSet.pinky.imageUrl,
-          shape: nailSet.pinky.shape,
+          shape: nailSet.pinky.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
   });
