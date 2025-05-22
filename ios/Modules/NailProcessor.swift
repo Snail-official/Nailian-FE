@@ -246,19 +246,19 @@ class NailProcessor: NSObject, NailProcessing {
                 if let nailInfo = NailAssetProvider.shared.getNailSetForFingerType(fingerType) {
                     switch nailInfo.shape {
                     case .square:
-                        widthRatio = 512/184  // 512/174
+                        widthRatio = 512/204  // 512/174
                         heightRatio = 512/374
                     case .round:
-                        widthRatio = 512/195  // 512/185
+                        widthRatio = 512/215  // 512/185
                         heightRatio = 512/373
                     case .almond:
-                        widthRatio = 512/180  // 512/170
+                        widthRatio = 512/200  // 512/170
                         heightRatio = 512/376
                     case .ballerina:
-                        widthRatio = 512/156  // 512/146
+                        widthRatio = 512/176  // 512/146
                         heightRatio = 512/374
                     case .stiletto:
-                        widthRatio = 512/150   // 512/134
+                        widthRatio = 512/164   // 512/134
                         heightRatio = 512/377
                     }
                     
@@ -305,7 +305,7 @@ class NailProcessor: NSObject, NailProcessing {
                     x: m.contourCenter.x - scaledSize.width / 2,
                     y: m.contourCenter.y - scaledSize.height / 2,
                     width: scaledSize.width,
-                    height: scaledSize.height
+                    height: scaledSize.height > scaledSize.width * 1.5 ? scaledSize.width * 1.2 : scaledSize.height
                 )
                 
                 print("[NailProcessor] 그리기 위치: \(drawRect)")
