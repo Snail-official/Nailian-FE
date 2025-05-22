@@ -61,7 +61,7 @@ class NailProcessor: NSObject, NailProcessing {
                 return
             }
             
-            // 네일 이미지 생성 - 원본 이미지를 베이스로 사용
+            // 네일 이미지 생성 - 원본 이미지와 세그멘테이션 마스크를 함께 사용
             let finalImage = self.composeFinalImage(
                 originalImage: image,
                 segmentedImage: resizedSegmentedImage,
@@ -149,6 +149,7 @@ class NailProcessor: NSObject, NailProcessing {
         // 1. 먼저 네일 오버레이 이미지 생성 (세그멘테이션 + 손 포즈 + 컨투어 활용)
         let nailImages = prepareNailImages(
             handObservations: handObservations,
+            segmentedImage: segmentedImage,
             contours: contours,
             displaySize: originalImage.size
         )
@@ -174,6 +175,7 @@ class NailProcessor: NSObject, NailProcessing {
     /// 네일 이미지를 준비하고 위치와 함께 반환합니다.
     private func prepareNailImages(
         handObservations: [VNHumanHandPoseObservation],
+        segmentedImage: UIImage,
         contours: [(path: UIBezierPath, center: CGPoint)],
         displaySize: CGSize
     ) -> [(image: UIImage?, rect: CGRect)] {
@@ -272,46 +274,107 @@ class NailProcessor: NSObject, NailProcessing {
                 
                 print("[NailProcessor] 조정된 크기: \(scaledSize)")
                 
-                // 2. 회전 및 크기가 조정된 이미지 생성
-                UIGraphicsBeginImageContextWithOptions(scaledSize, false, 0.0)
-                guard let imageContext = UIGraphicsGetCurrentContext() else {
-                    print("[NailProcessor] 이미지 컨텍스트 생성 실패")
+                // 2. 높이 기준으로 최대 크기 제한
+                let maxHeight: CGFloat
+                
+                // 네일 모양에 따라 최대 높이 조정
+                if let nailInfo = NailAssetProvider.shared.getNailSetForFingerType(fingerType) {
+                    let baseHeight: CGFloat
+                    switch nailInfo.shape {
+                    case .square:
+                        baseHeight = 374
+                    case .round:
+                        baseHeight = 373
+                    case .almond:
+                        baseHeight = 376
+                    case .ballerina:
+                        baseHeight = 374
+                    case .stiletto:
+                        baseHeight = 377
+                    }
+                    
+                    // 원본 이미지 크기(512) 대비 실제 네일 높이의 비율로 최대 높이 계산
+                    let scaleFactor = baseHeight / 512.0
+                    maxHeight = displaySize.height * scaleFactor * 1.1  // 10% 여유 추가
+                } else {
+                    // 기본값 설정 (엄지 기준)
+                    maxHeight = displaySize.height * (374.0 / 512.0) * 1.1
+                }
+                
+                // 높이 제한 적용 후 너비는 비율에 맞게 조정
+                let limitedHeight = min(scaledSize.height, maxHeight)
+                let finalWidth = limitedHeight * (scaledSize.width / scaledSize.height)
+                
+                let finalScaledSize = CGSize(width: finalWidth, height: limitedHeight)
+                
+                // 3. 해당 컨투어 찾기
+                guard let fingertipContour = findContourForFingertip(metrics: m, contours: contours) else {
+                    print("[NailProcessor] 해당 손가락에 맞는 컨투어를 찾을 수 없습니다")
+                    continue
+                }
+                
+                // 4. 네일 이미지를 적용할 영역 계산
+                let imageRect = CGRect(
+                    x: m.contourCenter.x - finalScaledSize.width / 2,
+                    y: m.contourCenter.y - finalScaledSize.height / 2,
+                    width: finalScaledSize.width,
+                    height: finalScaledSize.height > finalScaledSize.width * 1.5 ? finalScaledSize.width * 1.2 : finalScaledSize.height
+                )
+                
+                // 5. 회전된 네일 이미지 생성
+                UIGraphicsBeginImageContextWithOptions(finalScaledSize, false, 0.0)
+                guard let rotationContext = UIGraphicsGetCurrentContext() else {
+                    print("[NailProcessor] 회전 컨텍스트 생성 실패")
+                    continue
+                }
+                
+                // 회전 적용
+                let angle = m.angle * .pi / 180
+                rotationContext.translateBy(x: finalScaledSize.width / 2, y: finalScaledSize.height / 2)
+                rotationContext.rotate(by: angle)
+                rotationContext.translateBy(x: -finalScaledSize.width / 2, y: -finalScaledSize.height / 2)
+                
+                // 네일 이미지 그리기
+                nailImage.draw(in: CGRect(origin: .zero, size: finalScaledSize))
+                
+                // 회전된 이미지 가져오기
+                guard let rotatedNailImage = UIGraphicsGetImageFromCurrentImageContext() else {
+                    print("[NailProcessor] 회전된 이미지 생성 실패")
                     UIGraphicsEndImageContext()
                     continue
                 }
-                
-                // 3. 컨텍스트 회전 설정
-                let angle = m.angle * .pi / 180
-                imageContext.translateBy(x: scaledSize.width / 2, y: scaledSize.height / 2)
-                imageContext.rotate(by: angle)
-                imageContext.translateBy(x: -scaledSize.width / 2, y: -scaledSize.height / 2)
-                
-                // 4. 이미지 그리기
-                nailImage.draw(in: CGRect(origin: .zero, size: scaledSize))
-                
-                // 5. 회전된 이미지 생성
-                let processedImage = UIGraphicsGetImageFromCurrentImageContext()
                 UIGraphicsEndImageContext()
                 
-                if processedImage == nil {
-                    print("[NailProcessor] 회전 이미지 생성 실패")
+                // 6. 컨투어를 마스크로 사용하여 네일 이미지 적용
+                UIGraphicsBeginImageContextWithOptions(displaySize, false, 0.0)
+                guard let maskContext = UIGraphicsGetCurrentContext() else {
+                    print("[NailProcessor] 마스크 컨텍스트 생성 실패")
                     continue
-                } else {
-                    print("[NailProcessor] 회전 이미지 생성 성공 - 크기: \(processedImage!.size)")
                 }
                 
-                // 6. 최종 이미지를 컨투어 중심에 그릴 위치 계산
-                let drawRect = CGRect(
-                    x: m.contourCenter.x - scaledSize.width / 2,
-                    y: m.contourCenter.y - scaledSize.height / 2,
-                    width: scaledSize.width,
-                    height: scaledSize.height > scaledSize.width * 1.5 ? scaledSize.width * 1.2 : scaledSize.height
-                )
+                // 마스크 영역 생성 (투명 배경)
+                maskContext.setFillColor(UIColor.clear.cgColor)
+                maskContext.fill(CGRect(origin: .zero, size: displaySize))
                 
-                print("[NailProcessor] 그리기 위치: \(drawRect)")
+                // 컨투어 영역 채우기 (클리핑 마스크로 사용)
+                maskContext.saveGState()
+                maskContext.addPath(fingertipContour.path.cgPath)
+                maskContext.clip()
                 
-                // 7. 이미지와 위치 정보를 바로 배열에 추가 (메인 스레드 작업 필요 없음)
-                nailImages.append((image: processedImage, rect: drawRect))
+                // 회전된 네일 이미지 그리기
+                rotatedNailImage.draw(in: imageRect)
+                maskContext.restoreGState()
+                
+                // 최종 마스킹된 이미지 생성
+                guard let maskedImage = UIGraphicsGetImageFromCurrentImageContext() else {
+                    print("[NailProcessor] 마스킹된 이미지 생성 실패")
+                    UIGraphicsEndImageContext()
+                    continue
+                }
+                UIGraphicsEndImageContext()
+                
+                // 7. 최종 이미지와 위치 정보를 배열에 추가
+                nailImages.append((image: maskedImage, rect: CGRect(origin: .zero, size: displaySize)))
                 print("[NailProcessor] 네일 이미지 추가 완료 - 총 \(nailImages.count)개")
             }
         }
@@ -319,5 +382,29 @@ class NailProcessor: NSObject, NailProcessing {
         print("[NailProcessor] 네일 이미지 준비 완료 - 개수: \(nailImages.count)")
         
         return nailImages
+    }
+    
+    /// 특정 손가락 끝에 맞는 컨투어를 찾습니다.
+    private func findContourForFingertip(metrics: NailMetrics, contours: [(path: UIBezierPath, center: CGPoint)]) -> (path: UIBezierPath, center: CGPoint)? {
+        // 이미 메트릭스 계산 시 가장 가까운 컨투어를 찾아 중심점을 계산하므로
+        // 중심점이 가장 가까운 컨투어를 반환
+        
+        var closestContour: (path: UIBezierPath, center: CGPoint)?
+        var minDistance: CGFloat = CGFloat.greatestFiniteMagnitude
+        
+        for contour in contours {
+            let distance = hypot(contour.center.x - metrics.contourCenter.x, contour.center.y - metrics.contourCenter.y)
+            if distance < minDistance {
+                minDistance = distance
+                closestContour = contour
+            }
+        }
+        
+        // 거리가 너무 멀면 유효하지 않은 것으로 판단
+        if minDistance > 50 {
+            return nil
+        }
+        
+        return closestContour
     }
 }
