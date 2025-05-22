@@ -374,7 +374,8 @@ class NailProcessor: NSObject, NailProcessing {
                         metrics: m,
                         contours: contours,
                         displaySize: displaySize,
-                        nailImages: &nailImages
+                        nailImages: &nailImages,
+                        metrics: metrics
                     )
                     continue
                 }
@@ -407,7 +408,8 @@ class NailProcessor: NSObject, NailProcessing {
                     metrics: m,
                     contours: contours,
                     displaySize: displaySize,
-                    nailImages: &nailImages
+                    nailImages: &nailImages,
+                    metrics: metrics
                 )
             }
         }
@@ -424,7 +426,8 @@ class NailProcessor: NSObject, NailProcessing {
         metrics m: NailMetrics,
         contours: [(path: UIBezierPath, center: CGPoint)],
         displaySize: CGSize,
-        nailImages: inout [(image: UIImage?, rect: CGRect)]
+        nailImages: inout [(image: UIImage?, rect: CGRect)],
+        metrics: [NailMetrics] = []
     ) {
         print("[NailProcessor] \(fingerType) 네일 이미지 처리 - 크기: \(nailImage.size)")
         
@@ -436,28 +439,60 @@ class NailProcessor: NSObject, NailProcessing {
         if let nailInfo = nailAssetProvider.getNailSetForFingerType(fingerType) {
             switch nailInfo.shape {
             case .square:
-                widthRatio = 512/204  // 512/174
+                widthRatio = 512/184  // 512/174
                 heightRatio = 512/374
             case .round:
-                widthRatio = 512/215  // 512/185
+                widthRatio = 512/185  // 512/185
                 heightRatio = 512/373
             case .almond:
-                widthRatio = 512/200  // 512/170
+                widthRatio = 512/180  // 512/170
                 heightRatio = 512/376
             case .ballerina:
-                widthRatio = 512/176  // 512/146
+                widthRatio = 512/156  // 512/146
                 heightRatio = 512/374
             case .stiletto:
-                widthRatio = 512/164   // 512/134
+                widthRatio = 512/144   // 512/134
                 heightRatio = 512/377
             }
             
             print("[NailProcessor] 네일 모양: \(nailInfo.shape), 비율 조정: \(widthRatio)x\(heightRatio)")
         }
         
+        // 엄지 크기 보정 - 엄지일 경우 특별 처리
+        var adjustedWidth = m.width
+        var adjustedHeight = m.height
+        
+        if fingerType == .thumb {
+            // 엄지와 검지의 크기 비교를 위해 검지 메트릭스 찾기
+            var indexMetrics: NailMetrics?
+            for metric in metrics {
+                if metric.fingerName == "index" {
+                    indexMetrics = metric
+                    break
+                }
+            }
+            
+            // 검지가 있고, 엄지가 검지보다 40% 이상 작다면 검지 크기 사용
+            if let indexMetrics = indexMetrics {
+                let thumbWidth = m.width
+                let thumbHeight = m.height
+                let indexWidth = indexMetrics.width
+                let indexHeight = indexMetrics.height
+                
+                let widthDiff = abs(thumbWidth - indexWidth) / max(thumbWidth, indexWidth)
+                let heightDiff = abs(thumbHeight - indexHeight) / max(thumbHeight, indexHeight)
+                
+                if (thumbWidth < indexWidth && widthDiff > 0.4) || (thumbHeight < indexHeight && heightDiff > 0.4) {
+                    print("[NailProcessor] 엄지 크기 보정 적용 - 원본: \(thumbWidth)x\(thumbHeight), 보정: \(indexWidth)x\(indexHeight)")
+                    adjustedWidth = indexMetrics.width
+                    adjustedHeight = indexMetrics.height
+                }
+            }
+        }
+        
         let scaledSize = CGSize(
-            width: m.width * widthRatio,
-            height: m.height * heightRatio
+            width: adjustedWidth * widthRatio,
+            height: adjustedHeight * heightRatio
         )
         
         print("[NailProcessor] 조정된 크기: \(scaledSize)")
