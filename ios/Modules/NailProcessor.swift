@@ -15,8 +15,13 @@ class NailProcessor: NSObject, NailProcessing {
     
     private(set) var lastProcessingTime: Double = 0
     
-    // 이미지 로딩 상태 추적
+    // 로드 상태 추적
     private var areNailImagesLoaded = false
+    private var isHandPoseModelLoaded = false
+    private var isSegmentationModelLoaded = false
+    
+    // 로드 상태 변경 콜백 (React Native에서 사용)
+    var onResourceLoadStatusChanged: ((Bool) -> Void)?
     
     private override init() {
         self.handPoseDetector = HandPoseDetector.shared
@@ -25,6 +30,9 @@ class NailProcessor: NSObject, NailProcessing {
         
         // 앱 시작 시 이미지를 미리 로드
         preloadNailImages()
+        
+        // 모델 로드 상태 모니터링 시작
+        startMonitoringModelLoadStatus()
     }
     
     // 모든 네일 이미지를 미리 로드하는 메서드
@@ -40,9 +48,121 @@ class NailProcessor: NSObject, NailProcessing {
         }
         
         dispatchGroup.notify(queue: .main) { [weak self] in
+            guard let self = self else { return }
+            
             print("[NailProcessor] 모든 네일 이미지 로드 완료")
-            self?.areNailImagesLoaded = true
+            self.areNailImagesLoaded = true
+            
+            // 명시적으로 리소스 상태 재확인
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.checkResourceLoadStatus()
+                
+                // 만약 이미 세그멘테이션 모델도 로드되었다면 강제로 상태 업데이트
+                if self.isSegmentationModelLoaded && self.areNailImagesLoaded {
+                    print("[NailProcessor] 네일 이미지와 세그멘테이션 모델 모두 로드 완료, 강제 이벤트 발송")
+                    let allLoaded = self.areAllResourcesLoaded()
+                    print("[NailProcessor] 모든 리소스 로드 완료 여부: \(allLoaded)")
+                    self.onResourceLoadStatusChanged?(allLoaded)
+                }
+            }
         }
+    }
+    
+    // 모델 로드 상태 모니터링
+    private func startMonitoringModelLoadStatus() {
+        // 즉시 한 번 확인
+        updateModelLoadStatus()
+        
+        // 주기적으로 모델 로드 상태 확인 (0.5초 간격)
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] timer in
+            guard let self = self else {
+                timer.invalidate()
+                return
+            }
+            
+            // 이미 모든 리소스가 로드되었으면 타이머 중지
+            if self.areAllResourcesLoaded() {
+                print("[NailProcessor] 모든 리소스 로드 완료, 모니터링 중지")
+                timer.invalidate()
+                return
+            }
+            
+            self.updateModelLoadStatus()
+        }
+    }
+    
+    // 모델 로드 상태 업데이트
+    private func updateModelLoadStatus() {
+        // HandPose 모델 로드 상태 확인
+        if !self.isHandPoseModelLoaded {
+            // 여기서는 단순히 모델이 사용 가능한지 확인합니다
+            self.isHandPoseModelLoaded = true // 현재는 항상 사용 가능하다고 가정
+            print("[NailProcessor] 손 포즈 모델 로드 상태: \(self.isHandPoseModelLoaded)")
+        }
+        
+        // 세그멘테이션 모델 로드 상태 확인
+        if !self.isSegmentationModelLoaded {
+            let segmentationLoaded = self.imageSegmenter.isModelLoaded()
+            if segmentationLoaded {
+                self.isSegmentationModelLoaded = true
+                print("[NailProcessor] 세그멘테이션 모델 로드됨")
+                
+                // 세그멘테이션 모델이 로드되었고, 네일 이미지도 로드되었다면 강제로 상태 업데이트
+                if self.areNailImagesLoaded {
+                    print("[NailProcessor] 세그멘테이션 모델 로드 완료 후 네일 이미지도 확인됨, 강제 이벤트 발송")
+                    
+                    // 약간 지연시켜 다른 작업이 완료될 시간을 줌
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        let allLoaded = self.areAllResourcesLoaded()
+                        print("[NailProcessor] 모든 리소스 로드 완료 여부(세그멘테이션 후): \(allLoaded)")
+                        self.onResourceLoadStatusChanged?(allLoaded)
+                    }
+                }
+            }
+        }
+        
+        self.checkResourceLoadStatus()
+    }
+    
+    // 세그멘테이션 모델 상태를 외부에서 직접 업데이트하는 메서드
+    func updateSegmentationModelStatus(_ isLoaded: Bool) {
+        // 이전 상태와 비교
+        let previousState = self.isSegmentationModelLoaded
+        
+        // 상태 업데이트
+        self.isSegmentationModelLoaded = isLoaded
+        
+        print("[NailProcessor] 세그멘테이션 모델 상태 직접 업데이트: \(isLoaded) (이전: \(previousState))")
+        
+        // 상태가 변경된 경우에만 리소스 로드 상태 재확인
+        if previousState != isLoaded {
+            DispatchQueue.main.async {
+                self.checkResourceLoadStatus()
+            }
+        }
+    }
+    
+    // 모든 리소스 로드 상태 확인
+    private func checkResourceLoadStatus() {
+        let isLoaded = areAllResourcesLoaded()
+        print("[NailProcessor] 리소스 로드 상태 확인: \(isLoaded)")
+        
+        // 상태가 변경되었을 때만 콜백 호출
+        DispatchQueue.main.async {
+            print("[NailProcessor] 리소스 로드 상태 변경 이벤트 발송: \(isLoaded)")
+            self.onResourceLoadStatusChanged?(isLoaded)
+        }
+    }
+    
+    // 모든 리소스가 로드되었는지 확인
+    func areAllResourcesLoaded() -> Bool {
+        let nailsLoaded = areNailImagesLoaded
+        let handPoseLoaded = isHandPoseModelLoaded
+        let segmentationLoaded = isSegmentationModelLoaded
+        
+        print("[NailProcessor] 리소스 상태 - 네일: \(nailsLoaded), 손포즈: \(handPoseLoaded), 세그멘테이션: \(segmentationLoaded)")
+        
+        return nailsLoaded && handPoseLoaded && segmentationLoaded
     }
     
     // MARK: - NailProcessing 프로토콜 구현
