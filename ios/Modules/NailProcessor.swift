@@ -15,10 +15,34 @@ class NailProcessor: NSObject, NailProcessing {
     
     private(set) var lastProcessingTime: Double = 0
     
+    // 이미지 로딩 상태 추적
+    private var areNailImagesLoaded = false
+    
     private override init() {
         self.handPoseDetector = HandPoseDetector.shared
         self.imageSegmenter = ImageSegmenter.shared
         super.init()
+        
+        // 앱 시작 시 이미지를 미리 로드
+        preloadNailImages()
+    }
+    
+    // 모든 네일 이미지를 미리 로드하는 메서드
+    private func preloadNailImages() {
+        let fingerTypes = NailAssetProvider.FingerType.allCases
+        let dispatchGroup = DispatchGroup()
+        
+        for fingerType in fingerTypes {
+            dispatchGroup.enter()
+            nailAssetProvider.loadNailImage(for: fingerType) { _ in
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            print("[NailProcessor] 모든 네일 이미지 로드 완료")
+            self?.areNailImagesLoaded = true
+        }
     }
     
     // MARK: - NailProcessing 프로토콜 구현
@@ -215,18 +239,37 @@ class NailProcessor: NSObject, NailProcessing {
                 
                 print("[NailProcessor] 손가락 타입: \(fingerType)")
                 
-                // 동기식 이미지 로드를 위한 세마포어
+                // 네일 정보 및 이미지 가져오기
+                guard let nailInfo = nailAssetProvider.getNailSetForFingerType(fingerType) else {
+                    print("[NailProcessor] \(fingerType) 네일 정보 없음")
+                    continue
+                }
+                
+                // 저장된 이미지가 있으면 바로 사용
+                if let savedImage = nailInfo.image {
+                    print("[NailProcessor] 저장된 \(fingerType) 네일 이미지 사용")
+                    processNailImage(
+                        savedImage, 
+                        fingerType: fingerType,
+                        metrics: m,
+                        contours: contours,
+                        displaySize: displaySize,
+                        nailImages: &nailImages
+                    )
+                    continue
+                }
+                
+                // 저장된 이미지가 없으면 로드 (비동기식 -> 세마포어로 동기화)
                 let semaphore = DispatchSemaphore(value: 0)
                 var loadedImage: UIImage?
                 
-                // 네일 이미지 로드 (비동기 호출 -> 세마포어로 동기화)
-                NailAssetProvider.shared.loadNailImage(for: fingerType) { nailImage in
+                nailAssetProvider.loadNailImage(for: fingerType) { nailImage in
                     loadedImage = nailImage
                     semaphore.signal()
                 }
                 
-                // 최대 2초 대기 (네트워크 로드 타임아웃)
-                let waitResult = semaphore.wait(timeout: .now() + 2.0)
+                // 최대 1초 대기 (이미 캐시에 있거나 preload 되었을 가능성이 높음)
+                let waitResult = semaphore.wait(timeout: .now() + 1.0)
                 
                 if waitResult == .timedOut {
                     print("[NailProcessor] \(fingerType) 네일 이미지 로드 시간 초과")
@@ -238,150 +281,169 @@ class NailProcessor: NSObject, NailProcessing {
                     continue
                 }
                 
-                print("[NailProcessor] \(fingerType) 네일 이미지 로드 성공 - 크기: \(nailImage.size)")
-                
-                // 1. 손가락 너비에 맞춰 크기 조정 (네일 모양에 따라 비율 조정)
-                var widthRatio: CGFloat = 512/170
-                var heightRatio: CGFloat = 512/374
-                
-                // 네일 모양에 따라 크기 조정 비율 변경
-                if let nailInfo = NailAssetProvider.shared.getNailSetForFingerType(fingerType) {
-                    switch nailInfo.shape {
-                    case .square:
-                        widthRatio = 512/204  // 512/174
-                        heightRatio = 512/374
-                    case .round:
-                        widthRatio = 512/215  // 512/185
-                        heightRatio = 512/373
-                    case .almond:
-                        widthRatio = 512/200  // 512/170
-                        heightRatio = 512/376
-                    case .ballerina:
-                        widthRatio = 512/176  // 512/146
-                        heightRatio = 512/374
-                    case .stiletto:
-                        widthRatio = 512/164   // 512/134
-                        heightRatio = 512/377
-                    }
-                    
-                    print("[NailProcessor] 네일 모양: \(nailInfo.shape), 비율 조정: \(widthRatio)x\(heightRatio)")
-                }
-                
-                let scaledSize = CGSize(
-                    width: m.width * widthRatio,
-                    height: m.height * heightRatio
+                processNailImage(
+                    nailImage, 
+                    fingerType: fingerType,
+                    metrics: m,
+                    contours: contours,
+                    displaySize: displaySize,
+                    nailImages: &nailImages
                 )
-                
-                print("[NailProcessor] 조정된 크기: \(scaledSize)")
-                
-                // 2. 높이 기준으로 최대 크기 제한
-                let maxHeight: CGFloat
-                
-                // 네일 모양에 따라 최대 높이 조정
-                if let nailInfo = NailAssetProvider.shared.getNailSetForFingerType(fingerType) {
-                    let baseHeight: CGFloat
-                    switch nailInfo.shape {
-                    case .square:
-                        baseHeight = 374
-                    case .round:
-                        baseHeight = 373
-                    case .almond:
-                        baseHeight = 376
-                    case .ballerina:
-                        baseHeight = 374
-                    case .stiletto:
-                        baseHeight = 377
-                    }
-                    
-                    // 원본 이미지 크기(512) 대비 실제 네일 높이의 비율로 최대 높이 계산
-                    let scaleFactor = baseHeight / 512.0
-                    maxHeight = displaySize.height * scaleFactor * 1.1  // 10% 여유 추가
-                } else {
-                    // 기본값 설정 (엄지 기준)
-                    maxHeight = displaySize.height * (374.0 / 512.0) * 1.1
-                }
-                
-                // 높이 제한 적용 후 너비는 비율에 맞게 조정
-                let limitedHeight = min(scaledSize.height, maxHeight)
-                let finalWidth = limitedHeight * (scaledSize.width / scaledSize.height)
-                
-                let finalScaledSize = CGSize(width: finalWidth, height: limitedHeight)
-                
-                // 3. 해당 컨투어 찾기
-                guard let fingertipContour = findContourForFingertip(metrics: m, contours: contours) else {
-                    print("[NailProcessor] 해당 손가락에 맞는 컨투어를 찾을 수 없습니다")
-                    continue
-                }
-                
-                // 4. 네일 이미지를 적용할 영역 계산
-                let imageRect = CGRect(
-                    x: m.contourCenter.x - finalScaledSize.width / 2,
-                    y: m.contourCenter.y - finalScaledSize.height / 2,
-                    width: finalScaledSize.width,
-                    height: finalScaledSize.height > finalScaledSize.width * 1.5 ? finalScaledSize.width * 1.2 : finalScaledSize.height
-                )
-                
-                // 5. 회전된 네일 이미지 생성
-                UIGraphicsBeginImageContextWithOptions(finalScaledSize, false, 0.0)
-                guard let rotationContext = UIGraphicsGetCurrentContext() else {
-                    print("[NailProcessor] 회전 컨텍스트 생성 실패")
-                    continue
-                }
-                
-                // 회전 적용
-                let angle = m.angle * .pi / 180
-                rotationContext.translateBy(x: finalScaledSize.width / 2, y: finalScaledSize.height / 2)
-                rotationContext.rotate(by: angle)
-                rotationContext.translateBy(x: -finalScaledSize.width / 2, y: -finalScaledSize.height / 2)
-                
-                // 네일 이미지 그리기
-                nailImage.draw(in: CGRect(origin: .zero, size: finalScaledSize))
-                
-                // 회전된 이미지 가져오기
-                guard let rotatedNailImage = UIGraphicsGetImageFromCurrentImageContext() else {
-                    print("[NailProcessor] 회전된 이미지 생성 실패")
-                    UIGraphicsEndImageContext()
-                    continue
-                }
-                UIGraphicsEndImageContext()
-                
-                // 6. 컨투어를 마스크로 사용하여 네일 이미지 적용
-                UIGraphicsBeginImageContextWithOptions(displaySize, false, 0.0)
-                guard let maskContext = UIGraphicsGetCurrentContext() else {
-                    print("[NailProcessor] 마스크 컨텍스트 생성 실패")
-                    continue
-                }
-                
-                // 마스크 영역 생성 (투명 배경)
-                maskContext.setFillColor(UIColor.clear.cgColor)
-                maskContext.fill(CGRect(origin: .zero, size: displaySize))
-                
-                // 컨투어 영역 채우기 (클리핑 마스크로 사용)
-                maskContext.saveGState()
-                maskContext.addPath(fingertipContour.path.cgPath)
-                maskContext.clip()
-                
-                // 회전된 네일 이미지 그리기
-                rotatedNailImage.draw(in: imageRect)
-                maskContext.restoreGState()
-                
-                // 최종 마스킹된 이미지 생성
-                guard let maskedImage = UIGraphicsGetImageFromCurrentImageContext() else {
-                    print("[NailProcessor] 마스킹된 이미지 생성 실패")
-                    UIGraphicsEndImageContext()
-                    continue
-                }
-                UIGraphicsEndImageContext()
-                
-                // 7. 최종 이미지와 위치 정보를 배열에 추가
-                nailImages.append((image: maskedImage, rect: CGRect(origin: .zero, size: displaySize)))
-                print("[NailProcessor] 네일 이미지 추가 완료 - 총 \(nailImages.count)개")
             }
         }
         
         print("[NailProcessor] 네일 이미지 준비 완료 - 개수: \(nailImages.count)")
         
         return nailImages
+    }
+    
+    /// 네일 이미지 처리 로직을 별도 메서드로 분리
+    private func processNailImage(
+        _ nailImage: UIImage,
+        fingerType: NailAssetProvider.FingerType,
+        metrics m: NailMetrics,
+        contours: [(path: UIBezierPath, center: CGPoint)],
+        displaySize: CGSize,
+        nailImages: inout [(image: UIImage?, rect: CGRect)]
+    ) {
+        print("[NailProcessor] \(fingerType) 네일 이미지 처리 - 크기: \(nailImage.size)")
+        
+        // 1. 손가락 너비에 맞춰 크기 조정 (네일 모양에 따라 비율 조정)
+        var widthRatio: CGFloat = 512/170
+        var heightRatio: CGFloat = 512/374
+        
+        // 네일 모양에 따라 크기 조정 비율 변경
+        if let nailInfo = nailAssetProvider.getNailSetForFingerType(fingerType) {
+            switch nailInfo.shape {
+            case .square:
+                widthRatio = 512/204  // 512/174
+                heightRatio = 512/374
+            case .round:
+                widthRatio = 512/215  // 512/185
+                heightRatio = 512/373
+            case .almond:
+                widthRatio = 512/200  // 512/170
+                heightRatio = 512/376
+            case .ballerina:
+                widthRatio = 512/176  // 512/146
+                heightRatio = 512/374
+            case .stiletto:
+                widthRatio = 512/164   // 512/134
+                heightRatio = 512/377
+            }
+            
+            print("[NailProcessor] 네일 모양: \(nailInfo.shape), 비율 조정: \(widthRatio)x\(heightRatio)")
+        }
+        
+        let scaledSize = CGSize(
+            width: m.width * widthRatio,
+            height: m.height * heightRatio
+        )
+        
+        print("[NailProcessor] 조정된 크기: \(scaledSize)")
+        
+        // 2. 높이 기준으로 최대 크기 제한
+        let maxHeight: CGFloat
+        
+        // 네일 모양에 따라 최대 높이 조정
+        if let nailInfo = nailAssetProvider.getNailSetForFingerType(fingerType) {
+            let baseHeight: CGFloat
+            switch nailInfo.shape {
+            case .square:
+                baseHeight = 374
+            case .round:
+                baseHeight = 373
+            case .almond:
+                baseHeight = 376
+            case .ballerina:
+                baseHeight = 374
+            case .stiletto:
+                baseHeight = 377
+            }
+            
+            // 원본 이미지 크기(512) 대비 실제 네일 높이의 비율로 최대 높이 계산
+            let scaleFactor = baseHeight / 512.0
+            maxHeight = displaySize.height * scaleFactor * 1.1  // 10% 여유 추가
+        } else {
+            // 기본값 설정 (엄지 기준)
+            maxHeight = displaySize.height * (374.0 / 512.0) * 1.1
+        }
+        
+        // 높이 제한 적용 후 너비는 비율에 맞게 조정
+        let limitedHeight = min(scaledSize.height, maxHeight)
+        let finalWidth = limitedHeight * (scaledSize.width / scaledSize.height)
+        
+        let finalScaledSize = CGSize(width: finalWidth, height: limitedHeight)
+        
+        // 3. 해당 컨투어 찾기
+        guard let fingertipContour = findContourForFingertip(metrics: m, contours: contours) else {
+            print("[NailProcessor] 해당 손가락에 맞는 컨투어를 찾을 수 없습니다")
+            return
+        }
+        
+        // 4. 네일 이미지를 적용할 영역 계산
+        let imageRect = CGRect(
+            x: m.contourCenter.x - finalScaledSize.width / 2,
+            y: m.contourCenter.y - finalScaledSize.height / 2,
+            width: finalScaledSize.width,
+            height: finalScaledSize.height > finalScaledSize.width * 1.5 ? finalScaledSize.width * 1.2 : finalScaledSize.height
+        )
+        
+        // 5. 회전된 네일 이미지 생성
+        UIGraphicsBeginImageContextWithOptions(finalScaledSize, false, 0.0)
+        guard let rotationContext = UIGraphicsGetCurrentContext() else {
+            print("[NailProcessor] 회전 컨텍스트 생성 실패")
+            return
+        }
+        
+        // 회전 적용
+        let angle = m.angle * .pi / 180
+        rotationContext.translateBy(x: finalScaledSize.width / 2, y: finalScaledSize.height / 2)
+        rotationContext.rotate(by: angle)
+        rotationContext.translateBy(x: -finalScaledSize.width / 2, y: -finalScaledSize.height / 2)
+        
+        // 네일 이미지 그리기
+        nailImage.draw(in: CGRect(origin: .zero, size: finalScaledSize))
+        
+        // 회전된 이미지 가져오기
+        guard let rotatedNailImage = UIGraphicsGetImageFromCurrentImageContext() else {
+            print("[NailProcessor] 회전된 이미지 생성 실패")
+            UIGraphicsEndImageContext()
+            return
+        }
+        UIGraphicsEndImageContext()
+        
+        // 6. 컨투어를 마스크로 사용하여 네일 이미지 적용
+        UIGraphicsBeginImageContextWithOptions(displaySize, false, 0.0)
+        guard let maskContext = UIGraphicsGetCurrentContext() else {
+            print("[NailProcessor] 마스크 컨텍스트 생성 실패")
+            return
+        }
+        
+        // 마스크 영역 생성 (투명 배경)
+        maskContext.setFillColor(UIColor.clear.cgColor)
+        maskContext.fill(CGRect(origin: .zero, size: displaySize))
+        
+        // 컨투어 영역 채우기 (클리핑 마스크로 사용)
+        maskContext.saveGState()
+        maskContext.addPath(fingertipContour.path.cgPath)
+        maskContext.clip()
+        
+        // 회전된 네일 이미지 그리기
+        rotatedNailImage.draw(in: imageRect)
+        maskContext.restoreGState()
+        
+        // 최종 마스킹된 이미지 생성
+        guard let maskedImage = UIGraphicsGetImageFromCurrentImageContext() else {
+            print("[NailProcessor] 마스킹된 이미지 생성 실패")
+            UIGraphicsEndImageContext()
+            return
+        }
+        UIGraphicsEndImageContext()
+        
+        // 7. 최종 이미지와 위치 정보를 배열에 추가
+        nailImages.append((image: maskedImage, rect: CGRect(origin: .zero, size: displaySize)))
+        print("[NailProcessor] 네일 이미지 추가 완료 - 총 \(nailImages.count)개")
     }
     
     /// 특정 손가락 끝에 맞는 컨투어를 찾습니다.

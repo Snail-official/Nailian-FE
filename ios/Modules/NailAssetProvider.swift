@@ -180,9 +180,16 @@ class NailAssetProvider: NailAssetProviding {
     // 네일 이미지 로딩 (비동기식 버전 - 캐시 또는 네트워크에서 로드)
     func loadNailImage(for fingerType: FingerType, completion: @escaping (UIImage?) -> Void) {
         // 해당 손가락의 네일 정보 가져오기
-        guard let nailInfo = getNailSetForFingerType(fingerType) else {
+        guard var nailInfo = getNailSetForFingerType(fingerType) else {
             print("\(fingerName(fingerType)) 손가락의 네일 정보가 없습니다.")
             completion(nil)
+            return
+        }
+        
+        // 이미 로드된 이미지가 있는지 확인
+        if let preloadedImage = nailInfo.image {
+            print("\(fingerName(fingerType)) 이미 로드된 이미지 사용")
+            completion(preloadedImage)
             return
         }
         
@@ -190,14 +197,27 @@ class NailAssetProvider: NailAssetProviding {
         let cacheKey = NSString(string: nailInfo.imageUrl)
         if let cachedImage = imageCache.object(forKey: cacheKey) {
             print("캐시에서 이미지 로드: \(nailInfo.imageUrl)")
+            // 이미지를 nailInfo에 저장
+            nailInfo.image = cachedImage
+            nailSets[fingerType] = nailInfo
             completion(cachedImage)
             return
         }
         
         // 네트워크에서 이미지 다운로드
         print("\(fingerName(fingerType)) 손가락 이미지 다운로드 시작")
-        NailAssetProvider.downloadImage(from: nailInfo.imageUrl) { image in
-            completion(image)
+        NailAssetProvider.downloadImage(from: nailInfo.imageUrl) { [weak self] image in
+            guard let self = self, let downloadedImage = image else {
+                completion(nil)
+                return
+            }
+            
+            // 이미지를 nailInfo에 저장
+            var updatedNailInfo = nailInfo
+            updatedNailInfo.image = downloadedImage
+            self.nailSets[fingerType] = updatedNailInfo
+            
+            completion(downloadedImage)
         }
     }
     
