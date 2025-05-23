@@ -3,11 +3,15 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* nailianTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* nailianTests.m */; };
+		060238E52DCA5AC70017209A /* CameraCaptureable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060238E42DCA5AB50017209A /* CameraCaptureable.swift */; };
+		060238E72DCA5AE80017209A /* ImageSegmenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060238E62DCA5AE60017209A /* ImageSegmenting.swift */; };
+		060238E92DCA5B020017209A /* NailProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060238E82DCA5B000017209A /* NailProcessing.swift */; };
+		099F44DD2DC7868600E168F9 /* Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 099F44DC2DC7868600E168F9 /* Release.xcconfig */; };
 		0C80B921A6F3F58F76C31292 /* libPods-nailian.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-nailian.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -15,6 +19,25 @@
 		473BFEFAD123086068F6BFCD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		7699B88040F8A987B510C191 /* libPods-nailian-nailianTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-nailian-nailianTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		E138426C2DB764EF00631A7F /* ContourAnalyzing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E13842692DB764EF00631A7F /* ContourAnalyzing.swift */; };
+		E138426D2DB764EF00631A7F /* HandPoseDetecting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */; };
+		E138426F2DB764F500631A7F /* NailMetricsAnalyzing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */; };
+		E13842862DB7698500631A7F /* NailAssetProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E13842852DB7697D00631A7F /* NailAssetProviding.swift */; };
+		E14D840E2D8D740700EDD138 /* Pretendard-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C58AFF360BBE4F84A816AC89 /* Pretendard-SemiBold.ttf */; };
+		E14D840F2D8D740700EDD138 /* Pretendard-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4548124832A749DAA5A2903A /* Pretendard-ExtraLight.ttf */; };
+		E14D84102D8D740700EDD138 /* Pretendard-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F6F6624F647A4D35B9A96978 /* Pretendard-Thin.ttf */; };
+		E14D84112D8D740700EDD138 /* Pretendard-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C8D7FE748B344A429ACD3F64 /* Pretendard-ExtraBold.ttf */; };
+		E14D84122D8D740700EDD138 /* Pretendard-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41B58996C11440A3B7EB6B13 /* Pretendard-Black.ttf */; };
+		E14D84132D8D740700EDD138 /* Pretendard-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6B8B69C2F6D148E2A281ACF1 /* Pretendard-Bold.ttf */; };
+		E14D84142D8D740700EDD138 /* Pretendard-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 57522F6DF8484439901F7D57 /* Pretendard-Light.ttf */; };
+		E14D84152D8D740700EDD138 /* Pretendard-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CB4F9DE9ABA54B6093085640 /* Pretendard-Medium.ttf */; };
+		E14D84162D8D740700EDD138 /* Pretendard-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 157C389F8C124FB0B424A86E /* Pretendard-Regular.ttf */; };
+		E14D84182D8D792200EDD138 /* Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E1E0C2642D8C157B0053273B /* Debug.xcconfig */; };
+		E16EA9A12D7815BF0056AA4B /* libRNKeychain.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E16EA9A02D7815BF0056AA4B /* libRNKeychain.a */; };
+		E1F0762D2DA4AF86003F928C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1F0762C2DA4AF86003F928C /* Assets.xcassets */; };
+		E1F801282D5DBBC600266514 /* libKakaoSDKAuth.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E1F801272D5DBBC600266514 /* libKakaoSDKAuth.a */; };
+		E1F8012A2D5DBBC600266514 /* libKakaoSDKCommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E1F801292D5DBBC600266514 /* libKakaoSDKCommon.a */; };
+		E1F8012C2D5DBBC600266514 /* libKakaoSDKUser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E1F8012B2D5DBBC600266514 /* libKakaoSDKUser.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,22 +54,63 @@
 		00E356EE1AD99517003FC87E /* nailianTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = nailianTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* nailianTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = nailianTests.m; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* nailian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nailian.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		060238E42DCA5AB50017209A /* CameraCaptureable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureable.swift; sourceTree = "<group>"; };
+		060238E62DCA5AE60017209A /* ImageSegmenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSegmenting.swift; sourceTree = "<group>"; };
+		060238E82DCA5B000017209A /* NailProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailProcessing.swift; sourceTree = "<group>"; };
+		099F44DC2DC7868600E168F9 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* Nailian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nailian.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = nailian/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = nailian/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = nailian/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = nailian/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = nailian/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = nailian/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		157C389F8C124FB0B424A86E /* Pretendard-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Regular.ttf"; path = "../src/shared/assets/fonts/Pretendard-Regular.ttf"; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-nailian-nailianTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-nailian-nailianTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-nailian.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian.debug.xcconfig"; path = "Target Support Files/Pods-nailian/Pods-nailian.debug.xcconfig"; sourceTree = "<group>"; };
+		41B58996C11440A3B7EB6B13 /* Pretendard-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Black.ttf"; path = "../src/shared/assets/fonts/Pretendard-Black.ttf"; sourceTree = "<group>"; };
+		4548124832A749DAA5A2903A /* Pretendard-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-ExtraLight.ttf"; path = "../src/shared/assets/fonts/Pretendard-ExtraLight.ttf"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-nailian.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian.release.xcconfig"; path = "Target Support Files/Pods-nailian/Pods-nailian.release.xcconfig"; sourceTree = "<group>"; };
+		57522F6DF8484439901F7D57 /* Pretendard-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Light.ttf"; path = "../src/shared/assets/fonts/Pretendard-Light.ttf"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-nailian-nailianTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian-nailianTests.debug.xcconfig"; path = "Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-nailian.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-nailian.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6B8B69C2F6D148E2A281ACF1 /* Pretendard-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Bold.ttf"; path = "../src/shared/assets/fonts/Pretendard-Bold.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = nailian/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-nailian-nailianTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian-nailianTests.release.xcconfig"; path = "Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests.release.xcconfig"; sourceTree = "<group>"; };
+		C58AFF360BBE4F84A816AC89 /* Pretendard-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-SemiBold.ttf"; path = "../src/shared/assets/fonts/Pretendard-SemiBold.ttf"; sourceTree = "<group>"; };
+		C8D7FE748B344A429ACD3F64 /* Pretendard-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-ExtraBold.ttf"; path = "../src/shared/assets/fonts/Pretendard-ExtraBold.ttf"; sourceTree = "<group>"; };
+		CB4F9DE9ABA54B6093085640 /* Pretendard-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Medium.ttf"; path = "../src/shared/assets/fonts/Pretendard-Medium.ttf"; sourceTree = "<group>"; };
+		E1112B902DA009390021E94C /* nailian.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = nailian.entitlements; path = nailian/nailian.entitlements; sourceTree = "<group>"; };
+		E13842692DB764EF00631A7F /* ContourAnalyzing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContourAnalyzing.swift; sourceTree = "<group>"; };
+		E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandPoseDetecting.swift; sourceTree = "<group>"; };
+		E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailMetricsAnalyzing.swift; sourceTree = "<group>"; };
+		E13842852DB7697D00631A7F /* NailAssetProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailAssetProviding.swift; sourceTree = "<group>"; };
+		E16EA9A02D7815BF0056AA4B /* libRNKeychain.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNKeychain.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1E0C2642D8C157B0053273B /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		E1F0762C2DA4AF86003F928C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E1F801272D5DBBC600266514 /* libKakaoSDKAuth.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKakaoSDKAuth.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F801292D5DBBC600266514 /* libKakaoSDKCommon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKakaoSDKCommon.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F8012B2D5DBBC600266514 /* libKakaoSDKUser.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKakaoSDKUser.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F6F6624F647A4D35B9A96978 /* Pretendard-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Thin.ttf"; path = "../src/shared/assets/fonts/Pretendard-Thin.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		E14D84192D8D7C6E00EDD138 /* Modules */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = Modules;
+			sourceTree = "<group>";
+		};
+		E1D033572D8E8DB900C244AD /* Models */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		00E356EB1AD99517003FC87E /* Frameworks */ = {
@@ -61,6 +125,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E16EA9A12D7815BF0056AA4B /* libRNKeychain.a in Frameworks */,
+				E1F801282D5DBBC600266514 /* libKakaoSDKAuth.a in Frameworks */,
+				E1F8012A2D5DBBC600266514 /* libKakaoSDKCommon.a in Frameworks */,
+				E1F8012C2D5DBBC600266514 /* libKakaoSDKUser.a in Frameworks */,
 				0C80B921A6F3F58F76C31292 /* libPods-nailian.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -88,6 +156,13 @@
 		13B07FAE1A68108700A75B9A /* nailian */ = {
 			isa = PBXGroup;
 			children = (
+				099F44DC2DC7868600E168F9 /* Release.xcconfig */,
+				E138426B2DB764EF00631A7F /* Protocols */,
+				E1F0762C2DA4AF86003F928C /* Assets.xcassets */,
+				E1112B902DA009390021E94C /* nailian.entitlements */,
+				E1D033572D8E8DB900C244AD /* Models */,
+				E14D84192D8D7C6E00EDD138 /* Modules */,
+				E1E0C2642D8C157B0053273B /* Debug.xcconfig */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -102,6 +177,10 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E16EA9A02D7815BF0056AA4B /* libRNKeychain.a */,
+				E1F801272D5DBBC600266514 /* libKakaoSDKAuth.a */,
+				E1F801292D5DBBC600266514 /* libKakaoSDKCommon.a */,
+				E1F8012B2D5DBBC600266514 /* libKakaoSDKUser.a */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				5DCACB8F33CDC322A6C60F78 /* libPods-nailian.a */,
 				19F6CBCC0A4E27FBF8BF4A61 /* libPods-nailian-nailianTests.a */,
@@ -125,6 +204,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				998E940FD9C74DE38B53EB79 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -134,10 +214,26 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* nailian.app */,
+				13B07F961A680F5B00A75B9A /* Nailian.app */,
 				00E356EE1AD99517003FC87E /* nailianTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		998E940FD9C74DE38B53EB79 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				41B58996C11440A3B7EB6B13 /* Pretendard-Black.ttf */,
+				6B8B69C2F6D148E2A281ACF1 /* Pretendard-Bold.ttf */,
+				C8D7FE748B344A429ACD3F64 /* Pretendard-ExtraBold.ttf */,
+				4548124832A749DAA5A2903A /* Pretendard-ExtraLight.ttf */,
+				57522F6DF8484439901F7D57 /* Pretendard-Light.ttf */,
+				CB4F9DE9ABA54B6093085640 /* Pretendard-Medium.ttf */,
+				157C389F8C124FB0B424A86E /* Pretendard-Regular.ttf */,
+				C58AFF360BBE4F84A816AC89 /* Pretendard-SemiBold.ttf */,
+				F6F6624F647A4D35B9A96978 /* Pretendard-Thin.ttf */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -149,6 +245,20 @@
 				89C6BE57DB24E9ADA2F236DE /* Pods-nailian-nailianTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		E138426B2DB764EF00631A7F /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				060238E82DCA5B000017209A /* NailProcessing.swift */,
+				060238E62DCA5AE60017209A /* ImageSegmenting.swift */,
+				060238E42DCA5AB50017209A /* CameraCaptureable.swift */,
+				E13842852DB7697D00631A7F /* NailAssetProviding.swift */,
+				E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */,
+				E13842692DB764EF00631A7F /* ContourAnalyzing.swift */,
+				E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -191,9 +301,13 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				E14D84192D8D7C6E00EDD138 /* Modules */,
+				E1D033572D8E8DB900C244AD /* Models */,
+			);
 			name = nailian;
 			productName = nailian;
-			productReference = 13B07F961A680F5B00A75B9A /* nailian.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* Nailian.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -209,12 +323,11 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 1610;
 					};
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "nailian" */;
-			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -222,6 +335,7 @@
 				Base,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -247,6 +361,18 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				473BFEFAD123086068F6BFCD /* PrivacyInfo.xcprivacy in Resources */,
+				E14D840E2D8D740700EDD138 /* Pretendard-SemiBold.ttf in Resources */,
+				E1F0762D2DA4AF86003F928C /* Assets.xcassets in Resources */,
+				E14D840F2D8D740700EDD138 /* Pretendard-ExtraLight.ttf in Resources */,
+				E14D84182D8D792200EDD138 /* Debug.xcconfig in Resources */,
+				E14D84102D8D740700EDD138 /* Pretendard-Thin.ttf in Resources */,
+				E14D84112D8D740700EDD138 /* Pretendard-ExtraBold.ttf in Resources */,
+				E14D84122D8D740700EDD138 /* Pretendard-Black.ttf in Resources */,
+				E14D84132D8D740700EDD138 /* Pretendard-Bold.ttf in Resources */,
+				E14D84142D8D740700EDD138 /* Pretendard-Light.ttf in Resources */,
+				E14D84152D8D740700EDD138 /* Pretendard-Medium.ttf in Resources */,
+				E14D84162D8D740700EDD138 /* Pretendard-Regular.ttf in Resources */,
+				099F44DD2DC7868600E168F9 /* Release.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,8 +522,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				060238E72DCA5AE80017209A /* ImageSegmenting.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				E138426F2DB764F500631A7F /* NailMetricsAnalyzing.swift in Sources */,
+				060238E52DCA5AC70017209A /* CameraCaptureable.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				E138426C2DB764EF00631A7F /* ContourAnalyzing.swift in Sources */,
+				060238E92DCA5B020017209A /* NailProcessing.swift in Sources */,
+				E138426D2DB764EF00631A7F /* HandPoseDetecting.swift in Sources */,
+				E13842862DB7698500631A7F /* NailAssetProviding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -435,6 +568,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/nailian.app/nailian";
 			};
 			name = Debug;
@@ -459,6 +596,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/nailian.app/nailian";
 			};
 			name = Release;
@@ -469,7 +610,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = nailian/nailian.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U8C7YGRNGL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = nailian/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -483,10 +626,15 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = nailian;
+				PRODUCT_BUNDLE_IDENTIFIER = nailian.app;
+				PRODUCT_NAME = Nailian;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -497,7 +645,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = nailian/nailian.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U8C7YGRNGL;
 				INFOPLIST_FILE = nailian/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -510,17 +660,23 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = nailian;
+				PRODUCT_BUNDLE_IDENTIFIER = nailian.app;
+				PRODUCT_NAME = Nailian;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
 		83CBBA201A601CBA00E9B192 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1E0C2642D8C157B0053273B /* Debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -575,6 +731,7 @@
 					"\"$(SDKROOT)/usr/lib/swift\"",
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
 					"\"$(inherited)\"",
+					"$(SRCROOT)/../node_modules/@react-native-seoul/kakao-login/ios/**",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -599,8 +756,9 @@
 		};
 		83CBBA211A601CBA00E9B192 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 099F44DC2DC7868600E168F9 /* Release.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -648,6 +806,7 @@
 					"\"$(SDKROOT)/usr/lib/swift\"",
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
 					"\"$(inherited)\"",
+					"$(SRCROOT)/../node_modules/@react-native-seoul/kakao-login/ios/**",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CPLUSPLUSFLAGS = (

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# 현재 브랜치명 가져오기
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+
+# 브랜치에서 SN-1 같은 이슈 ID 추출 (SN-숫자로 시작하는 부분)
+ISSUE_ID=$(echo "$BRANCH_NAME" | grep -oE 'SN-[0-9]+')
+
+# 허용된 커밋 타입 목록
+ALLOWED_TYPES="feat fix refactor docs style chore"
+
+# 커밋 메시지 가져오기
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# 정규식으로 메시지가 올바른지 확인 (허용된 타입만 사용)
+if ! echo "$COMMIT_MSG" | grep -qE "^(feat|fix|refactor|docs|style|chore|remove): "; then
+  echo "❌ ERROR: 커밋 메시지는 'feat: 메시지', 'fix: 메시지' 형식이어야 합니다."
+  echo "✅ 허용된 타입: feat, fix, refactor, docs, style, chore"
+  exit 1
+fi
+
+# 브랜치에서 추출한 ISSUE_ID가 있을 경우 커밋 메시지에 추가
+if [ -n "$ISSUE_ID" ]; then
+  echo "$COMMIT_MSG [$ISSUE_ID]" > "$COMMIT_MSG_FILE"
+fi

@@ -8,6 +8,9 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
+# Xcode 프로젝트 경로 지정
+project 'nailian.xcodeproj'
+
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -37,4 +40,6 @@ target 'nailian' do
       # :ccache_enabled => true
     )
   end
+
+  pod 'ZIPFoundation', '~> 0.9.15'
 end
