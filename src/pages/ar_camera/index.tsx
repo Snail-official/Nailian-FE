@@ -22,6 +22,7 @@ import FocusBracket from '~/shared/assets/icons/focus_bracket.svg';
 import ArIcon from '~/shared/assets/icons/ic_ar.svg';
 import { scale, vs } from '~/shared/lib/responsive';
 import { NailSet } from '~/pages/ar_experience';
+import { observeResourceLoadStatus } from '~/shared/lib/nativeModules';
 
 // Event types for camera view
 interface CaptureCompleteEvent {
@@ -74,8 +75,8 @@ function ARCameraPage({
   // 상태 관리
   const [processing, setProcessing] = useState(false);
   const [showingResult, setShowingResult] = useState(false);
-  const [nailSetLoaded, setNailSetLoaded] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
+  const [resourcesLoaded, setResourcesLoaded] = useState(false);
 
   // 화면 크기 가져오기
   const { width, height } = Dimensions.get('window');
@@ -104,6 +105,23 @@ function ARCameraPage({
     initializeModel();
   }, []);
 
+  // 리소스 로드 상태 관찰
+  useEffect(() => {
+    console.log('AR 카메라 페이지 - 리소스 로드 상태 관찰 시작');
+
+    // 리소스 로드 상태 구독 (내부적으로 타이머 사용)
+    const unsubscribe = observeResourceLoadStatus(isLoaded => {
+      console.log('AR 카메라 페이지 - 리소스 로드 상태 변경:', isLoaded);
+      setResourcesLoaded(isLoaded);
+    });
+
+    // 컴포넌트 언마운트 시 구독 해제
+    return () => {
+      console.log('AR 카메라 페이지 - 리소스 로드 상태 관찰 종료');
+      unsubscribe();
+    };
+  }, []);
+
   // 네일셋 데이터를 네이티브 모듈에 전달
   useEffect(() => {
     const applyNailSet = async () => {
@@ -117,12 +135,8 @@ function ARCameraPage({
 
         // 네이티브 모듈에 네일셋 데이터 전달
         EnhancedCameraViewManager.setNailSet(nodeId, nailSet);
-
-        setTimeout(() => {
-          setNailSetLoaded(true);
-        }, 3000);
       } catch (error) {
-        setNailSetLoaded(false);
+        console.error('네일셋 적용 오류:', error);
       }
     };
 
@@ -136,7 +150,7 @@ function ARCameraPage({
 
   // 캡처 핸들러
   const handleCapture = async () => {
-    if (processing || showingResult || !nailSetLoaded) return;
+    if (processing || showingResult || !isCaptureBtnEnabled()) return;
 
     try {
       setProcessing(true);
@@ -155,15 +169,33 @@ function ARCameraPage({
     }
   };
 
+  // 캡처 버튼 활성화 여부 확인
+  const isCaptureBtnEnabled = () =>
+    resourcesLoaded && !processing && !showingResult;
+
+  // 캡처 버튼 스타일 계산
+  const getCaptureBtnStyle = () =>
+    isCaptureBtnEnabled()
+      ? styles.captureButton
+      : [styles.captureButton, styles.disabledCaptureButton];
+
   // 오버레이 초기화 핸들러
   const handleClearOverlay = () => {
     if (!showingResult) return;
 
     const nodeId = findNodeHandle(cameraRef.current);
     if (nodeId) {
-      // CameraViewManager를 통해 오버레이 초기화
-      EnhancedCameraViewManager.clearOverlay(nodeId);
+      // 상태 변경 최소화를 위해 처리 순서 변경
+      console.log('다시찍기 - 오버레이 초기화');
+
+      // 먼저 상태를 업데이트하여 UI 전환
       setShowingResult(false);
+
+      // 네이티브 모듈 호출은 상태 업데이트 후에 실행
+      // React 렌더링에 영향을 주지 않도록 약간 지연
+      setTimeout(() => {
+        EnhancedCameraViewManager.clearOverlay(nodeId);
+      }, 0);
     }
   };
 
@@ -270,12 +302,8 @@ function ARCameraPage({
           <View style={styles.buttonContainer}>
             {!showingResult ? (
               <TouchableOpacity
-                style={[
-                  styles.button,
-                  (processing || !nailSetLoaded) && styles.disabledButton,
-                ]}
+                style={getCaptureBtnStyle()}
                 onPress={handleCapture}
-                disabled={processing || !nailSetLoaded}
               >
                 <View style={styles.buttonIconContainer}>
                   <ArIcon
@@ -349,9 +377,7 @@ const styles = StyleSheet.create({
   },
   buttonIconContainer: {
     alignItems: 'center',
-    height: 26,
     justifyContent: 'center',
-    width: 26,
   },
   buttonText: {
     ...typography.body2_SB,
@@ -367,11 +393,24 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
   },
+  captureButton: {
+    alignItems: 'center',
+    backgroundColor: colors.gray750,
+    borderRadius: 26,
+    elevation: 5,
+    height: 52,
+    justifyContent: 'center',
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    width: 52,
+  },
   container: {
     backgroundColor: colors.black,
     flex: 1,
   },
-  disabledButton: {
+  disabledCaptureButton: {
     backgroundColor: colors.gray300,
   },
   errorContainer: {

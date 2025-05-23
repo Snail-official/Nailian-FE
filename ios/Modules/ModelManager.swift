@@ -42,7 +42,7 @@ class ModelManager: RCTEventEmitter {
     
     // 지원하는 이벤트 목록
     override func supportedEvents() -> [String]! {
-        return ["ModelDownloadProgress", "ModelDownloadComplete", "ModelDownloadError"]
+        return ["ModelDownloadProgress", "ModelDownloadComplete", "ModelDownloadError", "ResourceLoadStatusChanged"]
     }
     
     // 모델 파일이 존재하는지 확인
@@ -502,6 +502,8 @@ class ModelManager: RCTEventEmitter {
         // 이미 로드되어 있는지 확인
         if ImageSegmenter.shared.isModelLoaded() {
             print("세그멘테이션 모델이 이미 로드되어 있습니다.")
+            // NailProcessor 상태 업데이트
+            NailProcessor.shared.updateSegmentationModelStatus(true)
             DispatchQueue.main.async {
                 resolver(true)
             }
@@ -531,6 +533,8 @@ class ModelManager: RCTEventEmitter {
         ImageSegmenter.shared.loadSegmentationModel { success in
             if success {
                 print("세그멘테이션 모델 로드 성공")
+                // NailProcessor 상태 업데이트
+                NailProcessor.shared.updateSegmentationModelStatus(true)
                 DispatchQueue.main.async {
                     resolver(true)
                 }
@@ -541,6 +545,22 @@ class ModelManager: RCTEventEmitter {
                 }
             }
         }
+    }
+    
+    @objc(checkResourceLoadStatus:rejecter:)
+    func checkResourceLoadStatus(_ resolve: @escaping RCTPromiseResolveBlock,
+                                 rejecter reject: @escaping RCTPromiseRejectBlock) {
+        let isLoaded = NailProcessor.shared.areAllResourcesLoaded()
+        print("[ModelManager] 리소스 로드 상태 확인: \(isLoaded)")
+        resolve(isLoaded)
+    }
+    
+    @objc(subscribeToResourceLoadStatus:)
+    func subscribeToResourceLoadStatus(_ callback: @escaping RCTResponseSenderBlock) {
+        // 현재 상태만 반환
+        let currentStatus = NailProcessor.shared.areAllResourcesLoaded()
+        print("[ModelManager] 초기 리소스 상태 반환: \(currentStatus)")
+        callback([currentStatus])
     }
 }
 
