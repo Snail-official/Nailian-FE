@@ -19,6 +19,7 @@ import {
   fetchUserProfile,
   logoutFromService,
   deleteUser,
+  fetchPersonalNail,
 } from '~/entities/user/api';
 import { fetchUserNailSets } from '~/entities/nail-set/api';
 import { TabBarFooter } from '~/shared/ui/TabBar';
@@ -65,6 +66,20 @@ function MyPageScreen({ navigation }: MyPageProps) {
     queryKey: ['userNailSets'],
     queryFn: () => fetchUserNailSets({ page: 1, size: 10 }),
   });
+
+  // 퍼스널 네일 결과 조회
+  const { data: personalNailResult, error: personalNailError } = useQuery({
+    queryKey: ['personalNail'],
+    queryFn: fetchPersonalNail,
+    retry: false,
+  });
+
+  // 에러 발생 시 콘솔에 출력
+  React.useEffect(() => {
+    if (personalNailError) {
+      console.error('퍼스널 네일 에러 상세:', personalNailError);
+    }
+  }, [personalNailError]);
 
   const nickname = userProfile?.data?.nickname || '네일조아';
   const bookmarkCount = nailSets?.data?.pageInfo?.totalElements || 0;
@@ -187,7 +202,6 @@ function MyPageScreen({ navigation }: MyPageProps) {
       await deleteUser();
       // 로컬에 저장된 인증 토큰 제거
       await useAuthStore.getState().clearTokens();
-      // React Query 캐시 초기화
       queryClient.clear();
       closeModal();
       navigation.replace('SocialLogin');
@@ -254,23 +268,82 @@ function MyPageScreen({ navigation }: MyPageProps) {
               <View style={styles.personalNailBox}>
                 <View style={styles.personalNailContent}>
                   <View style={styles.personalNailRow}>
-                    <Text style={styles.personalNailTitle}>
-                      네일리안님의{'\n'}퍼스널네일을 측정해보세요
-                    </Text>
-                    <Image
-                      source={EmptyNailImage}
-                      style={styles.emptyNailImage}
-                    />
+                    {personalNailResult?.data?.title ? (
+                      <View style={styles.personalNailInfo}>
+                        <View style={styles.personalNailTitleContainer}>
+                          <View style={styles.personalNailTitleWrapper}>
+                            <Text style={styles.personalNailTitlePrefix}>
+                              {nickname}님은
+                            </Text>
+                            <View style={styles.personalNailTitleRow}>
+                              <Text style={styles.personalNailTypeText}>
+                                {personalNailResult.data.title}
+                              </Text>
+                              <Text style={styles.personalNailTitle}>
+                                {' '}
+                                타입입니다
+                              </Text>
+                            </View>
+                          </View>
+                          <Image
+                            source={{ uri: personalNailResult.data.icon_url }}
+                            style={styles.personalNailIcon}
+                          />
+                        </View>
+                        <View style={styles.personalNailButtons}>
+                          <TouchableOpacity
+                            style={styles.viewResultButton}
+                            activeOpacity={0.8}
+                            onPress={() =>
+                              navigation.navigate('PersonalNailResult', {
+                                personalNailResult: personalNailResult.data,
+                              })
+                            }
+                          >
+                            <Text style={styles.viewResultButtonText}>
+                              결과보기
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.measureButton}
+                            activeOpacity={0.8}
+                            onPress={() =>
+                              navigation.navigate('PersonalNailFunnelPage', {
+                                step: 1,
+                              })
+                            }
+                          >
+                            <Text style={styles.measureButtonText}>
+                              다시 측정하기
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ) : (
+                      <>
+                        <Text style={styles.personalNailTitle}>
+                          네일리안님의{'\n'}퍼스널네일을 측정해보세요
+                        </Text>
+                        <Image
+                          source={EmptyNailImage}
+                          style={styles.emptyNailImage}
+                        />
+                      </>
+                    )}
                   </View>
-                  <TouchableOpacity
-                    style={styles.measureButton}
-                    activeOpacity={0.8}
-                    onPress={() =>
-                      navigation.navigate('PersonalNailFunnelPage', { step: 1 })
-                    }
-                  >
-                    <Text style={styles.measureButtonText}>측정하기</Text>
-                  </TouchableOpacity>
+                  {!personalNailResult?.data?.title && (
+                    <TouchableOpacity
+                      style={styles.measureButton}
+                      activeOpacity={0.8}
+                      onPress={() =>
+                        navigation.navigate('PersonalNailFunnelPage', {
+                          step: 1,
+                        })
+                      }
+                    >
+                      <Text style={styles.measureButtonText}>측정하기</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
 
@@ -452,8 +525,9 @@ const styles = StyleSheet.create({
   measureButton: {
     backgroundColor: colors.gray900,
     borderRadius: 8,
+    flex: 1,
     paddingHorizontal: scale(30),
-    paddingVertical: scale(10),
+    paddingVertical: vs(10),
   },
   measureButtonText: {
     ...typography.body2_SB,
@@ -498,11 +572,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 10,
   },
+  personalNailButtons: {
+    flexDirection: 'row',
+    gap: scale(12),
+  },
   personalNailContent: {
     alignItems: 'center',
     flexDirection: 'column',
     justifyContent: 'center',
     width: '100%',
+  },
+  personalNailIcon: {
+    height: scale(64),
+    marginLeft: scale(63),
+    width: scale(64),
+  },
+  personalNailInfo: {
+    flex: 1,
   },
   personalNailRow: {
     alignItems: 'center',
@@ -514,7 +600,28 @@ const styles = StyleSheet.create({
   personalNailTitle: {
     ...typography.title2_SB,
     color: colors.gray900,
-    textAlign: 'left',
+  },
+  personalNailTitleContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: vs(21),
+  },
+  personalNailTitlePrefix: {
+    ...typography.body1_B,
+    color: colors.gray600,
+    marginBottom: vs(4),
+  },
+  personalNailTitleRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  personalNailTitleWrapper: {
+    flex: 1,
+  },
+  personalNailTypeText: {
+    ...typography.title2_SB,
+    color: colors.purple500,
   },
   profileImage: {
     height: scale(54),
@@ -535,6 +642,24 @@ const styles = StyleSheet.create({
     marginTop: vs(22),
     paddingHorizontal: scale(18),
   },
+  recommendationSection: {
+    marginTop: vs(38),
+    paddingBottom: vs(40),
+    paddingHorizontal: scale(20),
+  },
+  recommendationTitle: {
+    ...typography.head2_B,
+    color: colors.black,
+  },
+  recommendationTitleContainer: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    marginBottom: vs(24),
+  },
+  recommendationTitleHighlight: {
+    ...typography.head2_B,
+    color: colors.purple500,
+  },
   safeArea: {
     backgroundColor: colors.white,
     flex: 1,
@@ -543,7 +668,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: vs(74), // 탭바 높이만큼 패딩 추가
+    paddingBottom: vs(74),
   },
   tabBarContainer: {
     borderTopColor: colors.gray100,
@@ -568,6 +693,18 @@ const styles = StyleSheet.create({
   unsubscribeText: {
     ...typography.body5_M,
     color: colors.gray400,
+    textAlign: 'center',
+  },
+  viewResultButton: {
+    backgroundColor: colors.gray100,
+    borderRadius: 8,
+    flex: 1,
+    paddingHorizontal: scale(30),
+    paddingVertical: vs(10),
+  },
+  viewResultButtonText: {
+    ...typography.body2_SB,
+    color: colors.gray850,
     textAlign: 'center',
   },
 });

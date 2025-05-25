@@ -194,7 +194,7 @@ export type GetPersonalNailResponse = ApiResponse<{
   tags: string[];
   description: string;
   set_ids: number[];
-}>;
+} | null>;
 
 /* ─────────────────── 네일 세트 (Nail Sets) ─────────────────── */
 
