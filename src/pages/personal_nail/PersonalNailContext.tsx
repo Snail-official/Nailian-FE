@@ -5,7 +5,12 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQueryClient } from '@tanstack/react-query';
+import { RootStackParamList } from '~/shared/types/navigation';
 import { savePersonalNail } from '~/entities/user/api';
+import { toast } from '~/shared/lib/toast';
 
 // 단계별 타이틀 정의
 export const STEP_TITLES = [
@@ -49,6 +54,9 @@ function PersonalNailProvider({
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [stepAnswers, setStepAnswers] = useState<number[]>([0, 0, 0, 0, 0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const queryClient = useQueryClient();
 
   // 답변 선택 핸들러
   const handleSelectAnswer = useCallback(
@@ -64,19 +72,27 @@ function PersonalNailProvider({
   const submitPersonalNailResult = useCallback(async (): Promise<boolean> => {
     setIsSubmitting(true);
     try {
-      await savePersonalNail({ steps: stepAnswers });
-      // 완료 콜백 실행 (있을 경우)
+      const response = await savePersonalNail({ steps: stepAnswers });
+      await queryClient.invalidateQueries({ queryKey: ['personalNail'] });
+
+      // 결과 페이지로 이동
       if (onComplete) {
         onComplete();
+        navigation.replace('PersonalNailResult', {
+          personalNailResult: response.data,
+        });
       }
       return true;
     } catch (error) {
       console.error('퍼스널 네일 측정 제출 오류:', error);
+      toast.showToast('측정 결과 제출에 실패했습니다.', {
+        position: 'top',
+      });
       return false;
     } finally {
       setIsSubmitting(false);
     }
-  }, [stepAnswers, onComplete]);
+  }, [stepAnswers, onComplete, navigation, queryClient]);
 
   // 다음 단계로 이동
   const goToNextStep = useCallback(() => {

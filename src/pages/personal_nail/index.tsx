@@ -40,15 +40,6 @@ function PersonalNailFunnelPage({ navigation }: PersonalNailFunnelProps) {
 
   const initialStep = route.params?.step || 1;
 
-  // 완료 핸들러
-  const handleComplete = () => {
-    // 측정 결과 화면으로 이동 (임시로 마이페이지로 이동)
-    navigation.navigate('MyPage');
-    toast.showToast('퍼스널 네일 측정이 완료되었습니다', {
-      position: 'bottom',
-    });
-  };
-
   // 뒤로가기 핸들러
   const handleBack = () => {
     navigation.goBack();
@@ -57,7 +48,11 @@ function PersonalNailFunnelPage({ navigation }: PersonalNailFunnelProps) {
   return (
     <PersonalNailProvider
       initialStep={initialStep}
-      onComplete={handleComplete}
+      onComplete={() => {
+        toast.showToast('퍼스널 네일 측정이 완료되었습니다', {
+          position: 'bottom',
+        });
+      }}
       onBack={handleBack}
     >
       <PersonalNailContent />

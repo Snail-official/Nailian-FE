@@ -1,5 +1,6 @@
 import { NailSet } from '~/pages/ar_experience';
 import { INailSet } from './nail-set';
+import { GetPersonalNailResponse } from '../api/types';
 /**
  * 루트 네비게이션 스택의 파라미터 타입 정의
  *
@@ -64,7 +65,13 @@ export type RootStackParamList = {
     nailSet: NailSet; // 네일 세트 데이터 전달
   };
 
+  /** 퍼스널 네일 측정 퍼널 */
   PersonalNailFunnelPage: {
     step?: number; // 퍼널 단계
+  };
+
+  /** 퍼스널 네일 측정 결과 */
+  PersonalNailResult: {
+    personalNailResult?: GetPersonalNailResponse['data'];
   };
 };
