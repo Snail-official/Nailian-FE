@@ -42,6 +42,7 @@ function BottomButton({
 
 const styles = StyleSheet.create({
   bottomButtonContainer: {
+    alignItems: 'center',
     backgroundColor: colors.white,
     borderTopColor: colors.gray100,
     borderTopWidth: 1,
@@ -56,14 +57,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.gray900,
     borderRadius: 8,
-    height: vs(56),
     justifyContent: 'center',
-    paddingHorizontal: scale(48),
+    paddingHorizontal: scale(60),
     paddingVertical: vs(12),
   },
   nextButtonText: {
     color: colors.white,
-    ...typography.body1_B,
+    ...typography.body2_SB,
   },
 });
 
