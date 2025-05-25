@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { colors, typography } from '~/shared/styles/design';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { colors } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 import StepTitle from '../ui/StepTitle';
@@ -10,8 +10,10 @@ import { usePersonalNail, STEP_TITLES } from '../PersonalNailContext';
 const COMPLIMENTARY_COLORS = ['#FF8E65', '#F26964'];
 
 function ComplimentaryColorStep() {
-  const { handleSelectAnswer } = usePersonalNail();
-  const [selectedColor, setSelectedColor] = useState<number | null>(null);
+  const { handleSelectAnswer, stepAnswers } = usePersonalNail();
+  const [selectedColor, setSelectedColor] = useState<number | null>(
+    stepAnswers[1] ? stepAnswers[1] - 1 : null,
+  );
 
   const handleColorSelect = (index: number) => {
     setSelectedColor(index);

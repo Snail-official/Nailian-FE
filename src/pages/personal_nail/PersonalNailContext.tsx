@@ -62,7 +62,7 @@ function PersonalNailProvider({
   const handleSelectAnswer = useCallback(
     (stepIndex: number, answerValue: number) => {
       const newAnswers = [...stepAnswers];
-      newAnswers[stepIndex - 1] = answerValue;
+      newAnswers[stepIndex - 1] = answerValue + 1;
       setStepAnswers(newAnswers);
     },
     [stepAnswers],
@@ -96,13 +96,27 @@ function PersonalNailProvider({
 
   // 다음 단계로 이동
   const goToNextStep = useCallback(() => {
+    // 현재 단계의 응답 확인
+    if (stepAnswers[currentStep - 1] === 0) {
+      if (currentStep <= 2) {
+        toast.showToast('컬러를 선택해주세요', {
+          position: 'top',
+        });
+        return;
+      }
+      toast.showToast('응답을 선택해주세요', {
+        position: 'top',
+      });
+      return;
+    }
+
     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     } else {
       // 마지막 단계에서는 결과 제출
       submitPersonalNailResult();
     }
-  }, [currentStep, submitPersonalNailResult]);
+  }, [currentStep, stepAnswers, submitPersonalNailResult]);
 
   // 이전 단계로 이동
   const goToPrevStep = useCallback(() => {

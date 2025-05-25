@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { colors, typography } from '~/shared/styles/design';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { colors } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import CheckIcon from '~/shared/assets/icons/ic_check.svg';
 import StepTitle from '../ui/StepTitle';
@@ -10,8 +10,10 @@ import { usePersonalNail, STEP_TITLES } from '../PersonalNailContext';
 const SKIN_TONE_COLORS = ['#FFEBD4', '#E8C7A1', '#D8B48B'];
 
 function SkinToneSelectionStep() {
-  const { handleSelectAnswer } = usePersonalNail();
-  const [selectedTone, setSelectedTone] = useState<number | null>(null);
+  const { handleSelectAnswer, stepAnswers } = usePersonalNail();
+  const [selectedTone, setSelectedTone] = useState<number | null>(
+    stepAnswers[0] ? stepAnswers[0] - 1 : null,
+  );
 
   const handleToneSelect = (index: number) => {
     setSelectedTone(index);

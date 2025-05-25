@@ -13,9 +13,9 @@ const FINGER_THICKNESS_OPTIONS = [
 ];
 
 function FingerThicknessStep() {
-  const { handleSelectAnswer } = usePersonalNail();
+  const { handleSelectAnswer, stepAnswers } = usePersonalNail();
   const [selectedThickness, setSelectedThickness] = useState<number | null>(
-    null,
+    stepAnswers[3] ? stepAnswers[3] - 1 : null,
   );
 
   const handleThicknessSelect = (index: number) => {

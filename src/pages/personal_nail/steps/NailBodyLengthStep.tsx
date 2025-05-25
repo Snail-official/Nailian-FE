@@ -9,8 +9,10 @@ import { usePersonalNail, STEP_TITLES } from '../PersonalNailContext';
 const NAIL_BODY_LENGTH_OPTIONS = ['짧은 편이다', '중간인 편이다', '긴 편이다'];
 
 function NailBodyLengthStep() {
-  const { handleSelectAnswer } = usePersonalNail();
-  const [selectedLength, setSelectedLength] = useState<number | null>(null);
+  const { handleSelectAnswer, stepAnswers } = usePersonalNail();
+  const [selectedLength, setSelectedLength] = useState<number | null>(
+    stepAnswers[4] ? stepAnswers[4] - 1 : null,
+  );
 
   const handleLengthSelect = (index: number) => {
     setSelectedLength(index);
