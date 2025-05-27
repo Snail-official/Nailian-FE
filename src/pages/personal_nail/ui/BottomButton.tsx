@@ -11,15 +11,10 @@ import { scale, vs } from '~/shared/lib/responsive';
 
 interface BottomButtonProps {
   onPress: () => void;
-  isLastStep: boolean;
   isSubmitting: boolean;
 }
 
-function BottomButton({
-  onPress,
-  isLastStep,
-  isSubmitting,
-}: BottomButtonProps) {
+function BottomButton({ onPress, isSubmitting }: BottomButtonProps) {
   return (
     <View style={styles.bottomButtonContainer}>
       <TouchableOpacity
@@ -28,12 +23,10 @@ function BottomButton({
         activeOpacity={0.8}
         disabled={isSubmitting}
       >
-        {isSubmitting && isLastStep ? (
+        {isSubmitting ? (
           <ActivityIndicator color={colors.white} />
         ) : (
-          <Text style={styles.nextButtonText}>
-            {isLastStep ? '결과보기' : '다음으로'}
-          </Text>
+          <Text style={styles.nextButtonText}>선택</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -43,9 +36,6 @@ function BottomButton({
 const styles = StyleSheet.create({
   bottomButtonContainer: {
     alignItems: 'center',
-    backgroundColor: colors.white,
-    borderTopColor: colors.gray100,
-    borderTopWidth: 1,
     paddingBottom: vs(20),
     paddingHorizontal: scale(20),
     paddingTop: vs(12),

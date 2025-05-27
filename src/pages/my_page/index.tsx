@@ -472,7 +472,6 @@ const styles = StyleSheet.create({
     borderRadius: scale(12),
     height: vs(72),
     marginHorizontal: scale(20),
-    marginTop: vs(22),
     overflow: 'hidden',
     position: 'relative',
   },
@@ -563,8 +562,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     elevation: 5,
     justifyContent: 'center',
-    marginBottom: vs(24),
-    marginHorizontal: scale(20),
+    marginBottom: vs(12),
     marginTop: vs(24),
     padding: scale(20),
     shadowColor: colors.black,
@@ -594,7 +592,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: scale(16),
     width: '100%',
   },
   personalNailTitle: {
@@ -641,24 +638,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: vs(22),
     paddingHorizontal: scale(18),
-  },
-  recommendationSection: {
-    marginTop: vs(38),
-    paddingBottom: vs(40),
-    paddingHorizontal: scale(20),
-  },
-  recommendationTitle: {
-    ...typography.head2_B,
-    color: colors.black,
-  },
-  recommendationTitleContainer: {
-    alignItems: 'flex-start',
-    flexDirection: 'row',
-    marginBottom: vs(24),
-  },
-  recommendationTitleHighlight: {
-    ...typography.head2_B,
-    color: colors.purple500,
   },
   safeArea: {
     backgroundColor: colors.white,

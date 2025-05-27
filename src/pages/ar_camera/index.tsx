@@ -3,7 +3,6 @@ import {
   StyleSheet,
   View,
   SafeAreaView,
-  requireNativeComponent,
   NativeModules,
   StatusBar,
   ViewStyle,
@@ -22,28 +21,8 @@ import FocusBracket from '~/shared/assets/icons/focus_bracket.svg';
 import ArIcon from '~/shared/assets/icons/ic_ar.svg';
 import { scale, vs } from '~/shared/lib/responsive';
 import { NailSet } from '~/pages/ar_experience';
+import { CameraView } from '~/shared/ui/CameraView';
 
-// Event types for camera view
-interface CaptureCompleteEvent {
-  capturedImagePath?: string;
-  success: boolean;
-  message?: string;
-}
-
-interface CameraErrorEvent {
-  code: string;
-  message: string;
-}
-
-interface CameraViewProps {
-  style?: ViewStyle;
-  onCaptureComplete?: (
-    event: NativeSyntheticEvent<CaptureCompleteEvent>,
-  ) => void;
-  onError?: (event: NativeSyntheticEvent<CameraErrorEvent>) => void;
-}
-
-const CameraView = requireNativeComponent<CameraViewProps>('CameraView');
 const { CameraViewManager, ModelManager } = NativeModules;
 
 // CameraViewManager 타입 정의

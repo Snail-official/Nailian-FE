@@ -96,14 +96,14 @@ function PersonalNailContent() {
         <ProgressBar currentStep={currentStep} totalSteps={5} />
 
         {/* 콘텐츠 영역 */}
-        <View style={styles.contentContainer}>{renderStepContent()}</View>
+        <View style={styles.contentContainer}>
+          {renderStepContent()}
 
-        {/* 하단 버튼 */}
-        <BottomButton
-          onPress={goToNextStep}
-          isLastStep={currentStep === 5}
-          isSubmitting={isSubmitting}
-        />
+          {/* 하단 버튼 - 카메라 위에 floating */}
+          <View style={styles.floatingButtonContainer}>
+            <BottomButton onPress={goToNextStep} isSubmitting={isSubmitting} />
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -116,6 +116,13 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+  },
+  floatingButtonContainer: {
+    bottom: 0,
+    left: 0,
+    padding: 16,
+    position: 'absolute',
+    right: 0,
   },
   safeArea: {
     backgroundColor: colors.white,

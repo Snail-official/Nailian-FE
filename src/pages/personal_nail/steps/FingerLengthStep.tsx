@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: vs(28),
+    paddingBottom: vs(28 + 64),
     paddingHorizontal: scale(20),
   },
   optionButton: {

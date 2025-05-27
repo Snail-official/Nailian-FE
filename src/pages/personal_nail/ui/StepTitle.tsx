@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     ...typography.head3_SB,
   },
   stepTitleContainer: {
-    marginBottom: vs(40),
+    marginBottom: vs(18),
     marginTop: vs(27),
     paddingHorizontal: scale(20),
   },

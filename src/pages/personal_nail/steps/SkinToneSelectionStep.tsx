@@ -3,6 +3,7 @@ import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { colors } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import CheckIcon from '~/shared/assets/icons/ic_check.svg';
+import BackgroundCamera from '~/shared/ui/BackgroundCamera';
 import StepTitle from '../ui/StepTitle';
 import { usePersonalNail, STEP_TITLES } from '../PersonalNailContext';
 
@@ -23,30 +24,33 @@ function SkinToneSelectionStep() {
   return (
     <View style={styles.container}>
       <StepTitle title={STEP_TITLES[1]} />
-      <View style={styles.content}>
-        <View style={styles.colorButtonsContainer}>
-          {SKIN_TONE_COLORS.map((color, index) => (
-            <TouchableOpacity
-              key={`skin-tone-${color}`}
-              style={[
-                styles.colorButton,
-                { backgroundColor: color },
-                selectedTone === index && styles.selectedButton,
-              ]}
-              onPress={() => handleToneSelect(index)}
-              activeOpacity={0.8}
-            >
-              {selectedTone === index && (
-                <View style={styles.checkIconContainer}>
-                  <CheckIcon
-                    width={scale(18)}
-                    height={scale(18)}
-                    color={colors.gray850}
-                  />
-                </View>
-              )}
-            </TouchableOpacity>
-          ))}
+      <View style={styles.cameraContentContainer}>
+        <BackgroundCamera />
+        <View style={styles.content}>
+          <View style={styles.colorButtonsContainer}>
+            {SKIN_TONE_COLORS.map((color, index) => (
+              <TouchableOpacity
+                key={`skin-tone-${color}`}
+                style={[
+                  styles.colorButton,
+                  { backgroundColor: color },
+                  selectedTone === index && styles.selectedButton,
+                ]}
+                onPress={() => handleToneSelect(index)}
+                activeOpacity={0.8}
+              >
+                {selectedTone === index && (
+                  <View style={styles.checkIconContainer}>
+                    <CheckIcon
+                      width={scale(18)}
+                      height={scale(18)}
+                      color={colors.gray850}
+                    />
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
     </View>
@@ -54,6 +58,11 @@ function SkinToneSelectionStep() {
 }
 
 const styles = StyleSheet.create({
+  cameraContentContainer: {
+    backgroundColor: colors.black,
+    flex: 1,
+    position: 'relative',
+  },
   checkIconContainer: {
     alignItems: 'center',
     flex: 1,
@@ -70,12 +79,13 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    position: 'relative',
   },
   content: {
     alignItems: 'center',
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: vs(28),
+    paddingBottom: vs(48 + 64),
     paddingHorizontal: scale(20),
   },
   selectedButton: {
