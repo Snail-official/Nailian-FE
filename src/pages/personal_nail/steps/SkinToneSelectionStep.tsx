@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingBottom: vs(48 + 64),
     paddingHorizontal: scale(20),
+    zIndex: 1,
   },
   selectedButton: {
     borderColor: colors.gray850,
