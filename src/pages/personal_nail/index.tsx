@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     padding: 16,
     position: 'absolute',
     right: 0,
+    zIndex: 3,
   },
   safeArea: {
     backgroundColor: colors.white,

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { StyleSheet, View, ViewStyle, Text } from 'react-native';
 import { colors } from '~/shared/styles/design';
 import { CameraView } from './CameraView';
@@ -14,12 +14,20 @@ interface BackgroundCameraProps {
 function BackgroundCamera({ style }: BackgroundCameraProps) {
   const cameraRef = useRef(null);
   const [hasError, setHasError] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
-  console.log('BackgroundCamera 렌더링됨');
+  useEffect(() => {
+    // 컴포넌트 마운트 시 약간의 지연 후 카메라 활성화
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <View style={[styles.container, style]} pointerEvents="none">
-      {!hasError ? (
+      {isReady && !hasError ? (
         <CameraView
           ref={cameraRef}
           style={styles.cameraView}
@@ -31,9 +39,13 @@ function BackgroundCamera({ style }: BackgroundCameraProps) {
             setHasError(true);
           }}
         />
-      ) : (
+      ) : hasError ? (
         <View style={styles.errorView}>
           <Text style={styles.errorText}>카메라를 불러올 수 없습니다</Text>
+        </View>
+      ) : (
+        <View style={styles.loadingView}>
+          <Text style={styles.loadingText}>카메라 로딩 중...</Text>
         </View>
       )}
     </View>
@@ -51,7 +63,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
-    zIndex: -1,
+    zIndex: 1,
   },
   errorText: {
     color: colors.warn_red,
@@ -59,6 +71,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   errorView: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: colors.gray600,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loadingView: {
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',

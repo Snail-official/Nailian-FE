@@ -16,7 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import { RootStackParamList } from '~/shared/types/navigation';
-import { fetchPersonalNail } from '~/entities/user/api';
+import { fetchPersonalNail, fetchUserProfile } from '~/entities/user/api';
 import { fetchNailSetDetail } from '~/entities/nail-set/api';
 import NailSet from '~/features/nail-set/ui/NailSet';
 import BackIcon from '~/shared/assets/icons/ic_arrow_left.svg';
@@ -54,6 +54,11 @@ const convertColorNumberToHex = (colorNumber: number) => {
   return `#${hex}`;
 };
 
+// 네일 아이템 간 구분선 컴포넌트
+function NailSeparator() {
+  return <View style={styles.nailSeparator} />;
+}
+
 /**
  * 퍼스널 네일 측정 결과 페이지
  *
@@ -65,9 +70,13 @@ const convertColorNumberToHex = (colorNumber: number) => {
  * @param route - 라우트 객체 (personalNailResult가 전달될 수 있음)
  */
 function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
-  const [userNickname] = useState('사용자');
-
   const initialResult = route.params?.personalNailResult;
+
+  // 사용자 정보 조회
+  const { data: userProfile } = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: fetchUserProfile,
+  });
 
   const { data: personalNailResult, isLoading: isResultLoading } = useQuery({
     queryKey: ['personalNail'],
@@ -89,6 +98,9 @@ function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
     },
     enabled: !!result?.set_ids,
   });
+
+  // 실제 유저 닉네임 가져오기, 없으면 기본값 사용
+  const userNickname = userProfile?.data?.nickname || '사용자';
 
   const handleBack = () => {
     navigation.goBack();
@@ -135,6 +147,7 @@ function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
         <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
           <View style={styles.scrollContent}>
             <View
@@ -207,9 +220,7 @@ function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
                   keyExtractor={item => `nail-${item.id}`}
                   numColumns={2}
                   columnWrapperStyle={styles.nailRow}
-                  ItemSeparatorComponent={() => (
-                    <View style={styles.nailSeparator} />
-                  )}
+                  ItemSeparatorComponent={NailSeparator}
                   scrollEnabled={false}
                 />
               )}
@@ -235,9 +246,6 @@ const styles = StyleSheet.create({
     right: 0,
     top: vs(-86),
     zIndex: 0,
-  },
-  container: {
-    flex: 1,
   },
   contentWrapper: {
     flex: 1,
@@ -299,11 +307,6 @@ const styles = StyleSheet.create({
     height: scale(100),
     justifyContent: 'center',
     width: scale(100),
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
   },
   nailItem: {
     marginHorizontal: scale(6),

@@ -25,7 +25,7 @@ function ComplimentaryColorStep() {
     <View style={styles.container}>
       <StepTitle title={STEP_TITLES[2]} />
       <View style={styles.cameraContentContainer}>
-        <BackgroundCamera />
+        <BackgroundCamera key="complimentary-color-camera" />
         <View style={styles.content}>
           <View style={styles.colorButtonsContainer}>
             {COMPLIMENTARY_COLORS.map((color, index) => (
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingBottom: vs(48 + 64),
     paddingHorizontal: scale(20),
-    zIndex: 1,
+    zIndex: 2,
   },
   selectedButton: {
     borderColor: colors.gray850,
