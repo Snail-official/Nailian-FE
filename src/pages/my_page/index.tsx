@@ -267,82 +267,87 @@ function MyPageScreen({ navigation }: MyPageProps) {
               {/* 퍼스널 네일 측정 박스 */}
               <View style={styles.personalNailBox}>
                 <View style={styles.personalNailContent}>
-                  <View style={styles.personalNailRow}>
-                    {personalNailResult?.data?.title ? (
-                      <View style={styles.personalNailInfo}>
-                        <View style={styles.personalNailTitleContainer}>
-                          <View style={styles.personalNailTitleWrapper}>
-                            <Text style={styles.personalNailTitlePrefix}>
-                              {nickname}님은
+                  {personalNailResult?.data?.title ? (
+                    <View style={styles.personalNailInfo}>
+                      <View style={styles.personalNailTitleContainer}>
+                        <View style={styles.personalNailTitleWrapper}>
+                          <Text style={styles.personalNailTitlePrefix}>
+                            <Text style={styles.personalNailResultNickname}>
+                              {nickname}
                             </Text>
-                            <View style={styles.personalNailTitleRow}>
-                              <Text style={styles.personalNailTypeText}>
-                                {personalNailResult.data.title}
-                              </Text>
-                              <Text style={styles.personalNailTitle}>
-                                {' '}
-                                타입입니다
-                              </Text>
-                            </View>
-                          </View>
-                          <Image
-                            source={{ uri: personalNailResult.data.icon_url }}
-                            style={styles.personalNailIcon}
-                          />
+                            <Text style={styles.personalNailTitleSuffix}>
+                              님은{'\n'}
+                            </Text>
+                            <Text style={styles.personalNailTypeText}>
+                              {personalNailResult.data.title}
+                            </Text>
+                            <Text style={styles.personalNailTitleSuffix}>
+                              입니다
+                            </Text>
+                          </Text>
                         </View>
-                        <View style={styles.personalNailButtons}>
-                          <TouchableOpacity
-                            style={styles.viewResultButton}
-                            activeOpacity={0.8}
-                            onPress={() =>
-                              navigation.navigate('PersonalNailResult', {
-                                personalNailResult: personalNailResult.data,
-                              })
-                            }
-                          >
-                            <Text style={styles.viewResultButtonText}>
-                              결과보기
-                            </Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={styles.measureButton}
-                            activeOpacity={0.8}
-                            onPress={() =>
-                              navigation.navigate('PersonalNailFunnelPage', {
-                                step: 1,
-                              })
-                            }
-                          >
-                            <Text style={styles.measureButtonText}>
-                              다시 측정하기
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
+                        <Image
+                          source={{ uri: personalNailResult.data.icon_url }}
+                          style={styles.personalNailIcon}
+                        />
                       </View>
-                    ) : (
-                      <>
+                      <View style={styles.personalNailButtons}>
+                        <TouchableOpacity
+                          style={styles.viewResultButton}
+                          activeOpacity={0.8}
+                          onPress={() =>
+                            navigation.navigate('PersonalNailResult', {
+                              personalNailResult: personalNailResult.data,
+                            })
+                          }
+                        >
+                          <Text style={styles.viewResultButtonText}>
+                            결과보기
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.measureButton}
+                          activeOpacity={0.8}
+                          onPress={() =>
+                            navigation.navigate('PersonalNailFunnelPage', {
+                              step: 1,
+                            })
+                          }
+                        >
+                          <Text style={styles.measureButtonText}>
+                            다시 측정하기
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ) : (
+                    <>
+                      <View style={styles.personalNailEmptyContent}>
                         <Text style={styles.personalNailTitle}>
-                          네일리안님의{'\n'}퍼스널네일을 측정해보세요
+                          <Text style={styles.personalNailNickname}>
+                            {nickname}
+                          </Text>
+                          <Text style={styles.personalNailTitleSuffix}>
+                            님의{'\n'}퍼스널네일을 측정해보세요
+                          </Text>
                         </Text>
                         <Image
                           source={EmptyNailImage}
                           style={styles.emptyNailImage}
                         />
-                      </>
-                    )}
-                  </View>
-                  {!personalNailResult?.data?.title && (
-                    <TouchableOpacity
-                      style={styles.measureButton}
-                      activeOpacity={0.8}
-                      onPress={() =>
-                        navigation.navigate('PersonalNailFunnelPage', {
-                          step: 1,
-                        })
-                      }
-                    >
-                      <Text style={styles.measureButtonText}>측정하기</Text>
-                    </TouchableOpacity>
+                      </View>
+                      <TouchableOpacity
+                        style={styles.measureButton}
+                        activeOpacity={0.8}
+                        onPress={() =>
+                          navigation.navigate('PersonalNailFunnelPage', {
+                            step: 1,
+                          })
+                        }
+                      >
+                        <Text style={styles.measureButtonText}>측정하기</Text>
+                      </TouchableOpacity>
+                    </>
                   )}
                 </View>
               </View>
@@ -472,6 +477,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(12),
     height: vs(72),
     marginHorizontal: scale(20),
+    marginTop: vs(24),
     overflow: 'hidden',
     position: 'relative',
   },
@@ -514,7 +520,6 @@ const styles = StyleSheet.create({
   },
   emptyNailImage: {
     height: scale(64),
-    marginLeft: scale(54),
     width: scale(64),
   },
   mainContainer: {
@@ -522,14 +527,16 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   measureButton: {
+    alignItems: 'center',
     backgroundColor: colors.gray900,
     borderRadius: 8,
-    flex: 1,
+    justifyContent: 'center',
     paddingHorizontal: scale(30),
     paddingVertical: vs(10),
+    width: scale(125),
   },
   measureButtonText: {
-    ...typography.body2_SB,
+    ...typography.body3_B,
     color: colors.white,
     textAlign: 'center',
   },
@@ -560,58 +567,72 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.white,
     borderRadius: 16,
-    elevation: 5,
-    justifyContent: 'center',
-    marginBottom: vs(12),
+    elevation: 8,
+    height: vs(157),
+    justifyContent: 'space-between',
+    marginHorizontal: scale(24),
     marginTop: vs(24),
-    padding: scale(20),
+    paddingBottom: vs(16),
+    paddingHorizontal: scale(22),
+    paddingTop: vs(22),
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.04,
-    shadowRadius: 10,
+    shadowRadius: 20,
+    width: scale(327),
   },
   personalNailButtons: {
     flexDirection: 'row',
     gap: scale(12),
+    justifyContent: 'center',
   },
   personalNailContent: {
     alignItems: 'center',
-    flexDirection: 'column',
-    justifyContent: 'center',
+    flex: 1,
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  personalNailEmptyContent: {
+    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
   },
   personalNailIcon: {
     height: scale(64),
-    marginLeft: scale(63),
     width: scale(64),
   },
   personalNailInfo: {
     flex: 1,
-  },
-  personalNailRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
     width: '100%',
+  },
+  personalNailNickname: {
+    ...typography.title2_SB,
+    color: colors.purple500,
+  },
+  personalNailResultNickname: {
+    ...typography.title2_SB,
+    color: colors.gray800,
   },
   personalNailTitle: {
     ...typography.title2_SB,
-    color: colors.gray900,
+    color: colors.gray800,
+    flex: 1,
   },
   personalNailTitleContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: vs(21),
+    marginBottom: vs(16),
+    width: '100%',
   },
   personalNailTitlePrefix: {
-    ...typography.body1_B,
-    color: colors.gray600,
-    marginBottom: vs(4),
+    ...typography.title2_SB,
   },
-  personalNailTitleRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
+  personalNailTitleSuffix: {
+    ...typography.title2_SB,
+    color: colors.gray800,
   },
   personalNailTitleWrapper: {
     flex: 1,
@@ -675,14 +696,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   viewResultButton: {
+    alignItems: 'center',
     backgroundColor: colors.gray100,
     borderRadius: 8,
-    flex: 1,
+    justifyContent: 'center',
     paddingHorizontal: scale(30),
     paddingVertical: vs(10),
+    width: scale(125),
   },
   viewResultButtonText: {
-    ...typography.body2_SB,
+    ...typography.body3_B,
     color: colors.gray850,
     textAlign: 'center',
   },
