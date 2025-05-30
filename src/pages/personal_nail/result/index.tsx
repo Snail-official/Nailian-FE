@@ -20,6 +20,9 @@ import { fetchPersonalNail, fetchUserProfile } from '~/entities/user/api';
 import { fetchNailSetDetail } from '~/entities/nail-set/api';
 import NailSet from '~/features/nail-set/ui/NailSet';
 import BackIcon from '~/shared/assets/icons/ic_arrow_left.svg';
+import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
+
+const PersonalBarImage = require('~/shared/assets/images/personal_bar.png');
 
 interface PersonalNailResultProps {
   navigation: NativeStackNavigationProp<
@@ -112,7 +115,11 @@ function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <BackIcon width={scale(48)} height={scale(48)} />
+            <BackIcon
+              width={scale(48)}
+              height={scale(48)}
+              color={colors.gray800}
+            />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>퍼스널네일 측정 결과</Text>
           <View style={styles.headerSpacer} />
@@ -136,20 +143,13 @@ function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.contentWrapper}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <BackIcon width={scale(48)} height={scale(48)} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>퍼스널네일 측정 결과</Text>
-          <View style={styles.headerSpacer} />
-        </View>
-
         <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
           <View style={styles.scrollContent}>
+            {/* 배경색 영역 */}
             <View
               style={[
                 styles.backgroundColorSection,
@@ -159,18 +159,37 @@ function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
                   ),
                 },
               ]}
-            />
+            >
+              {/* 헤더 - 배경색 영역 안에 포함 */}
+              <View style={styles.header}>
+                <TouchableOpacity
+                  onPress={handleBack}
+                  style={styles.backButton}
+                >
+                  <BackIcon
+                    width={scale(48)}
+                    height={scale(48)}
+                    color={colors.gray800}
+                  />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>퍼스널네일 측정 결과</Text>
+                <View style={styles.headerSpacer} />
+              </View>
+            </View>
+
+            {/* 네일 아이콘 */}
+            <View style={styles.iconContainer}>
+              <View style={styles.iconWrapper}>
+                <Image
+                  source={{ uri: result.icon_url }}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+              </View>
+            </View>
+
             {/* 결과 박스 */}
             <View style={styles.resultBoxWrapper}>
-              <View style={styles.iconContainer}>
-                <View style={styles.iconWrapper}>
-                  <Image
-                    source={{ uri: result.icon_url }}
-                    style={styles.icon}
-                    resizeMode="contain"
-                  />
-                </View>
-              </View>
               <View style={styles.resultBox}>
                 {/* 타이틀 */}
                 <Text style={styles.title}>{result.title}</Text>
@@ -195,36 +214,64 @@ function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
             {/* 추천 네일 섹션 */}
             <View style={styles.recommendationSection}>
               <View style={styles.recommendationTitleContainer}>
-                <View style={styles.recommendationTitleWrapper}>
+                <Text style={styles.recommendationTitleLine}>
                   <Text style={styles.recommendationTitleHighlight}>
                     {userNickname}
                   </Text>
-                  <Text style={styles.recommendationTitle}>님은</Text>
-                </View>
-                <Text style={styles.recommendationTitle}>
-                  이런 아트가 어울려요
+                  <Text style={styles.recommendationTitle}>
+                    님은{'\n'}이런 아트가 어울려요
+                  </Text>
                 </Text>
               </View>
 
-              {/* 네일 그리드 */}
-              {isNailsLoading ? (
-                <View style={styles.nailsLoadingContainer}>
-                  <ActivityIndicator size="small" color={colors.purple500} />
-                </View>
-              ) : (
-                <FlatList
-                  data={nails
-                    .filter((nail): nail is NailItemType => nail !== undefined)
-                    .slice(0, 6)}
-                  renderItem={renderNailItem}
-                  keyExtractor={item => `nail-${item.id}`}
-                  numColumns={2}
-                  columnWrapperStyle={styles.nailRow}
-                  ItemSeparatorComponent={NailSeparator}
-                  scrollEnabled={false}
-                  removeClippedSubviews={false}
-                />
-              )}
+              {/* 중앙 정렬을 위한 감싸는 컨테이너 */}
+              <View style={styles.centerContainer}>
+                {/* 네일 그리드 */}
+                {isNailsLoading ? (
+                  <View style={styles.nailsLoadingContainer}>
+                    <ActivityIndicator size="small" color={colors.purple500} />
+                  </View>
+                ) : (
+                  <FlatList
+                    data={nails
+                      .filter(
+                        (nail): nail is NailItemType => nail !== undefined,
+                      )
+                      .slice(0, 10)}
+                    renderItem={renderNailItem}
+                    keyExtractor={item => `nail-${item.id}`}
+                    numColumns={2}
+                    columnWrapperStyle={styles.nailRow}
+                    ItemSeparatorComponent={NailSeparator}
+                    scrollEnabled={false}
+                    removeClippedSubviews={false}
+                  />
+                )}
+              </View>
+
+              {/* 하단 버튼 */}
+              <View style={styles.personalBarWrapper}>
+                <TouchableOpacity
+                  style={styles.personalBarContainer}
+                  onPress={() => navigation.navigate('ARExperiencePage')}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.personalBarContent}>
+                    <Text style={styles.personalBarText}>
+                      내 손에 어울리는 조합 만들러 가기
+                    </Text>
+                    <ArrowRightIcon
+                      width={scale(24)}
+                      height={scale(24)}
+                      color={colors.white}
+                    />
+                  </View>
+                  <Image
+                    source={PersonalBarImage}
+                    style={styles.personalBarImage}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -241,27 +288,28 @@ const styles = StyleSheet.create({
     width: scale(48),
   },
   backgroundColorSection: {
-    height: vs(220),
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: vs(-86),
-    zIndex: 0,
+    height: vs(221),
+    width: '100%',
+  },
+  centerContainer: {
+    alignItems: 'center',
+    width: '100%',
   },
   contentWrapper: {
     flex: 1,
   },
   description: {
-    ...typography.body1_B,
+    ...typography.body5_M,
     color: colors.gray650,
-    lineHeight: vs(22),
-    marginTop: vs(24),
+    lineHeight: vs(20),
+    marginTop: vs(23),
     textAlign: 'center',
   },
   divider: {
     backgroundColor: colors.gray50,
     height: vs(10),
     marginTop: vs(32),
+    width: scale(375),
   },
   errorContainer: {
     alignItems: 'center',
@@ -275,46 +323,46 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     flexDirection: 'row',
-    height: vs(56),
-    paddingHorizontal: scale(20),
-    position: 'relative',
-    zIndex: 2,
+    height: vs(48),
+    width: '100%',
   },
   headerSpacer: {
-    width: scale(44),
+    width: scale(48),
   },
   headerTitle: {
-    ...typography.head2_B,
-    color: colors.black,
+    ...typography.title2_SB,
+    color: colors.gray800,
     flex: 1,
     textAlign: 'center',
   },
   icon: {
-    height: scale(80),
-    width: scale(80),
+    height: scale(100),
+    width: scale(100),
   },
   iconContainer: {
     alignItems: 'center',
     left: 0,
     position: 'absolute',
     right: 0,
-    top: vs(-50),
-    zIndex: 1,
+    top: vs(98),
+    zIndex: 2,
   },
   iconWrapper: {
     alignItems: 'center',
-    backgroundColor: colors.gray100,
+    backgroundColor: colors.white,
+    borderColor: colors.gray100,
     borderRadius: scale(50),
+    borderWidth: 2,
     height: scale(100),
     justifyContent: 'center',
     width: scale(100),
   },
   nailItem: {
-    marginHorizontal: scale(6),
-    marginVertical: scale(6),
+    width: scale(160),
   },
   nailRow: {
-    justifyContent: 'center',
+    gap: scale(12),
+    width: scale(332),
   },
   nailSeparator: {
     height: vs(12),
@@ -322,6 +370,38 @@ const styles = StyleSheet.create({
   nailsLoadingContainer: {
     alignItems: 'center',
     marginTop: vs(20),
+  },
+  personalBarContainer: {
+    height: vs(69),
+    overflow: 'hidden',
+    position: 'relative',
+    width: scale(331),
+  },
+  personalBarContent: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    height: '100%',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(20),
+    position: 'relative',
+    zIndex: 2,
+  },
+  personalBarImage: {
+    height: '100%',
+    left: 0,
+    position: 'absolute',
+    top: 0,
+    width: '100%',
+    zIndex: 1,
+  },
+  personalBarText: {
+    ...typography.body2_SB,
+    color: colors.white,
+  },
+  personalBarWrapper: {
+    alignItems: 'center',
+    marginTop: vs(24),
+    width: '100%',
   },
   recommendationSection: {
     marginTop: vs(38),
@@ -339,47 +419,49 @@ const styles = StyleSheet.create({
     ...typography.head2_B,
     color: colors.purple500,
   },
-  recommendationTitleWrapper: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: vs(4),
+  recommendationTitleLine: {
+    ...typography.head2_B,
   },
   resultBox: {
     backgroundColor: colors.white,
     borderRadius: 16,
-    elevation: 4,
-    paddingBottom: vs(30),
+    elevation: 8,
+    height: vs(274),
+    paddingBottom: vs(31),
     paddingHorizontal: scale(22),
-    paddingTop: vs(65),
+    paddingTop: vs(68),
     position: 'relative',
     shadowColor: colors.black,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    width: scale(323),
   },
   resultBoxWrapper: {
-    paddingHorizontal: scale(20),
+    alignItems: 'center',
+    marginTop: vs(-68),
+    paddingHorizontal: scale(26),
     position: 'relative',
+    zIndex: 1,
   },
   safeArea: {
     backgroundColor: colors.white,
     flex: 1,
   },
   scrollContent: {
-    marginTop: vs(86),
     position: 'relative',
   },
   scrollView: {
     flex: 1,
   },
   tag: {
+    backgroundColor: colors.white,
     borderColor: colors.gray200,
     borderRadius: 100,
     borderWidth: 1,
-    marginHorizontal: scale(4),
     marginVertical: vs(2),
     paddingHorizontal: scale(14),
     paddingVertical: vs(6),
@@ -389,14 +471,16 @@ const styles = StyleSheet.create({
     color: colors.gray750,
   },
   tagsContainer: {
+    alignItems: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: scale(6),
     justifyContent: 'center',
     marginTop: vs(8),
   },
   title: {
     ...typography.head1_B,
-    color: colors.black,
+    color: colors.gray800,
     textAlign: 'center',
   },
 });
