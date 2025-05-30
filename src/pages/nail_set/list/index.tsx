@@ -218,6 +218,7 @@ function NailSetListPage() {
           onEndReached={() => hasNextPage && fetchNextPage()}
           onEndReachedThreshold={0.3}
           ListFooterComponent={renderFooter}
+          bounces={false}
         />
       </View>
     </SafeAreaView>

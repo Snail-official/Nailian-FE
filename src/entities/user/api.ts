@@ -16,6 +16,9 @@ import {
   ApplyEventResponse,
   ApplyEventRequest,
   EventStatusResponse,
+  SavePersonalNailRequest,
+  SavePersonalNailResponse,
+  GetPersonalNailResponse,
 } from '../../shared/api/types';
 
 /**
@@ -152,5 +155,31 @@ export const applyEvent = ({
 export const fetchEventStatus = (): Promise<EventStatusResponse> =>
   fetcher({
     endpoint: '/users/me/event',
+    method: 'GET',
+  });
+
+/**
+ * 퍼스널 네일 측정 결과 제출 API 호출
+ *
+ * @param {SavePersonalNailRequest} data - 퍼스널 네일 측정 결과 데이터
+ * @returns {Promise<SavePersonalNailResponse>} 퍼스널 네일 측정 결과 분석 반환
+ */
+export const savePersonalNail = ({
+  steps,
+}: SavePersonalNailRequest): Promise<SavePersonalNailResponse> =>
+  fetcher({
+    endpoint: '/users/me/personal-nail',
+    method: 'POST',
+    body: { steps },
+  });
+
+/**
+ * 퍼스널 네일 측정 결과 조회 API 호출
+ *
+ * @returns {Promise<GetPersonalNailResponse>} 사용자의 퍼스널 네일 측정 결과 반환
+ */
+export const fetchPersonalNail = (): Promise<GetPersonalNailResponse> =>
+  fetcher({
+    endpoint: '/users/me/personal-nail',
     method: 'GET',
   });

@@ -18,6 +18,15 @@ export interface INailPreference {
   category: Category;
 }
 
+export interface IPersonalNailResult {
+  title: string;
+  icon_url: string;
+  background_color: number;
+  tags: string[];
+  description: string;
+  set_ids: number[];
+}
+
 export interface IUser {
   onboardingProgress: number;
   accessToken?: string;
@@ -27,6 +36,7 @@ export interface IUser {
   nickname?: string;
   profileImage?: string;
   preferredStyles: INailPreference[];
+  personalNailResult?: IPersonalNailResult | null;
 }
 
 export interface INail {

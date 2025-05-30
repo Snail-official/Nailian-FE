@@ -1,15 +1,18 @@
 import { http, HttpResponse } from 'msw';
 import { API_BASE_URL } from '@env';
-import users from '../data/users';
 import { createSuccessResponse, createErrorResponse } from '../utils/response';
 import {
   UpdateNicknameRequest,
   UpdateNicknameResponse,
   UserMeResponse,
   DeleteUserResponse,
+  SavePersonalNailRequest,
+  SavePersonalNailResponse,
+  GetPersonalNailResponse,
 } from '../../shared/api/types';
 import { ONBOARDING_FLAGS } from '../constants/onboarding';
 import { validateToken } from '../utils/auth';
+import { getPersonalNailResult } from '../data/personalNail';
 
 /* ─────────────────── 사용자 API 핸들러 (User API Handlers) ─────────────────── */
 
@@ -108,6 +111,107 @@ const userHandlers = [
     };
 
     return createSuccessResponse(response.data, response.message);
+  }),
+
+  /**
+   * 퍼스널 네일 측정 결과 제출 API
+   *
+   * @endpoint POST /users/me/personal-nail
+   * @body {SavePersonalNailRequest} 퍼스널 네일 측정 결과 데이터
+   * @returns {Promise<SavePersonalNailResponse>} 퍼스널 네일 측정 결과 분석 반환
+   */
+  http.post(`${API_BASE_URL}/users/me/personal-nail`, async ({ request }) => {
+    try {
+      // 토큰 검증
+      const authResult = await validateToken(request);
+
+      // 인증 실패 시 401 응답 반환
+      if (authResult instanceof HttpResponse) {
+        return authResult;
+      }
+
+      // 인증된 사용자 정보 사용
+      const user = authResult;
+
+      const { steps } = (await request.json()) as SavePersonalNailRequest;
+
+      // steps 배열 검증
+      if (!Array.isArray(steps) || steps.length !== 5) {
+        return createErrorResponse(
+          '올바르지 않은 측정 결과입니다. 5단계 모두 완료해주세요.',
+          400,
+        );
+      }
+
+      // 각 step이 유효한 범위 내에 있는지 검증
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        if (typeof step !== 'number' || step < 0) {
+          return createErrorResponse(
+            `${i + 1}단계 측정 결과가 올바르지 않습니다.`,
+            400,
+          );
+        }
+      }
+
+      // 진단 결과 생성
+      const result = getPersonalNailResult(steps);
+
+      // 사용자에게 진단 결과 저장 (실제로는 DB에 저장)
+      user.personalNailResult = result;
+
+      const response: SavePersonalNailResponse = {
+        code: 200,
+        message: '진단이 완료되었습니다.',
+        data: result,
+      };
+
+      return createSuccessResponse(response.data, response.message);
+    } catch (error) {
+      return createErrorResponse('서버 오류가 발생했습니다.', 500);
+    }
+  }),
+
+  /**
+   * 퍼스널 네일 측정 결과 조회 API
+   *
+   * @endpoint GET /users/me/personal-nail
+   * @returns {Promise<GetPersonalNailResponse>} 사용자의 퍼스널 네일 측정 결과 반환
+   */
+  http.get(`${API_BASE_URL}/users/me/personal-nail`, async ({ request }) => {
+    try {
+      // 토큰 검증
+      const authResult = await validateToken(request);
+
+      // 인증 실패 시 401 응답 반환
+      if (authResult instanceof HttpResponse) {
+        return authResult;
+      }
+
+      // 인증된 사용자 정보 사용
+      const user = authResult;
+
+      let response: GetPersonalNailResponse;
+
+      // 진단 결과가 없는 경우
+      if (!user.personalNailResult) {
+        response = {
+          code: 204,
+          message: '진단 정보가 없습니다.',
+          data: null,
+        };
+      }
+
+      response = {
+        code: 200,
+        message: '퍼스널 네일 결과 조회 성공',
+        data: user.personalNailResult,
+      };
+
+      return createSuccessResponse(response.data, response.message);
+    } catch (error) {
+      return createErrorResponse('서버 오류가 발생했습니다.', 500);
+    }
   }),
 
   /**
