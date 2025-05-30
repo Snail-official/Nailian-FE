@@ -222,6 +222,7 @@ function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
                   columnWrapperStyle={styles.nailRow}
                   ItemSeparatorComponent={NailSeparator}
                   scrollEnabled={false}
+                  removeClippedSubviews={false}
                 />
               )}
             </View>
