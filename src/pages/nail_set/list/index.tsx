@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
   View,
   FlatList,
@@ -7,14 +7,9 @@ import {
   ActivityIndicator,
   Text,
 } from 'react-native';
-import {
-  RouteProp,
-  useNavigation,
-  useRoute,
-  useFocusEffect,
-} from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { INailSet } from '~/shared/types/nail-set';
 import { SafeAreaView } from 'react-native-safe-area-context';

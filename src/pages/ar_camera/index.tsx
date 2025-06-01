@@ -5,12 +5,10 @@ import {
   SafeAreaView,
   NativeModules,
   StatusBar,
-  ViewStyle,
   Text,
   Dimensions,
   TouchableOpacity,
   findNodeHandle,
-  NativeSyntheticEvent,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useRoute, RouteProp } from '@react-navigation/native';

@@ -54,7 +54,9 @@ function PersonalNailProvider({
   onComplete?: () => void;
 }) {
   const [currentStep, setCurrentStep] = useState(initialStep);
-  const [stepAnswers, setStepAnswers] = useState<number[]>([0, 0, 0, 0, 0]);
+  const [stepAnswers, setStepAnswers] = useState<number[]>([
+    -1, -1, -1, -1, -1,
+  ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const navigation =
@@ -65,7 +67,7 @@ function PersonalNailProvider({
   const handleSelectAnswer = useCallback(
     (stepIndex: number, answerValue: number) => {
       const newAnswers = [...stepAnswers];
-      newAnswers[stepIndex - 1] = answerValue + 1;
+      newAnswers[stepIndex - 1] = answerValue;
       setStepAnswers(newAnswers);
     },
     [stepAnswers],
@@ -100,7 +102,7 @@ function PersonalNailProvider({
   // 다음 단계로 이동
   const goToNextStep = useCallback(() => {
     // 현재 단계의 응답 확인
-    if (stepAnswers[currentStep - 1] === 0) {
+    if (stepAnswers[currentStep - 1] === -1) {
       if (currentStep <= 2) {
         toast.showToast('컬러를 선택해주세요', {
           position: 'top',

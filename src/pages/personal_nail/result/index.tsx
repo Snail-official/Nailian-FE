@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -81,7 +81,7 @@ function PersonalNailResult({ navigation, route }: PersonalNailResultProps) {
     queryFn: fetchUserProfile,
   });
 
-  const { data: personalNailResult, isLoading: isResultLoading } = useQuery({
+  const { data: personalNailResult } = useQuery({
     queryKey: ['personalNail'],
     queryFn: fetchPersonalNail,
     enabled: !initialResult,
