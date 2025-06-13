@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View, SafeAreaView } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { colors } from '~/shared/styles/design';
@@ -21,29 +20,17 @@ import NailBodyLengthStep from './steps/NailBodyLengthStep';
 // Context 가져오기
 import { PersonalNailProvider, usePersonalNail } from './PersonalNailContext';
 
-interface PersonalNailFunnelProps {
-  navigation: NativeStackNavigationProp<
-    RootStackParamList,
-    'PersonalNailFunnelPage'
-  >;
-}
-
 /**
  * 퍼스널 네일 측정 퍼널 페이지
  *
  * 사용자의 퍼스널 네일 특성을 측정하기 위한 단계별 화면을 제공합니다.
  * 총 5단계로 구성되어 있으며, 각 단계에서 사용자의 선택에 따라 다음 단계로 진행합니다.
  */
-function PersonalNailFunnelPage({ navigation }: PersonalNailFunnelProps) {
+function PersonalNailFunnelPage() {
   const route =
     useRoute<RouteProp<RootStackParamList, 'PersonalNailFunnelPage'>>();
 
   const initialStep = route.params?.step || 1;
-
-  // 뒤로가기 핸들러
-  const handleBack = () => {
-    navigation.goBack();
-  };
 
   return (
     <PersonalNailProvider
@@ -53,7 +40,6 @@ function PersonalNailFunnelPage({ navigation }: PersonalNailFunnelProps) {
           position: 'bottom',
         });
       }}
-      onBack={handleBack}
     >
       <PersonalNailContent />
     </PersonalNailProvider>
