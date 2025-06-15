@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,29 +7,27 @@ import {
   FlatList,
   ListRenderItemInfo,
 } from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
+import { RootStackParamList } from '~/shared/types/navigation';
 import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
 import NailSetComponent from '~/features/nail-set/ui/NailSet';
 import { NailSet, StyleGroup, StyleInfo } from '../types';
 
 interface RecommendedNailSetsProps {
   styleGroups: StyleGroup[];
-  onStylePress: (styleId: number, styleName: string) => void;
-  onNailSetPress: (nailSet: NailSet, style: StyleInfo) => void;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'MainHome'>;
 }
 
-// 네일 아이템 컴포넌트 Props 인터페이스
 interface NailItemProps {
   nailSet: NailSet;
   styleInfo: StyleInfo;
   onPress: (nailSet: NailSet, styleInfo: StyleInfo) => void;
 }
 
-// 구분선 컴포넌트
 const NailSetSeparator = memo(() => <View style={styles.nailSetSeparator} />);
 
-// 단일 네일 아이템 컴포넌트 (RecommendedNailSets 외부로 분리)
 const NailItem = memo(({ nailSet, styleInfo, onPress }: NailItemProps) => (
   <TouchableOpacity
     style={styles.nailSetItem}
@@ -40,22 +38,52 @@ const NailItem = memo(({ nailSet, styleInfo, onPress }: NailItemProps) => (
   </TouchableOpacity>
 ));
 
-// renderItem 생성 함수 (컴포넌트 외부로 분리)
-const createRenderItem = (
-  styleInfo: StyleInfo,
-  onNailSetPress: (nailSet: NailSet, style: StyleInfo) => void,
-) =>
-  function ({ item }: ListRenderItemInfo<NailSet>) {
-    return (
-      <NailItem nailSet={item} styleInfo={styleInfo} onPress={onNailSetPress} />
-    );
-  };
-
 function RecommendedNailSets({
   styleGroups,
-  onStylePress,
-  onNailSetPress,
+  navigation,
 }: RecommendedNailSetsProps) {
+  // 스타일 클릭 핸들러
+  const handleStylePress = useCallback(
+    (styleId: number, styleName: string) => {
+      navigation.navigate('NailSetFeedPage', {
+        styleId,
+        styleName: `${styleName}네일`,
+      });
+    },
+    [navigation],
+  );
+
+  // 네일 세트 클릭 핸들러
+  const handleNailSetPress = useCallback(
+    (nailSet: NailSet, styleInfo: StyleInfo) => {
+      const validStyleId =
+        typeof styleInfo.id === 'number' && styleInfo.id > 0 ? styleInfo.id : 1;
+
+      navigation.navigate('NailSetDetailPage', {
+        nailSetId: nailSet.id,
+        styleId: validStyleId,
+        styleName: `${styleInfo.name}네일` || '추천 네일',
+        isBookmarked: false,
+      });
+    },
+    [navigation],
+  );
+
+  // renderItem 생성 함수
+  const createRenderItem = useCallback(
+    (styleInfo: StyleInfo) =>
+      function ({ item }: ListRenderItemInfo<NailSet>) {
+        return (
+          <NailItem
+            nailSet={item}
+            styleInfo={styleInfo}
+            onPress={handleNailSetPress}
+          />
+        );
+      },
+    [handleNailSetPress],
+  );
+
   return (
     <View style={styles.container}>
       {styleGroups.map((styleGroup: StyleGroup) => (
@@ -63,7 +91,7 @@ function RecommendedNailSets({
           <TouchableOpacity
             style={styles.styleHeader}
             onPress={() =>
-              onStylePress(styleGroup.style.id, styleGroup.style.name)
+              handleStylePress(styleGroup.style.id, styleGroup.style.name)
             }
             activeOpacity={1}
           >
@@ -80,7 +108,7 @@ function RecommendedNailSets({
           <FlatList
             horizontal
             data={styleGroup.nailSets}
-            renderItem={createRenderItem(styleGroup.style, onNailSetPress)}
+            renderItem={createRenderItem(styleGroup.style)}
             keyExtractor={item => `nail-set-${item.id}`}
             showsHorizontalScrollIndicator={false}
             removeClippedSubviews={false}
