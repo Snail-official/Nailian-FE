@@ -21,7 +21,6 @@ import {
   deleteUser,
   fetchPersonalNail,
 } from '~/entities/user/api';
-import { fetchUserNailSets } from '~/entities/nail-set/api';
 import { TabBarFooter } from '~/shared/ui/TabBar';
 import Modal from '~/shared/ui/Modal';
 import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
@@ -38,17 +37,7 @@ interface MyPageProps {
 }
 
 /**
- * 마이페이지 화면 컴포넌트
- *
- * 사용자의 프로필 정보와 네일 보관함, 앱 설정 및 계정 관리 기능을 제공하는 화면입니다.
- * 주요 기능:
- * - 사용자 닉네임 및 프로필 표시
- * - 네일 보관함 접근 및 보관된 네일 세트 수 표시
- * - 1:1 문의, FAQ, 약관 및 정책 등의 메뉴
- * - 로그아웃 및 회원 탈퇴 기능
- *
- * @param {MyPageProps} props 마이페이지 컴포넌트 props
- * @param {NativeStackNavigationProp} props.navigation 네비게이션 객체
+ * 마이페이지 화면
  */
 function MyPageScreen({ navigation }: MyPageProps) {
   const [currentModal, setCurrentModal] = React.useState<
@@ -60,11 +49,6 @@ function MyPageScreen({ navigation }: MyPageProps) {
   const { data: userProfile, refetch: refetchProfile } = useQuery({
     queryKey: ['userProfile'],
     queryFn: fetchUserProfile,
-  });
-
-  const { data: nailSets, refetch: refetchNailSets } = useQuery({
-    queryKey: ['userNailSets'],
-    queryFn: () => fetchUserNailSets({ page: 1, size: 10 }),
   });
 
   // 퍼스널 네일 결과 조회
@@ -82,7 +66,6 @@ function MyPageScreen({ navigation }: MyPageProps) {
   }, [personalNailError]);
 
   const nickname = userProfile?.data?.nickname || '네일조아';
-  const bookmarkCount = nailSets?.data?.pageInfo?.totalElements || 0;
 
   /**
    * 화면에 포커스 될 때마다 데이터 다시 로드
@@ -91,8 +74,7 @@ function MyPageScreen({ navigation }: MyPageProps) {
   useFocusEffect(
     useCallback(() => {
       refetchProfile();
-      refetchNailSets();
-    }, [refetchProfile, refetchNailSets]),
+    }, [refetchProfile]),
   );
 
   /**
@@ -135,26 +117,12 @@ function MyPageScreen({ navigation }: MyPageProps) {
     }
   };
 
-  /**
-   * 네일 보관함 페이지 이동 함수
-   *
-   * 네일 보관함 카드 클릭 시 저장된 네일셋 목록 페이지로 이동합니다.
-   */
+  // 네일 보관함 페이지 이동 함수
   const handleNailBookmarkPress = () => {
-    navigation.navigate('NailSetListPage', {
-      styleId: -1, // 북마크 모드를 위한 특별한 값 사용
-      styleName: '네일 보관함',
-    });
+    navigation.navigate('BookmarkPage');
   };
 
-  /**
-   * 메뉴 항목 클릭 핸들러
-   *
-   * 각 메뉴 항목(1:1 문의, FAQ, 약관 및 정책 등) 클릭 시
-   * 해당 페이지로 이동하는 함수입니다.
-   *
-   * @param {string} menuType 선택된 메뉴 유형
-   */
+  // 메뉴 항목 클릭 핸들러
   const handleMenuPress = async (menuType: string) => {
     const urls: Record<string, string> = {
       '1:1 문의': 'https://www.notion.so/1-1-1d4a61f4f3718080af26de9177d78887',
@@ -183,20 +151,12 @@ function MyPageScreen({ navigation }: MyPageProps) {
     }
   };
 
-  /**
-   * 회원 탈퇴 모달 표시 함수
-   *
-   * 탈퇴하기 버튼 클릭 시 확인 모달을 표시합니다.
-   */
+  // 회원 탈퇴 모달 표시 함수
   const handleUnsubscribeButtonPress = () => {
     setCurrentModal('unsubscribe');
   };
 
-  /**
-   * 회원 탈퇴 처리 함수
-   *
-   * 회원 탈퇴 API를 호출하고 성공 시 로그인 화면으로 이동합니다.
-   */
+  // 회원 탈퇴 처리 함수
   const handleUnsubscribe = async () => {
     try {
       await deleteUser();
@@ -361,11 +321,6 @@ function MyPageScreen({ navigation }: MyPageProps) {
                 <View style={styles.bookmarkContent}>
                   <Text style={styles.bookmarkTitle}>네일 보관함</Text>
                   <View style={styles.bookmarkCountContainer}>
-                    <Text style={styles.bookmarkCount}>
-                      {bookmarkCount > 10000000000000000000
-                        ? '10000000000000000000000000...'
-                        : bookmarkCount}
-                    </Text>
                     <ArrowRightIcon
                       width={scale(24)}
                       height={scale(24)}
