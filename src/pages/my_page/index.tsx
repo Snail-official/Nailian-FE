@@ -1,36 +1,19 @@
 import React, { useCallback } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  SafeAreaView,
-  Linking,
-} from 'react-native';
+import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors, typography } from '~/shared/styles/design';
-import { scale, vs } from '~/shared/lib/responsive';
-import {
-  fetchUserProfile,
-  logoutFromService,
-  deleteUser,
-  fetchPersonalNail,
-} from '~/entities/user/api';
+import { colors } from '~/shared/styles/design';
+import { vs } from '~/shared/lib/responsive';
+import { fetchUserProfile, fetchPersonalNail } from '~/entities/user/api';
 import { TabBarFooter } from '~/shared/ui/TabBar';
-import Modal from '~/shared/ui/Modal';
-import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
-import UnsubscribeIcon from '~/shared/assets/icons/ic_unsubscribe.svg';
-import { useAuthStore } from '~/shared/store/authStore';
-import { toast } from '~/shared/lib/toast';
-
-const BookmarkBar = require('~/shared/assets/images/bookmark_bar.png');
-const ProfileImage = require('~/shared/assets/images/img_profile.png');
-const EmptyNailImage = require('~/shared/assets/images/img_emptynail.png');
+import {
+  ProfileSection,
+  PersonalNailBox,
+  BookmarkContainer,
+  MenuList,
+} from './ui';
 
 interface MyPageProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MyPage'>;
@@ -40,12 +23,7 @@ interface MyPageProps {
  * 마이페이지 화면
  */
 function MyPageScreen({ navigation }: MyPageProps) {
-  const [currentModal, setCurrentModal] = React.useState<
-    'none' | 'logout' | 'unsubscribe'
-  >('none');
-  const queryClient = useQueryClient();
-
-  // React Query를 사용한 데이터 페칭
+  // 데이터 페칭
   const { data: userProfile, refetch: refetchProfile } = useQuery({
     queryKey: ['userProfile'],
     queryFn: fetchUserProfile,
@@ -77,391 +55,45 @@ function MyPageScreen({ navigation }: MyPageProps) {
     }, [refetchProfile]),
   );
 
-  /**
-   * 로그아웃 모달 표시 함수
-   *
-   * 로그아웃 버튼 클릭 시 확인 모달을 표시합니다.
-   */
-  const handleLogoutButtonPress = () => {
-    setCurrentModal('logout');
-  };
-
-  /**
-   * 모달 닫기 함수
-   *
-   * 모든 모달을 닫고 상태를 초기화합니다.
-   */
-  const closeModal = () => {
-    setCurrentModal('none');
-  };
-
-  /**
-   * 로그아웃 처리 함수
-   *
-   * 로그아웃 API를 호출하고 로컬 토큰을 제거한 후
-   * 로그인 화면으로 이동합니다.
-   */
-  const handleLogout = async () => {
-    try {
-      await logoutFromService();
-      // 로컬에 저장된 인증 토큰 제거
-      await useAuthStore.getState().clearTokens();
-      // React Query 캐시 초기화
-      queryClient.clear();
-      closeModal();
-      navigation.replace('SocialLogin');
-    } catch (err) {
-      console.error('로그아웃 실패:', err);
-      // 에러 발생해도 모달은 닫기
-      closeModal();
-    }
-  };
-
-  // 네일 보관함 페이지 이동 함수
-  const handleNailBookmarkPress = () => {
-    navigation.navigate('BookmarkPage');
-  };
-
-  // 메뉴 항목 클릭 핸들러
-  const handleMenuPress = async (menuType: string) => {
-    const urls: Record<string, string> = {
-      '1:1 문의': 'https://www.notion.so/1-1-1d4a61f4f3718080af26de9177d78887',
-      FAQ: 'https://www.notion.so/FAQ-1d4a61f4f3718095891aec01cdbb82d5',
-      '약관 및 정책': 'https://www.notion.so/1d4a61f4f37180a89490fd3bde2b3a7b',
-    };
-    // URL이 있으면 웹페이지로 이동
-    if (urls[menuType]) {
-      try {
-        const url = urls[menuType];
-        const canOpen = await Linking.canOpenURL(url);
-        if (canOpen) {
-          await Linking.openURL(url);
-        } else {
-          console.error('URL을 열 수 없습니다:', url);
-          toast.showToast('브라우저를 열 수 없습니다', { position: 'bottom' });
-        }
-      } catch (error) {
-        console.error('링크 열기 오류:', error);
-        toast.showToast('링크를 여는 중 오류가 발생했습니다', {
-          position: 'bottom',
-        });
-      }
-    } else {
-      toast.showToast('링크 주소가 없습니다', { position: 'bottom' });
-    }
-  };
-
-  // 회원 탈퇴 모달 표시 함수
-  const handleUnsubscribeButtonPress = () => {
-    setCurrentModal('unsubscribe');
-  };
-
-  // 회원 탈퇴 처리 함수
-  const handleUnsubscribe = async () => {
-    try {
-      await deleteUser();
-      // 로컬에 저장된 인증 토큰 제거
-      await useAuthStore.getState().clearTokens();
-      queryClient.clear();
-      closeModal();
-      navigation.replace('SocialLogin');
-    } catch (err) {
-      toast.showToast('회원 탈퇴에 실패했습니다', { position: 'bottom' });
-      // 에러 발생해도 모달은 닫기
-      closeModal();
-    }
-  };
-
-  // 모달 렌더링 함수
-  const renderModal = () => {
-    switch (currentModal) {
-      case 'logout':
-        return (
-          <Modal
-            title="로그아웃하시겠어요?"
-            description=" "
-            confirmText="로그아웃"
-            cancelText="돌아가기"
-            onConfirm={handleLogout}
-            onCancel={closeModal}
-          />
-        );
-      case 'unsubscribe':
-        return (
-          <Modal
-            title="정말 탈퇴하시겠어요?"
-            description="소중한 정보가 모두 사라져요"
-            confirmText="탈퇴하기"
-            cancelText="돌아가기"
-            onConfirm={handleUnsubscribe}
-            onCancel={closeModal}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
-    <>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.mainContainer}>
-          <View style={styles.container}>
-            <ScrollView
-              style={styles.scrollContainer}
-              contentContainerStyle={styles.scrollContent}
-              removeClippedSubviews={false}
-              showsVerticalScrollIndicator={false}
-            >
-              {/* 프로필 섹션 */}
-              <View style={styles.profileSection}>
-                <View style={styles.profileImageContainer}>
-                  <Image source={ProfileImage} style={styles.profileImage} />
-                </View>
-                <Text style={styles.nickname}>{nickname}</Text>
-              </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.mainContainer}>
+        <View style={styles.container}>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={styles.scrollContent}
+            removeClippedSubviews={false}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* 프로필 섹션 */}
+            <ProfileSection nickname={nickname} />
 
-              {/* 구분선 */}
-              <View style={styles.divider} />
+            {/* 구분선 */}
+            <View style={styles.divider} />
 
-              {/* 퍼스널 네일 측정 박스 */}
-              <View style={styles.personalNailBox}>
-                <View style={styles.personalNailContent}>
-                  {personalNailResult?.data?.title ? (
-                    <View style={styles.personalNailInfo}>
-                      <View style={styles.personalNailTitleContainer}>
-                        <View style={styles.personalNailTitleWrapper}>
-                          <Text style={styles.personalNailTitlePrefix}>
-                            <Text style={styles.personalNailResultNickname}>
-                              {nickname}
-                            </Text>
-                            <Text style={styles.personalNailTitleSuffix}>
-                              님은{'\n'}
-                            </Text>
-                            <Text style={styles.personalNailTypeText}>
-                              {personalNailResult.data.title}
-                            </Text>
-                            <Text style={styles.personalNailTitleSuffix}>
-                              입니다
-                            </Text>
-                          </Text>
-                        </View>
-                        <Image
-                          source={{ uri: personalNailResult.data.icon_url }}
-                          style={styles.personalNailIcon}
-                        />
-                      </View>
-                      <View style={styles.personalNailButtons}>
-                        <TouchableOpacity
-                          style={styles.viewResultButton}
-                          activeOpacity={0.8}
-                          onPress={() =>
-                            navigation.navigate('PersonalNailResult', {
-                              personalNailResult: personalNailResult.data,
-                            })
-                          }
-                        >
-                          <Text style={styles.viewResultButtonText}>
-                            결과보기
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.measureButton}
-                          activeOpacity={0.8}
-                          onPress={() =>
-                            navigation.navigate('PersonalNailFunnelPage', {
-                              step: 1,
-                            })
-                          }
-                        >
-                          <Text style={styles.measureButtonText}>
-                            다시 측정하기
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  ) : (
-                    <>
-                      <View style={styles.personalNailEmptyContent}>
-                        <Text style={styles.personalNailTitle}>
-                          <Text style={styles.personalNailNickname}>
-                            {nickname}
-                          </Text>
-                          <Text style={styles.personalNailTitleSuffix}>
-                            님의{'\n'}퍼스널네일을 측정해보세요
-                          </Text>
-                        </Text>
-                        <Image
-                          source={EmptyNailImage}
-                          style={styles.emptyNailImage}
-                        />
-                      </View>
-                      <TouchableOpacity
-                        style={styles.measureButton}
-                        activeOpacity={0.8}
-                        onPress={() =>
-                          navigation.navigate('PersonalNailFunnelPage', {
-                            step: 1,
-                          })
-                        }
-                      >
-                        <Text style={styles.measureButtonText}>측정하기</Text>
-                      </TouchableOpacity>
-                    </>
-                  )}
-                </View>
-              </View>
+            {/* 퍼스널 네일 측정 박스 */}
+            <PersonalNailBox
+              nickname={nickname}
+              personalNailResult={personalNailResult}
+              navigation={navigation}
+            />
 
-              {/* 네일 보관함 */}
-              <TouchableOpacity
-                style={styles.bookmarkContainer}
-                onPress={handleNailBookmarkPress}
-                activeOpacity={1}
-              >
-                <View style={styles.bookmarkContent}>
-                  <Text style={styles.bookmarkTitle}>네일 보관함</Text>
-                  <View style={styles.bookmarkCountContainer}>
-                    <ArrowRightIcon
-                      width={scale(24)}
-                      height={scale(24)}
-                      color={colors.gray100}
-                    />
-                  </View>
-                </View>
-                <Image source={BookmarkBar} style={styles.bookmarkBar} />
-              </TouchableOpacity>
+            {/* 네일 보관함 */}
+            <BookmarkContainer navigation={navigation} />
 
-              {/* 메뉴 리스트 */}
-              <View style={styles.menuList}>
-                {/* 1:1 문의 */}
-                <TouchableOpacity
-                  style={styles.menuItem}
-                  onPress={() => handleMenuPress('1:1 문의')}
-                  activeOpacity={1}
-                >
-                  <Text style={styles.menuText}>1:1 문의</Text>
-                  <ArrowRightIcon
-                    width={scale(24)}
-                    height={scale(24)}
-                    color={colors.gray400}
-                  />
-                </TouchableOpacity>
-
-                {/* FAQ */}
-                <TouchableOpacity
-                  style={styles.menuItem}
-                  onPress={() => handleMenuPress('FAQ')}
-                  activeOpacity={1}
-                >
-                  <Text style={styles.menuText}>FAQ</Text>
-                  <ArrowRightIcon
-                    width={scale(24)}
-                    height={scale(24)}
-                    color={colors.gray400}
-                  />
-                </TouchableOpacity>
-
-                {/* 약관 및 정책 */}
-                <TouchableOpacity
-                  style={styles.menuItem}
-                  onPress={() => handleMenuPress('약관 및 정책')}
-                  activeOpacity={1}
-                >
-                  <Text style={styles.menuText}>약관 및 정책</Text>
-                  <ArrowRightIcon
-                    width={scale(24)}
-                    height={scale(24)}
-                    color={colors.gray400}
-                  />
-                </TouchableOpacity>
-
-                {/* 로그아웃 */}
-                <TouchableOpacity
-                  style={styles.menuItem}
-                  onPress={handleLogoutButtonPress}
-                  activeOpacity={1}
-                >
-                  <Text style={styles.menuText}>로그아웃</Text>
-                  <ArrowRightIcon
-                    width={scale(24)}
-                    height={scale(24)}
-                    color={colors.gray400}
-                  />
-                </TouchableOpacity>
-
-                {/* 탈퇴하기 */}
-                <View style={styles.unsubscribeContainer}>
-                  <TouchableOpacity
-                    style={styles.unsubscribeButton}
-                    onPress={handleUnsubscribeButtonPress}
-                    activeOpacity={1}
-                  >
-                    <Text style={styles.unsubscribeText}>탈퇴하기</Text>
-                    <UnsubscribeIcon
-                      width={scale(16)}
-                      height={scale(16)}
-                      color={colors.gray400}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-          <View style={styles.tabBarContainer}>
-            <TabBarFooter activeTab="my_page" />
-          </View>
+            {/* 메뉴 리스트 */}
+            <MenuList navigation={navigation} />
+          </ScrollView>
         </View>
-      </SafeAreaView>
-
-      {/* 모달 렌더링 */}
-      {renderModal()}
-    </>
+        <View style={styles.tabBarContainer}>
+          <TabBarFooter activeTab="my_page" />
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  bookmarkBar: {
-    height: '100%',
-    left: 0,
-    position: 'absolute',
-    width: '100%',
-    zIndex: 1,
-  },
-  bookmarkContainer: {
-    backgroundColor: colors.purple500,
-    borderRadius: scale(12),
-    height: vs(72),
-    marginHorizontal: scale(20),
-    marginTop: vs(24),
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  bookmarkContent: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    height: '100%',
-    paddingLeft: scale(18),
-    paddingRight: scale(8),
-    position: 'relative',
-    zIndex: 2,
-  },
-  bookmarkCount: {
-    ...typography.body2_SB,
-    color: colors.white,
-    textAlign: 'right',
-  },
-  bookmarkCountContainer: {
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  bookmarkTitle: {
-    ...typography.body1_B,
-    color: colors.white,
-    marginRight: scale(8),
-    width: scale(80),
-  },
   container: {
     backgroundColor: colors.white,
     flex: 1,
@@ -473,147 +105,9 @@ const styles = StyleSheet.create({
     marginTop: vs(12),
     width: '100%',
   },
-  emptyNailImage: {
-    height: scale(64),
-    width: scale(64),
-  },
   mainContainer: {
     flex: 1,
     position: 'relative',
-  },
-  measureButton: {
-    alignItems: 'center',
-    backgroundColor: colors.gray900,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: scale(30),
-    paddingVertical: vs(10),
-    width: scale(125),
-  },
-  measureButtonText: {
-    ...typography.body3_B,
-    color: colors.white,
-    textAlign: 'center',
-  },
-  menuItem: {
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    backgroundColor: colors.white,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingLeft: scale(22),
-    paddingRight: scale(20),
-    paddingVertical: scale(18),
-  },
-  menuList: {
-    marginTop: vs(24),
-  },
-  menuText: {
-    ...typography.body5_M,
-    color: colors.gray600,
-    textAlign: 'center',
-  },
-  nickname: {
-    ...typography.body1_B,
-    color: colors.gray850,
-    textAlign: 'center',
-  },
-  personalNailBox: {
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    elevation: 8,
-    height: vs(157),
-    justifyContent: 'space-between',
-    marginHorizontal: scale(24),
-    marginTop: vs(24),
-    paddingBottom: vs(16),
-    paddingHorizontal: scale(22),
-    paddingTop: vs(22),
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.04,
-    shadowRadius: 20,
-    width: scale(327),
-  },
-  personalNailButtons: {
-    flexDirection: 'row',
-    gap: scale(12),
-    justifyContent: 'center',
-  },
-  personalNailContent: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  personalNailEmptyContent: {
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  personalNailIcon: {
-    height: scale(64),
-    width: scale(64),
-  },
-  personalNailInfo: {
-    flex: 1,
-    width: '100%',
-  },
-  personalNailNickname: {
-    ...typography.title2_SB,
-    color: colors.purple500,
-  },
-  personalNailResultNickname: {
-    ...typography.title2_SB,
-    color: colors.gray800,
-  },
-  personalNailTitle: {
-    ...typography.title2_SB,
-    color: colors.gray800,
-    flex: 1,
-  },
-  personalNailTitleContainer: {
-    alignItems: 'flex-start',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: vs(16),
-    width: '100%',
-  },
-  personalNailTitlePrefix: {
-    ...typography.title2_SB,
-  },
-  personalNailTitleSuffix: {
-    ...typography.title2_SB,
-    color: colors.gray800,
-  },
-  personalNailTitleWrapper: {
-    flex: 1,
-  },
-  personalNailTypeText: {
-    ...typography.title2_SB,
-    color: colors.purple500,
-  },
-  profileImage: {
-    height: scale(54),
-    width: scale(54),
-  },
-  profileImageContainer: {
-    alignItems: 'center',
-    borderRadius: scale(27),
-    height: scale(54),
-    justifyContent: 'center',
-    marginRight: scale(14),
-    overflow: 'hidden',
-    width: scale(54),
-  },
-  profileSection: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginTop: vs(22),
-    paddingHorizontal: scale(18),
   },
   safeArea: {
     backgroundColor: colors.white,
@@ -628,41 +122,6 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     borderTopColor: colors.gray100,
     borderTopWidth: 1,
-  },
-  unsubscribeButton: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: scale(3),
-    justifyContent: 'flex-end',
-    paddingBottom: vs(14),
-    paddingLeft: 0,
-    paddingRight: scale(2),
-    paddingTop: vs(13),
-  },
-  unsubscribeContainer: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    marginRight: scale(20),
-    marginTop: vs(10),
-  },
-  unsubscribeText: {
-    ...typography.body5_M,
-    color: colors.gray400,
-    textAlign: 'center',
-  },
-  viewResultButton: {
-    alignItems: 'center',
-    backgroundColor: colors.gray100,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: scale(30),
-    paddingVertical: vs(10),
-    width: scale(125),
-  },
-  viewResultButtonText: {
-    ...typography.body3_B,
-    color: colors.gray850,
-    textAlign: 'center',
   },
 });
 
