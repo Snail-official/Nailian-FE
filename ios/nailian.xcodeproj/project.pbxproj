@@ -57,8 +57,8 @@
 		060238E42DCA5AB50017209A /* CameraCaptureable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureable.swift; sourceTree = "<group>"; };
 		060238E62DCA5AE60017209A /* ImageSegmenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSegmenting.swift; sourceTree = "<group>"; };
 		060238E82DCA5B000017209A /* NailProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailProcessing.swift; sourceTree = "<group>"; };
-		092C2FC82DDDC09A0097CF02 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = /Users/myunsyeya/Desktop/Debug.xcconfig; sourceTree = "<absolute>"; };
-		092C2FC92DDDC09A0097CF02 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = /Users/myunsyeya/Desktop/Release.xcconfig; sourceTree = "<absolute>"; };
+		092C2FC82DDDC09A0097CF02 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		092C2FC92DDDC09A0097CF02 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Nailian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nailian.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = nailian/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = nailian/AppDelegate.mm; sourceTree = "<group>"; };
@@ -87,6 +87,8 @@
 		E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailMetricsAnalyzing.swift; sourceTree = "<group>"; };
 		E13842852DB7697D00631A7F /* NailAssetProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailAssetProviding.swift; sourceTree = "<group>"; };
 		E16EA9A02D7815BF0056AA4B /* libRNKeychain.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNKeychain.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E18CB5BF2DFED1070083D4E2 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		E18CB5C02DFED10F0083D4E2 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		E1F0762C2DA4AF86003F928C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E1F801272D5DBBC600266514 /* libKakaoSDKAuth.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKakaoSDKAuth.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F801292D5DBBC600266514 /* libKakaoSDKCommon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKakaoSDKCommon.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,11 +100,15 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E14D84192D8D7C6E00EDD138 /* Modules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Modules;
 			sourceTree = "<group>";
 		};
 		E1D033572D8E8DB900C244AD /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Models;
 			sourceTree = "<group>";
 		};
@@ -201,6 +207,8 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
 				998E940FD9C74DE38B53EB79 /* Resources */,
+				E18CB5BF2DFED1070083D4E2 /* Release.xcconfig */,
+				E18CB5C02DFED10F0083D4E2 /* Debug.xcconfig */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -607,7 +615,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = nailian/nailian.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = U8C7YGRNGL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = nailian/Info.plist;
@@ -616,7 +624,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -642,7 +650,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = nailian/nailian.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = U8C7YGRNGL;
 				INFOPLIST_FILE = nailian/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -650,7 +658,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -670,7 +678,7 @@
 		};
 		83CBBA201A601CBA00E9B192 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 092C2FC82DDDC09A0097CF02 /* Debug.xcconfig */;
+			baseConfigurationReference = E18CB5C02DFED10F0083D4E2 /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -739,7 +747,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -749,7 +760,7 @@
 		};
 		83CBBA211A601CBA00E9B192 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 092C2FC92DDDC09A0097CF02 /* Release.xcconfig */;
+			baseConfigurationReference = E18CB5BF2DFED1070083D4E2 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -810,7 +821,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
