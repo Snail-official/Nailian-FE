@@ -11,7 +11,6 @@ export default function Footer() {
     <View style={styles.footerSection}>
       <View style={styles.footer}>
         <View>
-          <Text style={styles.footerText}>버전 1.0.0</Text>
           <Text style={styles.footerText}>
             문의 메일 : snail.official.kr@gmail.com
           </Text>
