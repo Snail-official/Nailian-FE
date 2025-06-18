@@ -46,11 +46,7 @@ function BookmarkPage() {
     initialPageParam: 0,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
   });
-
-  console.log('nailSets', data);
 
   // 모든 페이지의 데이터를 하나의 배열로 합치기
   const nailSets = data?.pages.flatMap(page => page.data?.content || []) || [];
