@@ -11,7 +11,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { savePersonalNail } from '~/entities/user/api';
 import { toast } from '~/shared/lib/toast';
-import Modal from '~/shared/ui/Modal';
+import { useModalStore } from '~/shared/ui/Modal';
 
 // 단계별 타이틀 정의
 export const STEP_TITLES = [
@@ -28,14 +28,11 @@ interface PersonalNailContextType {
   currentStep: number;
   stepAnswers: number[];
   isSubmitting: boolean;
-  showExitModal: boolean;
   setCurrentStep: (step: number) => void;
   handleSelectAnswer: (stepIndex: number, answerValue: number) => void;
   submitPersonalNailResult: () => Promise<boolean>;
   goToNextStep: () => void;
   goToPrevStep: () => void;
-  closeExitModal: () => void;
-  confirmExit: () => void;
 }
 
 // 컨텍스트 생성
@@ -58,10 +55,10 @@ function PersonalNailProvider({
     -1, -1, -1, -1, -1,
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showExitModal, setShowExitModal] = useState(false);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const queryClient = useQueryClient();
+  const { showModal } = useModalStore();
 
   // 답변 선택 핸들러
   const handleSelectAnswer = useCallback(
@@ -118,7 +115,6 @@ function PersonalNailProvider({
     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     } else {
-      // 마지막 단계에서는 결과 제출
       submitPersonalNailResult();
     }
   }, [currentStep, stepAnswers, submitPersonalNailResult]);
@@ -128,64 +124,43 @@ function PersonalNailProvider({
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     } else {
-      // 첫 단계에서는 나가기 확인 모달 표시
-      setShowExitModal(true);
+      showModal('CONFIRM', {
+        title: '정말 나가시겠어요?',
+        description: '응답했던 내용은 모두 사라져요',
+        confirmText: '돌아가기',
+        cancelText: '나가기',
+        onConfirm: () => {},
+        onCancel: () => navigation.replace('MyPage'),
+      });
     }
-  }, [currentStep]);
-
-  // 나가기 모달 닫기
-  const closeExitModal = useCallback(() => {
-    setShowExitModal(false);
-    navigation.replace('MyPage');
-  }, [navigation]);
-
-  // 나가기 확인
-  const confirmExit = useCallback(() => {
-    setShowExitModal(false);
-  }, []);
+  }, [currentStep, navigation, showModal]);
 
   const value = useMemo(
     () => ({
       currentStep,
       stepAnswers,
       isSubmitting,
-      showExitModal,
       setCurrentStep,
       handleSelectAnswer,
       submitPersonalNailResult,
       goToNextStep,
       goToPrevStep,
-      closeExitModal,
-      confirmExit,
     }),
     [
       currentStep,
       stepAnswers,
       isSubmitting,
-      showExitModal,
       setCurrentStep,
       handleSelectAnswer,
       submitPersonalNailResult,
       goToNextStep,
       goToPrevStep,
-      closeExitModal,
-      confirmExit,
     ],
   );
 
   return (
     <PersonalNailContext.Provider value={value}>
       {children}
-      {showExitModal && (
-        <Modal
-          title="정말 나가시겠어요?"
-          description="응답했던 내용은 모두 사라져요"
-          confirmText="돌아가기"
-          cancelText="나가기"
-          onConfirm={confirmExit}
-          onCancel={closeExitModal}
-        />
-      )}
     </PersonalNailContext.Provider>
   );
 }

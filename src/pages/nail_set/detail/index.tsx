@@ -1,24 +1,25 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '~/shared/styles/design';
 import { TabBarHeader } from '~/shared/ui/TabBar';
-import { fetchNailSetDetail } from '~/entities/nail-set/api';
+import { fetchNailSetDetail, deleteUserNailSet } from '~/entities/nail-set/api';
+import { useModalStore } from '~/shared/ui/Modal';
+import { toast } from '~/shared/lib/toast';
+import { useErrorStore } from '~/features/error/model/errorStore';
 import {
   BookmarkButton,
   SimilarNailSets,
-  DeleteModal,
   NailSetDisplay,
   NailSetDeleteButton,
 } from './ui';
@@ -37,8 +38,9 @@ function NailSetDetailPage() {
   const navigation = useNavigation<NailSetDetailScreenNavigationProp>();
   const route = useRoute<NailSetDetailScreenRouteProp>();
   const { nailSetId, styleId, styleName } = route.params;
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { showModal } = useModalStore();
+  const queryClient = useQueryClient();
+  const errorStore = useErrorStore();
 
   // 북마크 모드 여부 확인
   const isBookmarkMode = styleName === '네일 보관함';
@@ -53,13 +55,32 @@ function NailSetDetailPage() {
     queryFn: () => fetchNailSetDetail({ nailSetId }),
   });
 
-  const handleDeleteBookmarkPress = useCallback(() => {
-    setShowDeleteModal(true);
-  }, []);
+  // 북마크 삭제 함수
+  const handleDeleteBookmark = useCallback(async () => {
+    try {
+      await deleteUserNailSet({ nailSetId });
+      queryClient.invalidateQueries({ queryKey: ['userNailSets'] });
 
-  const handleDeleteModalClose = useCallback(() => {
-    setShowDeleteModal(false);
-  }, []);
+      toast.showToast('삭제되었습니다', {
+        position: 'bottom',
+      });
+      navigation.goBack();
+    } catch (error) {
+      errorStore.showError('보관함에서 삭제 중 오류가 발생했습니다');
+    }
+  }, [nailSetId, navigation, queryClient, errorStore]);
+
+  // 삭제 모달 표시 함수
+  const handleDeleteBookmarkPress = useCallback(() => {
+    showModal('CONFIRM', {
+      title: '해당 아트를 삭제하시겠어요?',
+      description: ' ',
+      confirmText: '돌아가기',
+      cancelText: '삭제하기',
+      onConfirm: () => {},
+      onCancel: handleDeleteBookmark,
+    });
+  }, [showModal, handleDeleteBookmark]);
 
   // 로딩 중 화면
   if (loading) {
@@ -113,13 +134,6 @@ function NailSetDetailPage() {
           navigation={navigation}
         />
       </ScrollView>
-
-      <DeleteModal
-        nailSetId={nailSetId}
-        navigation={navigation}
-        show={showDeleteModal}
-        onClose={handleDeleteModalClose}
-      />
     </SafeAreaView>
   );
 }

@@ -13,7 +13,7 @@ import AppNavigation from './src/app/providers/navigation';
 import { ToastContainer } from './src/shared/ui/Toast';
 import useModelLoader from './src/features/model/useModelLoader';
 import { QueryProvider } from './src/app/providers/query';
-import ErrorModal from './src/features/error/ui/ErrorModal';
+import { ModalContainer } from './src/shared/ui/Modal';
 
 function App(): React.JSX.Element {
   useModelLoader();
@@ -24,7 +24,7 @@ function App(): React.JSX.Element {
         <GestureHandlerRootView style={styles.container}>
           <AppNavigation />
           <ToastContainer />
-          <ErrorModal />
+          <ModalContainer />
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </QueryProvider>

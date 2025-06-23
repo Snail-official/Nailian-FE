@@ -13,7 +13,7 @@ import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import ArrowRightIcon from '~/shared/assets/icons/ic_arrow_right.svg';
 import UnsubscribeIcon from '~/shared/assets/icons/ic_unsubscribe.svg';
-import Modal from '~/shared/ui/Modal';
+import { useModalStore } from '~/shared/ui/Modal';
 import { logoutFromService, deleteUser } from '~/entities/user/api';
 import { useAuthStore } from '~/shared/store/authStore';
 import { toast } from '~/shared/lib/toast';
@@ -26,10 +26,8 @@ interface MenuListProps {
  * 메뉴 리스트 컴포넌트
  */
 export function MenuList({ navigation }: MenuListProps) {
-  const [currentModal, setCurrentModal] = React.useState<
-    'none' | 'logout' | 'unsubscribe'
-  >('none');
   const queryClient = useQueryClient();
+  const { showModal } = useModalStore();
 
   const menuItems = [
     { id: '1:1 문의', title: '1:1 문의' },
@@ -66,21 +64,6 @@ export function MenuList({ navigation }: MenuListProps) {
     }
   };
 
-  // 모달 닫기 함수
-  const closeModal = () => {
-    setCurrentModal('none');
-  };
-
-  // 로그아웃 모달 표시 함수
-  const handleLogoutButtonPress = () => {
-    setCurrentModal('logout');
-  };
-
-  // 회원 탈퇴 모달 표시 함수
-  const handleUnsubscribeButtonPress = () => {
-    setCurrentModal('unsubscribe');
-  };
-
   // 로그아웃 처리 함수
   const handleLogout = async () => {
     try {
@@ -89,12 +72,9 @@ export function MenuList({ navigation }: MenuListProps) {
       await useAuthStore.getState().clearTokens();
       // React Query 캐시 초기화
       queryClient.clear();
-      closeModal();
       navigation.replace('SocialLogin');
     } catch (err) {
       console.error('로그아웃 실패:', err);
-      // 에러 발생해도 모달은 닫기
-      closeModal();
     }
   };
 
@@ -105,43 +85,34 @@ export function MenuList({ navigation }: MenuListProps) {
       // 로컬에 저장된 인증 토큰 제거
       await useAuthStore.getState().clearTokens();
       queryClient.clear();
-      closeModal();
       navigation.replace('SocialLogin');
     } catch (err) {
       toast.showToast('회원 탈퇴에 실패했습니다', { position: 'bottom' });
-      // 에러 발생해도 모달은 닫기
-      closeModal();
     }
   };
 
-  // 모달 렌더링 함수
-  const renderModal = () => {
-    switch (currentModal) {
-      case 'logout':
-        return (
-          <Modal
-            title="로그아웃하시겠어요?"
-            description=" "
-            confirmText="로그아웃"
-            cancelText="돌아가기"
-            onConfirm={handleLogout}
-            onCancel={closeModal}
-          />
-        );
-      case 'unsubscribe':
-        return (
-          <Modal
-            title="정말 탈퇴하시겠어요?"
-            description="소중한 정보가 모두 사라져요"
-            confirmText="탈퇴하기"
-            cancelText="돌아가기"
-            onConfirm={handleUnsubscribe}
-            onCancel={closeModal}
-          />
-        );
-      default:
-        return null;
-    }
+  // 로그아웃 모달 표시 함수
+  const handleLogoutButtonPress = () => {
+    showModal('CONFIRM', {
+      title: '로그아웃하시겠어요?',
+      description: ' ',
+      confirmText: '로그아웃',
+      cancelText: '돌아가기',
+      onConfirm: handleLogout,
+      onCancel: () => {},
+    });
+  };
+
+  // 회원 탈퇴 모달 표시 함수
+  const handleUnsubscribeButtonPress = () => {
+    showModal('CONFIRM', {
+      title: '정말 탈퇴하시겠어요?',
+      description: '소중한 정보가 모두 사라져요',
+      confirmText: '탈퇴하기',
+      cancelText: '돌아가기',
+      onConfirm: handleUnsubscribe,
+      onCancel: () => {},
+    });
   };
 
   return (
@@ -192,9 +163,6 @@ export function MenuList({ navigation }: MenuListProps) {
           />
         </TouchableOpacity>
       </View>
-
-      {/* 모달 렌더링 */}
-      {renderModal()}
     </View>
   );
 }
