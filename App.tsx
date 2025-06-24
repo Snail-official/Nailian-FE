@@ -11,7 +11,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigation from './src/app/providers/navigation';
 import { ToastContainer } from './src/shared/ui/Toast';
-import useModelLoader from './src/features/model/useModelLoader';
+import { useModelLoader } from './src/features/model-management';
 import { QueryProvider } from './src/app/providers/query';
 import { ModalContainer } from './src/shared/ui/Modal';
 

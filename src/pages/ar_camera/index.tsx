@@ -11,7 +11,7 @@ import { CameraView } from '~/shared/ui/CameraView';
 
 // 커스텀 훅 import
 import { useFrameLayout, useCameraCapture } from '~/features/ar-camera';
-import { useModelInitialization } from '~/features/model';
+import { useModelInitialization } from '~/features/model-management';
 import { FocusFrame, CameraButton, ErrorMessage } from './ui';
 
 // AR 카메라 화면 컴포넌트

@@ -9,30 +9,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchLatestModels } from '~/entities/model/api';
 import { ModelInfo } from '~/shared/api/types';
 
-/**
- * 모델 로딩 상태
- */
+// 모델 로딩 상태
 export type ModelLoadingStatus = 'idle' | 'loading' | 'success' | 'error';
 
-/**
- * 저장된 모델 버전 정보
- */
+// 저장된 모델 버전 정보
 interface StoredModelInfo {
   releaseDate: string;
   url: string;
 }
 
-/**
- * AsyncStorage 키
- */
+// AsyncStorage 키
 const STORAGE_KEYS = {
   SEGMENTATION_MODEL: 'MODEL_SEGMENTATION_INFO',
   DETECTION_MODEL: 'MODEL_DETECTION_INFO',
 };
 
-/**
- * 모델 로더 훅 반환 타입
- */
+// 모델 로더 훅 반환 타입
 interface UseModelLoaderReturn {
   status: ModelLoadingStatus;
   isLoaded: boolean;
@@ -46,17 +38,12 @@ interface UseModelLoaderReturn {
 
 const { ModelManager } = NativeModules;
 
-// ModelManager 이벤트 이미터 (다운로드 진행률 등 이벤트 수신용)
+// ModelManager 이벤트 이미터
 const modelManagerEmitter = ModelManager
   ? new NativeEventEmitter(NativeModules.ModelManager)
   : null;
 
-/**
- * 모델 로드를 처리하는 커스텀 훅
- *
- * @param {boolean} autoLoad - 자동으로 모델을 로드할지 여부 (기본값: true)
- * @returns {UseModelLoaderReturn} 모델 로드 상태, 에러, 재로드 함수, 모델 정보
- */
+// 모델 로드를 처리하는 커스텀 훅
 const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
   const [status, setStatus] = useState<ModelLoadingStatus>('idle');
   const [error, setError] = useState<Error | null>(null);
@@ -70,9 +57,7 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
     modelInfoRef.current = modelInfo;
   }, [modelInfo]);
 
-  /**
-   * AsyncStorage에서 저장된 모델 정보 로드
-   */
+  // AsyncStorage에서 저장된 모델 정보 로드
   const loadStoredModelInfo = async () => {
     try {
       const segmentationInfoStr = await AsyncStorage.getItem(
@@ -96,9 +81,7 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
     }
   };
 
-  /**
-   * 이미 로드된 모델인지 확인 (네이티브 모듈 호출)
-   */
+  // 이미 로드된 모델인지 확인
   const isModelAlreadyLoaded = async (modelType: string): Promise<boolean> => {
     if (!ModelManager) return false;
     try {
@@ -110,9 +93,7 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
     }
   };
 
-  /**
-   * 모델이 최신 버전인지 확인
-   */
+  // 모델이 최신 버전인지 확인
   const isModelUpToDate = (
     storedInfo: StoredModelInfo | undefined,
     serverInfo: ModelInfo,
@@ -124,9 +105,7 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
     );
   };
 
-  /**
-   * 모델 정보 저장 (AsyncStorage 사용)
-   */
+  // 모델 정보 저장
   const saveModelInfo = async (
     modelType: 'segmentation' | 'detection',
     serverModelInfo: ModelInfo,
@@ -152,11 +131,7 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
     }
   };
 
-  /**
-   * 중복된 모델 처리 로직 (세그멘테이션, 디텍션)
-   *
-   * modelInfo는 ref(modelInfoRef.current)를 사용하여 의존성에서 제거함
-   */
+  // 중복된 모델 처리 로직
   const processModel = useCallback(
     async (
       modelType: 'segmentation' | 'detection',
@@ -217,7 +192,7 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
     }
   }, [processModel]);
 
-  // 이벤트 리스너 설정
+  // 이벤트 리스너
   useEffect(() => {
     let progressListener: EmitterSubscription | null = null;
     let completionListener: EmitterSubscription | null = null;
@@ -272,4 +247,4 @@ const useModelLoader = (autoLoad = true): UseModelLoaderReturn => {
   };
 };
 
-export default useModelLoader;
+export { useModelLoader };
