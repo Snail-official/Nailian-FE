@@ -26,7 +26,7 @@ import BottomSheet, {
 } from '~/pages/ar_experience/ui/BottomSheet';
 import NailOverlay from '~/pages/ar_experience/ui/NailOverlay';
 import { TabBarHeader } from '~/shared/ui/TabBar';
-import ArButton from '~/features/nail-set-ar/ui/ArButton';
+import ArButton from '~/pages/ar_experience/ui/ArButton';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 import ApplyModal from '~/pages/ar_experience/ui/ApplyModal';
 import ViewshotLightbox from '~/shared/ui/Lightbox';

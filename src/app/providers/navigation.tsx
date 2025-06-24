@@ -18,7 +18,6 @@ import BookmarkPage from '~/pages/nail_set/bookmark';
 import NailSetFeedPage from '~/pages/nail_set/feed';
 import ARExperiencePage from '~/pages/ar_experience';
 import ARCameraPage from '~/pages/ar_camera';
-import ARViewPage from '~/pages/ar_experience/ui/ViewMode';
 import PersonalNailFunnelPage from '~/pages/personal_nail';
 import PersonalNailResult from '~/pages/personal_nail/result';
 import ErrorBoundary from '~/pages/error';
@@ -106,10 +105,6 @@ export default function AppNavigation() {
         <Stack.Screen
           name="ARCameraPage"
           component={withErrorBoundary(ARCameraPage)}
-        />
-        <Stack.Screen
-          name="ARViewPage"
-          component={withErrorBoundary(ARViewPage)}
         />
         <Stack.Screen
           name="PersonalNailFunnelPage"
