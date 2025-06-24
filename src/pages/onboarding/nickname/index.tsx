@@ -17,6 +17,7 @@ import { scale, vs } from '~/shared/lib/responsive';
 import Button from '~/shared/ui/Button';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
 import { toast } from '~/shared/lib/toast';
+import { hasSpecialCharacters } from '~/shared/lib/validation';
 
 /**
  * 온보딩 닉네임 입력 화면
@@ -49,14 +50,7 @@ export default function OnboardingNicknameScreen() {
     };
   }, []);
 
-  /**
-   * 한글, 영문, 숫자만 허용하는 유효성 검사 함수
-   *
-   * @param text 검사할 텍스트
-   * @returns 특수문자가 포함되어 있으면 true, 한글/영문/숫자만 있으면 false
-   */
-  const hasSpecialCharacters = (text: string) =>
-    !/^[가-힣a-zA-Z0-9\s]+$/.test(text);
+  // 유효성 검사 함수는 공통 라이브러리로 이동
 
   /**
    * 에러 토스트 메시지를 표시하는 함수
