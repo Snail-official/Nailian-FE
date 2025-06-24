@@ -17,7 +17,7 @@ import { colors, typography } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
 import { RootStackParamList } from '~/shared/types/navigation';
 import { toast } from '~/shared/lib/toast';
-import BottomSheet from '~/pages/ar_experience/ui/BottomSheet';
+import BottomSheet from '~/shared/ui/BottomSheet';
 import NailOverlay from '~/pages/ar_experience/ui/NailOverlay';
 import { TabBarHeader } from '~/shared/ui/TabBar';
 import ArButton from '~/pages/ar_experience/ui/ArButton';
@@ -26,10 +26,10 @@ import ApplyModal from '~/pages/ar_experience/ui/ApplyModal';
 import ViewshotLightbox from '~/shared/ui/Lightbox';
 import {
   useNailSetState,
-  useBottomSheetControl,
   useCreateNailSet,
   useApplyEvent,
 } from '~/features/ar-experience';
+import { useBottomSheetControl } from '~/shared/hooks';
 import NailSelection from './ui/NailSelection';
 
 // 화면 크기 가져오기

@@ -16,41 +16,13 @@ import BottomSheetComponent, {
 import { useSharedValue } from 'react-native-reanimated';
 import { scale, vs } from '~/shared/lib/responsive';
 
-/**
- * 바텀시트의 스냅 포인트 높이 설정 유형
- * 숫자(픽셀 단위) 또는 퍼센트 문자열로 지정 가능
- * @example
- * ['25%', '50%', '90%'] // 화면 높이의 25%, 50%, 90%
- * [100, 300, 500] // 100px, 300px, 500px
- */
+// 바텀시트의 스냅 포인트 높이 설정 유형
 export type BottomSheetSnapPoints = (string | number)[];
 
-/**
- * 바텀시트 핸들 컴포넌트 표시 방식
- * - 'default': 기본 핸들 컴포넌트 표시
- * - 'none': 핸들 컴포넌트 표시 안함
- * - 'custom': 커스텀 핸들 컴포넌트 사용
- */
+// 바텀시트 핸들 컴포넌트 표시 방식
 export type HandleType = 'default' | 'none' | 'custom';
 
-/**
- * 바텀시트 컴포넌트 Props
- * @property {BottomSheetSnapPoints} snapPoints - 바텀시트의 스냅 포인트 높이 설정
- * @property {number} initialIndex - 초기 바텀시트 인덱스 (snapPoints 배열의 인덱스)
- * @property {ReactNode} children - 바텀시트 내부 콘텐츠
- * @property {HandleType} handleType - 핸들 컴포넌트 표시 방식
- * @property {ReactNode} customHandle - 커스텀 핸들 컴포넌트 (handleType이 'custom'일 때 사용)
- * @property {(index: number) => void} onChange - 바텀시트 인덱스 변경 시 콜백
- * @property {StyleProp<ViewStyle>} contentContainerStyle - 내용 컨테이너 스타일
- * @property {StyleProp<ViewStyle>} backgroundStyle - 바텀시트 배경 스타일
- * @property {boolean} enablePanDownToClose - 아래로 스와이프하여 닫기 가능 여부
- * @property {boolean} enableBackdrop - 백드롭(배경 딤) 표시 여부
- * @property {boolean} backdropPressBehavior - 백드롭 클릭 시 동작 ('collapse', 'close', 'none')
- * @property {boolean} enableContentPanningGesture - 컨텐츠 패닝 제스처 활성화 여부
- * @property {boolean} enableHandlePanningGesture - 핸들 패닝 제스처 활성화 여부
- * @property {boolean} enableOverDrag - 오버드래그 활성화 여부
- * @property {number} maxDynamicContentSize - 최대 동적 컨텐츠 크기 설정 (스냅포인트 유지에 도움)
- */
+// 바텀시트 컴포넌트 Props
 export interface BottomSheetProps {
   snapPoints: BottomSheetSnapPoints;
   initialIndex?: number;
@@ -69,60 +41,18 @@ export interface BottomSheetProps {
   maxDynamicContentSize?: number;
 }
 
-/**
- * 바텀시트 참조 Props
- */
 export interface BottomSheetRefProps {
-  /**
-   * 특정 인덱스로 바텀시트 위치 변경
-   * @param index 인덱스
-   * @param animated 애니메이션 적용 여부
-   */
+  // 특정 인덱스로 바텀시트 위치 변경
   snapToIndex: (index: number, animated?: boolean) => void;
-  /**
-   * 바텀시트 확장 (마지막 인덱스로 이동)
-   */
+  // 바텀시트 확장 (마지막 인덱스로 이동)
   expand: () => void;
-  /**
-   * 바텀시트 접기 (첫 번째 인덱스로 이동)
-   */
+  // 바텀시트 접기 (첫 번째 인덱스로 이동)
   collapse: () => void;
-  /**
-   * 바텀시트 닫기 (인덱스 -1로 이동)
-   */
+  // 바텀시트 닫기 (인덱스 -1로 이동)
   close: () => void;
 }
 
-/**
- * 바텀시트 컴포넌트
- *
- * 앱 전반에서 사용되는 바텀시트 컴포넌트입니다.
- * 다양한 높이 설정과 핸들 유형을 지원합니다.
- *
- * @example
- * // 기본 바텀시트 (30%, 90% 높이)
- * <BottomSheet snapPoints={['30%', '90%']}>
- *   <Text>바텀시트 내용</Text>
- * </BottomSheet>
- *
- * // 커스텀 핸들이 있는 바텀시트
- * <BottomSheet
- *   snapPoints={['30%', '90%']}
- *   handleType="custom"
- *   customHandle={<View><Text>커스텀 핸들</Text></View>}
- * >
- *   <Text>바텀시트 내용</Text>
- * </BottomSheet>
- *
- * // 백드롭이 있는 바텀시트
- * <BottomSheet
- *   snapPoints={['30%', '90%']}
- *   enableBackdrop={true}
- *   backdropPressBehavior="collapse"
- * >
- *   <Text>바텀시트 내용</Text>
- * </BottomSheet>
- */
+// 바텀시트 컴포넌트
 const BottomSheet = forwardRef<BottomSheetRefProps, BottomSheetProps>(
   (
     {
@@ -252,18 +182,19 @@ const BottomSheet = forwardRef<BottomSheetRefProps, BottomSheetProps>(
 const styles = StyleSheet.create({
   bottomSheetBackground: {
     backgroundColor: colors.white,
+    borderTopLeftRadius: scale(20),
+    borderTopRightRadius: scale(20),
   },
   contentContainer: {
     flex: 1,
-    padding: scale(20),
   },
   header: {
     alignItems: 'center',
-    paddingVertical: vs(15),
+    paddingVertical: vs(10),
   },
   indicator: {
-    backgroundColor: colors.gray700,
-    borderRadius: scale(3),
+    backgroundColor: colors.gray300,
+    borderRadius: vs(2),
     height: vs(4),
     width: scale(40),
   },

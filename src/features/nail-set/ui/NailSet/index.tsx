@@ -12,61 +12,24 @@ import { colors } from '~/shared/styles/design';
 import { scale } from '~/shared/lib/responsive';
 import { INailSet } from '~/shared/types/nail-set';
 
-// 기본 이미지 상수
-const DEFAULT_IMAGES = {
-  nail: require('../../../../shared/assets/images/nail_round.png'),
-};
-
-/**
- * 네일 세트 컴포넌트 Props
- */
+// 네일 세트 컴포넌트 Props
 export interface NailSetProps {
-  /**
-   * 손가락별 네일 이미지
-   */
+  // 손가락별 네일 이미지
   nailImages: INailSet;
 
-  /** 클릭 이벤트 핸들러 */
+  // 클릭 이벤트 핸들러
   onPress?: () => void;
 
-  /**
-   * 컨테이너 스타일
-   */
+  // 컨테이너 스타일
   style?: StyleProp<ViewStyle>;
 
-  /**
-   * 네일 세트 크기
-   * 'small': 기본 크기 (160x108)
-   * 'large': 상세 화면용 큰 크기 (331x204)
-   */
+  // 네일 세트 크기
+  // 'small': 기본 크기 (160x108)
+  // 'large': 상세 화면용 큰 크기 (331x204)
   size?: 'small' | 'large';
 }
 
-/**
- * 네일 세트 컴포넌트
- *
- * 5개 손가락(엄지, 검지, 중지, 약지, 소지)에 대한 네일 이미지를 표시하는 컴포넌트입니다.
- * 썸네일 형태(small)와 상세 화면용 큰 형태(large)를 지원합니다.
- * 네일 이미지가 연결되어 하나의 세트로 표시되며, 클릭 이벤트를 처리할 수 있습니다.
- *
- * @param {NailSetProps} props - 네일 세트 컴포넌트 속성
- * @param {INailSet} props.nailImages - 손가락별 네일 이미지 정보
- * @param {() => void} [props.onPress] - 클릭 이벤트 핸들러
- * @param {StyleProp<ViewStyle>} [props.style] - 컨테이너에 적용할 추가 스타일
- * @param {'small' | 'large'} [props.size='small'] - 네일 세트 크기 ('small': 기본, 'large': 상세 화면용)
- * @returns {JSX.Element} 렌더링된 네일 세트 컴포넌트
- *
- * @example
- * // 기본 사용법 (썸네일 형태)
- * <NailSet nailImages={nailSet} onPress={() => handlePress(nailSet)} />
- *
- * @example
- * // 상세 화면용 큰 형태
- * <NailSet
- *  nailImages={nailSet}
- *  size="large"
- * />
- */
+// 네일 세트 컴포넌트
 function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
   // 크기에 따른 스케일 팩터 계산
   const scaleFactor = size === 'large' ? 2.06875 : 1; // 331/160 = 2.06875
@@ -127,7 +90,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
   // 이미지 소스 가져오기
   const getImageSource = (fingerName: string): ImageSourcePropType => {
     if (!nailImages || !nailImages[fingerName as keyof typeof nailImages]) {
-      return DEFAULT_IMAGES.nail;
+      throw new Error(`네일 이미지가 없습니다: ${fingerName}`);
     }
 
     const fingerData = nailImages[fingerName as keyof INailSet] as {
@@ -135,7 +98,7 @@ function NailSet({ nailImages, onPress, style, size = 'small' }: NailSetProps) {
     };
 
     if (!fingerData || !fingerData.imageUrl) {
-      return DEFAULT_IMAGES.nail;
+      throw new Error(`네일 이미지 URL이 없습니다: ${fingerName}`);
     }
 
     return { uri: fingerData.imageUrl };

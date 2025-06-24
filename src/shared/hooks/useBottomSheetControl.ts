@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { BackHandler, Platform } from 'react-native';
-import { BottomSheetRefProps } from '~/pages/ar_experience/ui/BottomSheet';
+import { BottomSheetRefProps } from '~/shared/ui/BottomSheet';
 
+// 바텀시트 제어를 위한 커스텀 훅
 export function useBottomSheetControl() {
   // 바텀시트 참조 생성
   const bottomSheetRef = useRef<BottomSheetRefProps>(null);
