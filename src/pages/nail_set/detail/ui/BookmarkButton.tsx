@@ -6,7 +6,7 @@ import { scale, vs } from '~/shared/lib/responsive';
 import { saveUserNailSet } from '~/entities/nail-set/api';
 import { toast } from '~/shared/lib/toast';
 import { APIError } from '~/shared/api/types';
-import { useErrorStore } from '~/features/error/model/errorStore';
+import { useErrorStore } from '~/shared/store/errorStore';
 import BookmarkIcon from '~/shared/assets/icons/ic_group.svg';
 
 interface BookmarkButtonProps {

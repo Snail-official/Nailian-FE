@@ -16,7 +16,7 @@ import { TabBarHeader } from '~/shared/ui/TabBar';
 import { fetchNailSetDetail, deleteUserNailSet } from '~/entities/nail-set/api';
 import { useModalStore } from '~/shared/ui/Modal';
 import { toast } from '~/shared/lib/toast';
-import { useErrorStore } from '~/features/error/model/errorStore';
+import { useErrorStore } from '~/shared/store/errorStore';
 import {
   BookmarkButton,
   SimilarNailSets,
