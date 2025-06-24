@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   TextInput,
   StyleSheet,
   KeyboardAvoidingView,
   View,
-  Keyboard,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +17,7 @@ import Button from '~/shared/ui/Button';
 import ErrorIcon from '~/shared/assets/icons/ic_error.svg';
 import { toast } from '~/shared/lib/toast';
 import { hasSpecialCharacters } from '~/shared/lib/validation';
+import { useKeyboardVisibility } from '~/shared/hooks/useKeyboardVisibility';
 
 /**
  * 온보딩 닉네임 입력 화면
@@ -29,26 +29,10 @@ import { hasSpecialCharacters } from '~/shared/lib/validation';
  * - 키보드 상태에 따른 버튼 크기 조정
  */
 export default function OnboardingNicknameScreen() {
-  const [nickname, setNickname] = useState('네일조아');
+  const [nickname, setNickname] = useState('');
   const [isError, setIsError] = useState(false);
   const { goToNextOnboardingStep } = useOnboardingNavigation();
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => setKeyboardVisible(true),
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => setKeyboardVisible(false),
-    );
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
+  const isKeyboardVisible = useKeyboardVisibility();
 
   // 유효성 검사 함수는 공통 라이브러리로 이동
 
