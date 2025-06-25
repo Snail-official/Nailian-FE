@@ -13,12 +13,11 @@
 		060238E92DCA5B020017209A /* NailProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060238E82DCA5B000017209A /* NailProcessing.swift */; };
 		092C2FCA2DDDC09A0097CF02 /* Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 092C2FC92DDDC09A0097CF02 /* Release.xcconfig */; };
 		092C2FCB2DDDC09A0097CF02 /* Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 092C2FC82DDDC09A0097CF02 /* Debug.xcconfig */; };
-		0C80B921A6F3F58F76C31292 /* libPods-nailian.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-nailian.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		473BFEFAD123086068F6BFCD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
-		7699B88040F8A987B510C191 /* libPods-nailian-nailianTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-nailian-nailianTests.a */; };
+		6747A4C953E67B3180539EB5 /* libPods-nailian-nailianTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F628042E2A0D154490426194 /* libPods-nailian-nailianTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		E138426C2DB764EF00631A7F /* ContourAnalyzing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E13842692DB764EF00631A7F /* ContourAnalyzing.swift */; };
 		E138426D2DB764EF00631A7F /* HandPoseDetecting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E138426A2DB764EF00631A7F /* HandPoseDetecting.swift */; };
@@ -38,6 +37,7 @@
 		E1F801282D5DBBC600266514 /* libKakaoSDKAuth.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E1F801272D5DBBC600266514 /* libKakaoSDKAuth.a */; };
 		E1F8012A2D5DBBC600266514 /* libKakaoSDKCommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E1F801292D5DBBC600266514 /* libKakaoSDKCommon.a */; };
 		E1F8012C2D5DBBC600266514 /* libKakaoSDKUser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E1F8012B2D5DBBC600266514 /* libKakaoSDKUser.a */; };
+		EBB8EB40B5DCB1B0AEA71E4C /* libPods-nailian.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F07583556F17B2837F1229B3 /* libPods-nailian.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,8 +57,9 @@
 		060238E42DCA5AB50017209A /* CameraCaptureable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureable.swift; sourceTree = "<group>"; };
 		060238E62DCA5AE60017209A /* ImageSegmenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSegmenting.swift; sourceTree = "<group>"; };
 		060238E82DCA5B000017209A /* NailProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailProcessing.swift; sourceTree = "<group>"; };
-		092C2FC82DDDC09A0097CF02 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = /Users/myunsyeya/Desktop/Debug.xcconfig; sourceTree = "<absolute>"; };
-		092C2FC92DDDC09A0097CF02 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = /Users/myunsyeya/Desktop/Release.xcconfig; sourceTree = "<absolute>"; };
+		08062B26773B60137EFC253E /* Pods-nailian-nailianTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian-nailianTests.debug.xcconfig"; path = "Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests.debug.xcconfig"; sourceTree = "<group>"; };
+		092C2FC82DDDC09A0097CF02 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		092C2FC92DDDC09A0097CF02 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Nailian.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nailian.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = nailian/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = nailian/AppDelegate.mm; sourceTree = "<group>"; };
@@ -67,18 +68,15 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = nailian/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = nailian/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		157C389F8C124FB0B424A86E /* Pretendard-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Regular.ttf"; path = "../src/shared/assets/fonts/Pretendard-Regular.ttf"; sourceTree = "<group>"; };
-		19F6CBCC0A4E27FBF8BF4A61 /* libPods-nailian-nailianTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-nailian-nailianTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B4392A12AC88292D35C810B /* Pods-nailian.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian.debug.xcconfig"; path = "Target Support Files/Pods-nailian/Pods-nailian.debug.xcconfig"; sourceTree = "<group>"; };
 		41B58996C11440A3B7EB6B13 /* Pretendard-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Black.ttf"; path = "../src/shared/assets/fonts/Pretendard-Black.ttf"; sourceTree = "<group>"; };
 		4548124832A749DAA5A2903A /* Pretendard-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-ExtraLight.ttf"; path = "../src/shared/assets/fonts/Pretendard-ExtraLight.ttf"; sourceTree = "<group>"; };
-		5709B34CF0A7D63546082F79 /* Pods-nailian.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian.release.xcconfig"; path = "Target Support Files/Pods-nailian/Pods-nailian.release.xcconfig"; sourceTree = "<group>"; };
 		57522F6DF8484439901F7D57 /* Pretendard-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Light.ttf"; path = "../src/shared/assets/fonts/Pretendard-Light.ttf"; sourceTree = "<group>"; };
-		5B7EB9410499542E8C5724F5 /* Pods-nailian-nailianTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian-nailianTests.debug.xcconfig"; path = "Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests.debug.xcconfig"; sourceTree = "<group>"; };
-		5DCACB8F33CDC322A6C60F78 /* libPods-nailian.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-nailian.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B8B69C2F6D148E2A281ACF1 /* Pretendard-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Bold.ttf"; path = "../src/shared/assets/fonts/Pretendard-Bold.ttf"; sourceTree = "<group>"; };
+		71CA4D45160CC9C9D879E583 /* Pods-nailian.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian.release.xcconfig"; path = "Target Support Files/Pods-nailian/Pods-nailian.release.xcconfig"; sourceTree = "<group>"; };
+		7A8C7FA895504287784381FC /* Pods-nailian.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian.debug.xcconfig"; path = "Target Support Files/Pods-nailian/Pods-nailian.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = nailian/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		89C6BE57DB24E9ADA2F236DE /* Pods-nailian-nailianTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian-nailianTests.release.xcconfig"; path = "Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests.release.xcconfig"; sourceTree = "<group>"; };
 		C58AFF360BBE4F84A816AC89 /* Pretendard-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-SemiBold.ttf"; path = "../src/shared/assets/fonts/Pretendard-SemiBold.ttf"; sourceTree = "<group>"; };
+		C73C5AACB3BAB7728FADB2DA /* Pods-nailian-nailianTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nailian-nailianTests.release.xcconfig"; path = "Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests.release.xcconfig"; sourceTree = "<group>"; };
 		C8D7FE748B344A429ACD3F64 /* Pretendard-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-ExtraBold.ttf"; path = "../src/shared/assets/fonts/Pretendard-ExtraBold.ttf"; sourceTree = "<group>"; };
 		CB4F9DE9ABA54B6093085640 /* Pretendard-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Medium.ttf"; path = "../src/shared/assets/fonts/Pretendard-Medium.ttf"; sourceTree = "<group>"; };
 		E1112B902DA009390021E94C /* nailian.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = nailian.entitlements; path = nailian/nailian.entitlements; sourceTree = "<group>"; };
@@ -87,11 +85,15 @@
 		E138426E2DB764F200631A7F /* NailMetricsAnalyzing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailMetricsAnalyzing.swift; sourceTree = "<group>"; };
 		E13842852DB7697D00631A7F /* NailAssetProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NailAssetProviding.swift; sourceTree = "<group>"; };
 		E16EA9A02D7815BF0056AA4B /* libRNKeychain.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNKeychain.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E18CB5BF2DFED1070083D4E2 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		E18CB5C02DFED10F0083D4E2 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		E1F0762C2DA4AF86003F928C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E1F801272D5DBBC600266514 /* libKakaoSDKAuth.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKakaoSDKAuth.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F801292D5DBBC600266514 /* libKakaoSDKCommon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKakaoSDKCommon.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1F8012B2D5DBBC600266514 /* libKakaoSDKUser.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libKakaoSDKUser.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F07583556F17B2837F1229B3 /* libPods-nailian.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-nailian.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F628042E2A0D154490426194 /* libPods-nailian-nailianTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-nailian-nailianTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6F6624F647A4D35B9A96978 /* Pretendard-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Thin.ttf"; path = "../src/shared/assets/fonts/Pretendard-Thin.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -113,7 +115,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7699B88040F8A987B510C191 /* libPods-nailian-nailianTests.a in Frameworks */,
+				6747A4C953E67B3180539EB5 /* libPods-nailian-nailianTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,7 +127,7 @@
 				E1F801282D5DBBC600266514 /* libKakaoSDKAuth.a in Frameworks */,
 				E1F8012A2D5DBBC600266514 /* libKakaoSDKCommon.a in Frameworks */,
 				E1F8012C2D5DBBC600266514 /* libKakaoSDKUser.a in Frameworks */,
-				0C80B921A6F3F58F76C31292 /* libPods-nailian.a in Frameworks */,
+				EBB8EB40B5DCB1B0AEA71E4C /* libPods-nailian.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -178,8 +180,8 @@
 				E1F801292D5DBBC600266514 /* libKakaoSDKCommon.a */,
 				E1F8012B2D5DBBC600266514 /* libKakaoSDKUser.a */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5DCACB8F33CDC322A6C60F78 /* libPods-nailian.a */,
-				19F6CBCC0A4E27FBF8BF4A61 /* libPods-nailian-nailianTests.a */,
+				F07583556F17B2837F1229B3 /* libPods-nailian.a */,
+				F628042E2A0D154490426194 /* libPods-nailian-nailianTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -201,6 +203,8 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
 				998E940FD9C74DE38B53EB79 /* Resources */,
+				E18CB5BF2DFED1070083D4E2 /* Release.xcconfig */,
+				E18CB5C02DFED10F0083D4E2 /* Debug.xcconfig */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -235,10 +239,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3B4392A12AC88292D35C810B /* Pods-nailian.debug.xcconfig */,
-				5709B34CF0A7D63546082F79 /* Pods-nailian.release.xcconfig */,
-				5B7EB9410499542E8C5724F5 /* Pods-nailian-nailianTests.debug.xcconfig */,
-				89C6BE57DB24E9ADA2F236DE /* Pods-nailian-nailianTests.release.xcconfig */,
+				7A8C7FA895504287784381FC /* Pods-nailian.debug.xcconfig */,
+				71CA4D45160CC9C9D879E583 /* Pods-nailian.release.xcconfig */,
+				08062B26773B60137EFC253E /* Pods-nailian-nailianTests.debug.xcconfig */,
+				C73C5AACB3BAB7728FADB2DA /* Pods-nailian-nailianTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -264,12 +268,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "nailianTests" */;
 			buildPhases = (
-				A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */,
+				C023BE24C1603EAB7F8EC939 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */,
-				F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */,
+				1CA09AF54008B9B48BCE0E9E /* [CP] Embed Pods Frameworks */,
+				BE31C0184F9509E8753BEBCC /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -285,13 +289,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "nailian" */;
 			buildPhases = (
-				C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */,
+				E8509583A79472CB25627C71 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
-				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				51237C6A8273C79EABC1A28F /* [CP] Embed Pods Frameworks */,
+				7C2FB61862462426C50B1FDE /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -391,7 +395,24 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
+		1CA09AF54008B9B48BCE0E9E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		51237C6A8273C79EABC1A28F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -408,7 +429,41 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-nailian/Pods-nailian-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */ = {
+		7C2FB61862462426C50B1FDE /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-nailian/Pods-nailian-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-nailian/Pods-nailian-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-nailian/Pods-nailian-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BE31C0184F9509E8753BEBCC /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C023BE24C1603EAB7F8EC939 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -430,7 +485,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
+		E8509583A79472CB25627C71 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -450,57 +505,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-nailian/Pods-nailian-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-nailian/Pods-nailian-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-nailian/Pods-nailian-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-nailian-nailianTests/Pods-nailian-nailianTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -543,7 +547,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-nailian-nailianTests.debug.xcconfig */;
+			baseConfigurationReference = 08062B26773B60137EFC253E /* Pods-nailian-nailianTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -574,7 +578,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 89C6BE57DB24E9ADA2F236DE /* Pods-nailian-nailianTests.release.xcconfig */;
+			baseConfigurationReference = C73C5AACB3BAB7728FADB2DA /* Pods-nailian-nailianTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -602,12 +606,12 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-nailian.debug.xcconfig */;
+			baseConfigurationReference = 7A8C7FA895504287784381FC /* Pods-nailian.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = nailian/nailian.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = U8C7YGRNGL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = nailian/Info.plist;
@@ -616,7 +620,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -627,7 +631,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Modules/Bridge/nailian-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -637,12 +641,12 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-nailian.release.xcconfig */;
+			baseConfigurationReference = 71CA4D45160CC9C9D879E583 /* Pods-nailian.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = nailian/nailian.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = U8C7YGRNGL;
 				INFOPLIST_FILE = nailian/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -650,7 +654,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -661,7 +665,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "Modules/nailian-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Modules/Bridge/nailian-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -670,7 +674,7 @@
 		};
 		83CBBA201A601CBA00E9B192 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 092C2FC82DDDC09A0097CF02 /* Debug.xcconfig */;
+			baseConfigurationReference = E18CB5C02DFED10F0083D4E2 /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -749,7 +753,7 @@
 		};
 		83CBBA211A601CBA00E9B192 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 092C2FC92DDDC09A0097CF02 /* Release.xcconfig */;
+			baseConfigurationReference = E18CB5BF2DFED1070083D4E2 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;

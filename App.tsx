@@ -11,9 +11,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigation from './src/app/providers/navigation';
 import { ToastContainer } from './src/shared/ui/Toast';
-import useModelLoader from './src/features/model/useModelLoader';
+import { useModelLoader } from './src/features/model-management';
 import { QueryProvider } from './src/app/providers/query';
-import ErrorModal from './src/features/error/ui/ErrorModal';
+import { ModalContainer } from './src/shared/ui/Modal';
 
 function App(): React.JSX.Element {
   useModelLoader();
@@ -24,7 +24,7 @@ function App(): React.JSX.Element {
         <GestureHandlerRootView style={styles.container}>
           <AppNavigation />
           <ToastContainer />
-          <ErrorModal />
+          <ModalContainer />
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </QueryProvider>

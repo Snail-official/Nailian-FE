@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  Linking,
 } from 'react-native';
 import { colors } from '~/shared/styles/design';
 import { scale, vs } from '~/shared/lib/responsive';
+import { toast } from '~/shared/lib/toast';
 import { fetchHomeBanners } from '~/entities/banner/api';
 import { BannerResponse } from '~/shared/api/types';
 import { Banner as BannerType } from '../types';
@@ -17,26 +19,10 @@ import { Banner as BannerType } from '../types';
 const BANNER_WIDTH = scale(331);
 const BANNER_SPACING = scale(8);
 
-interface BannerProps {
-  /**
-   * 배너 클릭 시 호출될 콜백 함수
-   * @param banner 클릭된 배너 객체
-   */
-  onBannerPress?: (banner: BannerType) => void;
-}
-
 /**
  * 배너 슬라이더 컴포넌트
- *
- * 메인 화면에 표시되는 배너 슬라이더입니다. 여러 배너 이미지를
- * 가로 스와이프할 수 있으며, 현재 위치를 표시하는 인디케이터가 있습니다.
- * 배너 데이터는 컴포넌트 내부에서 API를 호출하여 가져옵니다.
- *
- * @example
- * // 배너 클릭 시 네비게이션
- * <Banner onBannerPress={(banner) => navigation.navigate('BannerDetail', { link: banner.link })} />
  */
-function Banner({ onBannerPress }: BannerProps) {
+function Banner() {
   const [banners, setBanners] = useState<BannerResponse['data']>([]);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -68,14 +54,31 @@ function Banner({ onBannerPress }: BannerProps) {
   );
 
   // 배너 클릭 핸들러
-  const handleBannerPress = useCallback(
-    (banner: BannerType) => {
-      if (onBannerPress) {
-        onBannerPress(banner);
+  const handleBannerPress = useCallback(async (banner: BannerType) => {
+    if (!banner.link) {
+      toast.showToast('유효하지 않은 링크입니다', { position: 'bottom' });
+      return;
+    }
+
+    const url = banner.link.startsWith('http')
+      ? banner.link
+      : `https://${banner.link}`;
+
+    try {
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        console.error('URL을 열 수 없습니다:', url);
+        toast.showToast('브라우저를 열 수 없습니다', { position: 'bottom' });
       }
-    },
-    [onBannerPress],
-  );
+    } catch (error) {
+      console.error('링크 열기 오류:', error);
+      toast.showToast('링크를 여는 중 오류가 발생했습니다', {
+        position: 'bottom',
+      });
+    }
+  }, []);
 
   return (
     <View style={styles.bannerWrapper}>

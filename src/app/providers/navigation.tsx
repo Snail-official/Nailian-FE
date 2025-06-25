@@ -13,11 +13,11 @@ import OnboardingNicknameScreen from '~/pages/onboarding/nickname';
 import SocialLoginScreen from '~/pages/SocialLoginScreen';
 import MainHomeScreen from '~/pages/main_home';
 import MyPageScreen from '~/pages/my_page';
-import NailSetListPage from '~/pages/nail_set/list';
 import NailSetDetailPage from '~/pages/nail_set/detail';
+import BookmarkPage from '~/pages/nail_set/bookmark';
+import NailSetFeedPage from '~/pages/nail_set/feed';
 import ARExperiencePage from '~/pages/ar_experience';
 import ARCameraPage from '~/pages/ar_camera';
-import ARViewPage from '~/pages/ar_experience/ui/ViewMode';
 import PersonalNailFunnelPage from '~/pages/personal_nail';
 import PersonalNailResult from '~/pages/personal_nail/result';
 import ErrorBoundary from '~/pages/error';
@@ -87,8 +87,12 @@ export default function AppNavigation() {
           component={withErrorBoundary(MyPageScreen)}
         />
         <Stack.Screen
-          name="NailSetListPage"
-          component={withErrorBoundary(NailSetListPage)}
+          name="BookmarkPage"
+          component={withErrorBoundary(BookmarkPage)}
+        />
+        <Stack.Screen
+          name="NailSetFeedPage"
+          component={withErrorBoundary(NailSetFeedPage)}
         />
         <Stack.Screen
           name="NailSetDetailPage"
@@ -101,10 +105,6 @@ export default function AppNavigation() {
         <Stack.Screen
           name="ARCameraPage"
           component={withErrorBoundary(ARCameraPage)}
-        />
-        <Stack.Screen
-          name="ARViewPage"
-          component={withErrorBoundary(ARViewPage)}
         />
         <Stack.Screen
           name="PersonalNailFunnelPage"
