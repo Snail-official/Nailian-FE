@@ -38,8 +38,11 @@ export type RootStackParamList = {
   /** 마이 페이지 */
   MyPage: undefined;
 
-  /** 네일 세트 리스트 페이지 */
-  NailSetListPage: {
+  /** 네일 세트 북마크 페이지 */
+  BookmarkPage: undefined;
+
+  /** 네일 세트 피드 페이지 */
+  NailSetFeedPage: {
     styleId: number;
     styleName: string;
   };
