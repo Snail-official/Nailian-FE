@@ -15,4 +15,7 @@ import CoreML
     
     /// 마지막 처리 시간을 반환합니다. (선택적 구현)
     @objc optional var lastProcessingTime: TimeInterval { get }
+    
+    /// 모델이 로드되었는지 확인합니다.
+    func isModelLoaded() -> Bool
 }

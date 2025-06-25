@@ -20,4 +20,9 @@ RCT_EXTERN_METHOD(initModel:(NSString *)modelType
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(checkResourceLoadStatus:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(subscribeToResourceLoadStatus:(RCTResponseSenderBlock)callback)
+
 @end

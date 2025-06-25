@@ -72,35 +72,35 @@ export default function ARViewPage() {
       ? {
           id: -1, // INail에는 id가 없으므로 -1로 설정
           imageUrl: nailSet.thumb.imageUrl,
-          shape: nailSet.thumb.shape,
+          shape: nailSet.thumb.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
     index: nailSet.index
       ? {
           id: -1,
           imageUrl: nailSet.index.imageUrl,
-          shape: nailSet.index.shape,
+          shape: nailSet.index.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
     middle: nailSet.middle
       ? {
           id: -1,
           imageUrl: nailSet.middle.imageUrl,
-          shape: nailSet.middle.shape,
+          shape: nailSet.middle.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
     ring: nailSet.ring
       ? {
           id: -1,
           imageUrl: nailSet.ring.imageUrl,
-          shape: nailSet.ring.shape,
+          shape: nailSet.ring.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
     pinky: nailSet.pinky
       ? {
           id: -1,
           imageUrl: nailSet.pinky.imageUrl,
-          shape: nailSet.pinky.shape,
+          shape: nailSet.pinky.shape || 'ROUND', // 기본값 설정
         }
       : undefined,
   });
@@ -112,10 +112,11 @@ export default function ARViewPage() {
 
   /**
    * AR 버튼 클릭 핸들러
+   * 선택된 네일 세트를 AR 카메라 페이지로 전달합니다.
    */
   const handleArButtonPress = useCallback(() => {
-    navigation.navigate('ARCameraPage');
-  }, [navigation]);
+    navigation.navigate('ARCameraPage', { nailSet: currentNailSet });
+  }, [navigation, currentNailSet]);
 
   /**
    * 뒤로가기 버튼 핸들러

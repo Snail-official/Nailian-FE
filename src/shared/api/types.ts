@@ -169,6 +169,33 @@ export interface SaveNailPreferenceRequest {
 /** 네일 취향 저장 응답 */
 export type SaveNailPreferenceResponse = ApiResponse<null>;
 
+/* ─────────────────── 퍼스널 네일 (Personal Nail) ─────────────────── */
+
+/** 퍼스널 네일 측정 결과 제출 요청 */
+export interface SavePersonalNailRequest {
+  steps: number[];
+}
+
+/** 퍼스널 네일 측정 결과 제출 응답 */
+export type SavePersonalNailResponse = ApiResponse<{
+  title: string;
+  icon_url: string;
+  background_color: number;
+  tags: string[];
+  description: string;
+  set_ids: number[];
+}>;
+
+/** 퍼스널 네일 측정 결과 조회 응답 */
+export type GetPersonalNailResponse = ApiResponse<{
+  title: string;
+  icon_url: string;
+  background_color: number;
+  tags: string[];
+  description: string;
+  set_ids: number[];
+} | null>;
+
 /* ─────────────────── 네일 세트 (Nail Sets) ─────────────────── */
 
 /** 추천 네일 세트 조회 요청 */
